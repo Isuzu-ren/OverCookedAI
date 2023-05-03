@@ -30,7 +30,7 @@ int main()
             continue;
 
         /* 输出当前帧的操作，此处仅作示例 */
-        std::cout << "Frame " << i << "\n";
+        
 
         // action = "";
         // if (fret & 0x30 == 0)

@@ -629,6 +629,7 @@ bool frame_read(int nowFrame, int &fret)
         }
     }
 
+    std::cout << "Frame " << nowFrame << "\n";
     OrderToTaskDeque();
     std::cout << deqOrder.size() << std::endl;
     for (auto it : deqOrder)
