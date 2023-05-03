@@ -660,6 +660,7 @@ bool frame_read(int nowFrame, int &fret)
             if (!flag3)
                 continue;
             deqOrder.pop_front();
+            ptask[k] = temptask;
             RunningTaskSum++;
         }
         int ret = Action(k);
