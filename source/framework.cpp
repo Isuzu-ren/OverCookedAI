@@ -47,6 +47,7 @@ enum TypeStep
     TAKING_INGREDIENT_TO_PLATE,
     TAKE_UP_PLATE,
     TAKING_PLATE_TO_SERVICEWINDOWS,
+    TAKE_UP_DIRTYPLATE,
     TAKING_DIRTYPLATE_TO_SINK,
     WASHING,
     COLLISION_AVOIDENCE
@@ -62,9 +63,10 @@ struct Step
 
 struct Task
 {
-    Step stp[10];  // 每步需要完成的任务
-    int stpsum;    // 总步数
-    int completed; // 完成数量
+    Step stp[10];   // 每步需要完成的任务
+    int stpsum;     // 总步数
+    int completed;  // 完成数量
+    int plateindex; // 使用的盘子编号
 };
 
 std::string IngredientName[5] =
@@ -92,11 +94,60 @@ int remainFrame, Fund;
 
 struct Plate
 {
-    int x, y;
-    bool used;
+    double x, y;
+    bool used;          // false表示未被使用
+    bool curframecheck; // 当前帧的确认，用于识别
 };
 int platenum = 0;
 Plate platearr[20];
+
+const double epsilon = 1e-4;
+void checkplate()
+{
+    for (int i = 0; i < 20; i++)
+    {
+        platearr[i].curframecheck = false;
+    }
+    bool flag1 = false;
+    int add = 0;
+    for (int i = 0; i < entityCount; i++)
+    {
+        for (auto it : Entity[i].entity)
+        {
+            if (it == "Plate")
+            {
+                flag1 = false;
+                for (int j = 0; j < 20; j++)
+                {
+                    if ((platearr[j].curframecheck == false) &&
+                        (fabs(Entity[i].x - platearr[j].x) < epsilon) &&
+                        (fabs(Entity[i].y - platearr[j].y) < epsilon))
+                    {
+                        platearr[j].curframecheck = true;
+                        flag1 = true;
+                        break;
+                    }
+                }
+                if (!flag1)
+                {
+                    add++;
+                    for (int i = 0; i < 20; i++)
+                    {
+                        if ((platearr[i].x == -1) || (platearr[i].y == -1))
+                        {
+                            platearr[i].x = Entity[i].x;
+                            platearr[i].y = Entity[i].y;
+                            platearr[i].curframecheck = true;
+                            platearr[i].used = false;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    platenum += add;
+}
 
 // 找到一个可以和位于坐标(y,x)的实体或特殊地砖交互的地点，相关信息记录在步骤stp中
 void CheckInteractPos(Step &stp, const int x, const int y)
@@ -129,6 +180,7 @@ void CheckInteractPos(Step &stp, const int x, const int y)
     {
         assert(0);
     }
+    stp.descheck = true;
 }
 
 // double dis[(20 + 2) * (20 + 2)][(20 + 2) * (20 + 2)] = {};
@@ -136,6 +188,8 @@ void CheckInteractPos(Step &stp, const int x, const int y)
 
 int xservicewindows, yservicewindows;
 int xsink, ysink;
+int xplatereturn, yplatereturn;
+Task WashDirtyPlate;
 
 // 初始化一些信息，确定盘子的总数和各自的坐标，确定服务台坐标和洗盘子水槽坐标
 void init_map()
@@ -153,6 +207,11 @@ void init_map()
                 break;
             }
         }
+    }
+    for (int i = platenum; i < 20; i++)
+    {
+        platearr[i].x = -1;
+        platearr[i].y = -1;
     }
     for (int i = 0; i < height * width; i++)
     {
@@ -172,6 +231,31 @@ void init_map()
             break;
         }
     }
+    for (int i = 0; i < height * width; i++)
+    {
+        if ((!isupper(Map[i / width][i % width])) && (getTileKind(Map[i / width][i % width]) == TileKind::PlateReturn))
+        {
+            xplatereturn = i % width;
+            yplatereturn = i / width;
+            break;
+        }
+    }
+    WashDirtyPlate.completed = 0;
+    CheckInteractPos(WashDirtyPlate.stp[0], xplatereturn, yplatereturn);
+    WashDirtyPlate.stp[0].descheck = true;
+    WashDirtyPlate.stp[0].ta = TAKE;
+    WashDirtyPlate.stp[0].ts = TAKE_UP_DIRTYPLATE;
+    CheckInteractPos(WashDirtyPlate.stp[1], xsink, ysink);
+    WashDirtyPlate.stp[1].descheck = true;
+    WashDirtyPlate.stp[1].ta = TAKE;
+    WashDirtyPlate.stp[1].ts = TAKING_DIRTYPLATE_TO_SINK;
+    WashDirtyPlate.stp[2].desx = WashDirtyPlate.stp[1].desx;
+    WashDirtyPlate.stp[2].desy = WashDirtyPlate.stp[1].desy;
+    WashDirtyPlate.stp[2].d = WashDirtyPlate.stp[1].d;
+    WashDirtyPlate.stp[2].descheck = true;
+    WashDirtyPlate.stp[2].ta = INTERACT;
+    WashDirtyPlate.stp[2].ts = WASHING;
+    WashDirtyPlate.stpsum = 3;
     // for (int i = 0; i < height; i++)
     // {
     //     for (int j = 0; j < width; j++)
@@ -251,7 +335,6 @@ Task ParseOrder(const struct Order &order)
     return task;
 }
 
-const double epsilon = 1e-6;
 // ret 低四位表示移动方向 0001-右 0010-左 0100-下 1000-上
 int Move(const double px, const double py, const int dx, const int dy)
 {
@@ -276,8 +359,25 @@ int Move(const double px, const double py, const int dx, const int dy)
 }
 
 int RunningTaskSum = 0;
-std::deque<Task> deq;
+std::deque<Task> deqOrder;
 Task ptask[2 + 2];
+
+bool checkplatepos(Step &stp, const int op)
+{
+    assert(stp.ts == TAKING_INGREDIENT_TO_PLATE);
+    for (int i = 0; i < 20; i++)
+    {
+        if ((platearr[i].x >= 0) && (platearr[i].y >= 0) && (platearr[i].used = false))
+        {
+            platearr[i].used = true;
+            CheckInteractPos(stp, int(platearr[i].x), int(platearr[i].y));
+            stp.descheck = true;
+            ptask[op].plateindex = i;
+            return true;
+        }
+    }
+    return false;
+}
 
 // ret 低6位表示行动方案 低4位 0001-右 0010-左 0100-下 1000-上 低56位 00-Move 01-Interact 10-PutOrPick
 int Action(const int op)
@@ -303,7 +403,32 @@ int Action(const int op)
         ret |= 0x08;
     else
         assert(0);
+    ct.completed++;
+    if (ct.completed == ct.stpsum)
+        RunningTaskSum--;
     return ret;
+}
+
+int checkOrder(const struct Order &order)
+{
+    for (int i = 0; i < totalOrderCount; i++)
+    {
+        if (order.recipe == totalOrder[i].recipe)
+            return i;
+    }
+    assert(0);
+    return -1;
+}
+
+void OrderToTaskDeque()
+{
+    if (RunningTaskSum + deqOrder.size() >= orderCount)
+        return;
+    for (int i = deqOrder.size() + RunningTaskSum; i < orderCount; i++)
+    {
+        int t = checkOrder(Order[i]);
+        deqOrder.emplace_back(totalOrderParseTask[t]);
+    }
 }
 
 void init_read()
@@ -375,7 +500,7 @@ void init_read()
     {
         totalOrderParseTask[i] = ParseOrder(totalOrder[i]);
     }
-    deq.clear();
+    deqOrder.clear();
     ptask[0].stpsum = 0;
     ptask[1].stpsum = 0;
     ptask[0].completed = 0;
@@ -419,6 +544,7 @@ bool frame_read(int nowFrame)
             Order[i].recipe.push_back(s);
         }
     }
+    OrderToTaskDeque();
     ss >> k;
     assert(k == 2);
     /* 读入玩家坐标、x方向速度、y方向速度、剩余复活时间 */
@@ -503,5 +629,40 @@ bool frame_read(int nowFrame)
                 Entity[i].entity.push_back(s);
         }
     }
+
+    checkplate();
+    Task temptask;
+    for (int i = 0; i < k; i++)
+    {
+        if (Players[k].live > 0)
+            continue;
+        if (ptask[k].completed >= ptask[k].stpsum)
+        {
+            temptask = deqOrder.front();
+            bool flag3 = false;
+            double curplatex, curplatey;
+            for (int i = 0; i < temptask.stpsum; i++)
+            {
+                if (temptask.stp[i].ts == TAKING_INGREDIENT_TO_PLATE)
+                {
+                    if (!flag3)
+                    {
+                        if (checkplatepos(temptask.stp[i], k))
+                            flag3 = true;
+                        else
+                            break;
+                    }
+                    else
+                        CheckInteractPos(temptask.stp[i], platearr[temptask.plateindex].x, platearr[temptask.plateindex].y);
+                }
+            }
+            if (!flag3)
+                continue;
+            deqOrder.pop_front();
+            RunningTaskSum++;
+        }
+        int ret = Action(k);
+    }
+
     return false;
 }
