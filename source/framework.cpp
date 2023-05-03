@@ -675,7 +675,7 @@ bool frame_read(int nowFrame, int &fret)
 
         ret = 0x01;
 
-        fret |= ret << (6 * k);
+        fret |= (ret << (6 * k));
     }
 
     return false;
