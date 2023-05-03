@@ -32,45 +32,45 @@ int main()
         /* 输出当前帧的操作，此处仅作示例 */
         std::cout << "Frame " << i << "\n";
 
-        action = "";
-        if (fret & 0x30 == 0)
-            action += "Move ";
-        else if (fret & 0x30 == 0x10)
-            action += "Interact ";
-        else if (fret & 0x30 == 0x20)
-            action += "PutOrPick ";
-        else
-            assert(0);
-        if (fret & 0x0f == 0x01)
-            action += "R";
-        if (fret & 0x0f == 0x02)
-            action += "L";
-        if (fret & 0x0f == 0x04)
-            action += "D";
-        if (fret & 0x0f == 0x08)
-            action += "U";
-        action += "\n";
-        fret >>= 6;
-        if (fret & 0x30 == 0)
-            action += "Move ";
-        else if (fret & 0x30 == 0x10)
-            action += "Interact ";
-        else if (fret & 0x30 == 0x20)
-            action += "PutOrPick ";
-        else
-            assert(0);
-        if (fret & 0x0f == 0x01)
-            action += "R";
-        if (fret & 0x0f == 0x02)
-            action += "L";
-        if (fret & 0x0f == 0x04)
-            action += "D";
-        if (fret & 0x0f == 0x08)
-            action += "U";
-        action += "\n";
+        // action = "";
+        // if (fret & 0x30 == 0)
+        //     action += "Move ";
+        // else if (fret & 0x30 == 0x10)
+        //     action += "Interact ";
+        // else if (fret & 0x30 == 0x20)
+        //     action += "PutOrPick ";
+        // else
+        //     assert(0);
+        // if (fret & 0x0f == 0x01)
+        //     action += "R";
+        // if (fret & 0x0f == 0x02)
+        //     action += "L";
+        // if (fret & 0x0f == 0x04)
+        //     action += "D";
+        // if (fret & 0x0f == 0x08)
+        //     action += "U";
+        // action += "\n";
+        // fret >>= 6;
+        // if (fret & 0x30 == 0)
+        //     action += "Move ";
+        // else if (fret & 0x30 == 0x10)
+        //     action += "Interact ";
+        // else if (fret & 0x30 == 0x20)
+        //     action += "PutOrPick ";
+        // else
+        //     assert(0);
+        // if (fret & 0x0f == 0x01)
+        //     action += "R";
+        // if (fret & 0x0f == 0x02)
+        //     action += "L";
+        // if (fret & 0x0f == 0x04)
+        //     action += "D";
+        // if (fret & 0x0f == 0x08)
+        //     action += "U";
+        // action += "\n";
 
         /* 合成一个字符串再输出，否则输出有可能会被打断 */
-        std::cout << action;
+        std::cout << fret << std::endl;
 
         /* 不要忘记刷新输出流，否则游戏将无法及时收到响应 */
         std::cout.flush();
