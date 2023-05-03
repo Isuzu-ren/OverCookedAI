@@ -671,8 +671,8 @@ bool frame_read(int nowFrame, int &fret)
             ptask[k] = temptask;
             RunningTaskSum++;
         }
-        int ret = Action(k);
-        fret |= (ret << (6 * k));
+        int ret = Action(i);
+        fret |= (ret << (6 * i));
     }
 
     return false;
