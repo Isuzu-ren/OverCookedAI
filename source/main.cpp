@@ -40,8 +40,6 @@ int main()
             action += "Interact ";
         else if (fret & 0x30 == 0x20)
             action += "PutOrPick ";
-        else
-            assert(0);
         if (fret & 0x0f == 0x01)
             action += "R";
         if (fret & 0x0f == 0x02)
@@ -58,8 +56,6 @@ int main()
             action += "Interact ";
         else if (fret & 0x30 == 0x20)
             action += "PutOrPick ";
-        else
-            assert(0);
         if (fret & 0x0f == 0x01)
             action += "R";
         if (fret & 0x0f == 0x02)
