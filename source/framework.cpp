@@ -629,16 +629,15 @@ bool frame_read(int nowFrame, int &fret)
         }
     }
 
-    std::cout << "Frame " << nowFrame << "\n";
     OrderToTaskDeque();
-    std::cout << deqOrder.size() << std::endl;
-    for (auto it : deqOrder)
-    {
-        for (int i = 0; i < it.stpsum; i++)
-        {
-            std::cout << it.stp[i].desx << ' ' << it.stp[i].desy << std::endl;
-        }
-    }
+    // std::cout << deqOrder.size() << std::endl;
+    // for (auto it : deqOrder)
+    // {
+    //     for (int i = 0; i < it.stpsum; i++)
+    //     {
+    //         std::cout << it.stp[i].desx << ' ' << it.stp[i].desy << std::endl;
+    //     }
+    // }
     fret = 0;
     checkplate();
     Task temptask;
@@ -673,6 +672,9 @@ bool frame_read(int nowFrame, int &fret)
             RunningTaskSum++;
         }
         int ret = Action(k);
+
+        ret = 0x01;
+
         fret |= ret << (6 * k);
     }
 
