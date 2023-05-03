@@ -34,36 +34,36 @@ int main()
 
         action = "";
         if (fret & 0x30 == 0)
-            action += "Move ";
+            action = action + "Move ";
         else if (fret & 0x30 == 0x10)
-            action += "Interact ";
+            action = action + "Interact ";
         else if (fret & 0x30 == 0x20)
-            action += "PutOrPick ";
+            action = action + "PutOrPick ";
         if (fret & 0x0f == 0x01)
-            action += "R";
+            action = action + "R";
         if (fret & 0x0f == 0x02)
-            action += "L";
+            action = action + "L";
         if (fret & 0x0f == 0x04)
-            action += "D";
+            action = action + "D";
         if (fret & 0x0f == 0x08)
-            action += "U";
-        action += "\n";
+            action = action + "U";
+        action = action + "\n";
         fret >>= 6;
         if (fret & 0x30 == 0)
-            action += "Move ";
+            action = action + "Move ";
         else if (fret & 0x30 == 0x10)
-            action += "Interact ";
+            action = action + "Interact ";
         else if (fret & 0x30 == 0x20)
-            action += "PutOrPick ";
+            action = action + "PutOrPick ";
         if (fret & 0x0f == 0x01)
-            action += "R";
+            action = action + "R";
         if (fret & 0x0f == 0x02)
-            action += "L";
+            action = action + "L";
         if (fret & 0x0f == 0x04)
-            action += "D";
+            action = action + "D";
         if (fret & 0x0f == 0x08)
-            action += "U";
-        action += "\n";
+            action = action + "U";
+        action = action + "\n";
 
         /* 合成一个字符串再输出，否则输出有可能会被打断 */
         std::cout << action << std::endl;
