@@ -64,7 +64,6 @@ int main()
         if ((fret & 0x0f) == 0x08)
             action = action + "U";
         action = action + "\n";
-        // action = std::string("Move ") + std::string("R") + std::string("\n") + std::string("Move ") + std::string("R") + std::string("\n");
 
         /* 合成一个字符串再输出，否则输出有可能会被打断 */
         std::cout << action << std::endl;

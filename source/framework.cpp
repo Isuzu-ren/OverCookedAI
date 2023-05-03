@@ -672,12 +672,8 @@ bool frame_read(int nowFrame, int &fret)
             RunningTaskSum++;
         }
         int ret = Action(k);
-
-        ret = 0x01;
-
         fret |= (ret << (6 * k));
     }
-    fret = 0x041;
 
     return false;
 }
