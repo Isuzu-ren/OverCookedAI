@@ -508,7 +508,7 @@ void init_read()
     RunningTaskSum = 0;
 }
 
-bool frame_read(int nowFrame, std::string &action)
+bool frame_read(int nowFrame, int &fret)
 {
     std::string s;
     std::stringstream ss;
@@ -630,7 +630,7 @@ bool frame_read(int nowFrame, std::string &action)
         }
     }
 
-    action = std::string();
+    fret = 0;
     checkplate();
     Task temptask;
     for (int i = 0; i < k; i++)
@@ -663,23 +663,7 @@ bool frame_read(int nowFrame, std::string &action)
             RunningTaskSum++;
         }
         int ret = Action(k);
-        if (ret & 0x30 == 0)
-            action += "Move ";
-        else if (ret & 0x30 == 0x10)
-            action += "Interact ";
-        else if (ret & 0x30 == 0x20)
-            action += "PutOrPick ";
-        else
-            assert(0);
-        if (ret & 0x0f == 0x01)
-            action += "R";
-        if (ret & 0x0f == 0x02)
-            action += "L";
-        if (ret & 0x0f == 0x04)
-            action += "D";
-        if (ret & 0x0f == 0x08)
-            action += "U";
-        action += "\n";
+        fret |= ret << (6 * k);
     }
 
     return false;

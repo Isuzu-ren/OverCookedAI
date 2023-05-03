@@ -50,6 +50,6 @@ struct Entity
 void init_read();
 
 /* 每一帧的读入；返回：是否跳帧。 */
-bool frame_read(int nowFrame, std::string &action);
+bool frame_read(int nowFrame, int &fret);
 
 #endif

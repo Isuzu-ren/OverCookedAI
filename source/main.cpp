@@ -20,15 +20,54 @@ int main()
         你可以在读入后进行一些相关预处理，时间限制：5秒钟
         init();
     */
-   std::string action;
+    std::string action;
+    int fret;
     int totalFrame = 14400;
     for (int i = 0; i < totalFrame; i++)
     {
-        bool skip = frame_read(i, action);
-        if (skip) continue;
+        bool skip = frame_read(i, fret);
+        if (skip)
+            continue;
 
         /* 输出当前帧的操作，此处仅作示例 */
         std::cout << "Frame " << i << "\n";
+
+        action = "";
+        if (fret & 0x30 == 0)
+            action += "Move ";
+        else if (fret & 0x30 == 0x10)
+            action += "Interact ";
+        else if (fret & 0x30 == 0x20)
+            action += "PutOrPick ";
+        else
+            assert(0);
+        if (fret & 0x0f == 0x01)
+            action += "R";
+        if (fret & 0x0f == 0x02)
+            action += "L";
+        if (fret & 0x0f == 0x04)
+            action += "D";
+        if (fret & 0x0f == 0x08)
+            action += "U";
+        action += "\n";
+        fret >>= 6;
+        if (fret & 0x30 == 0)
+            action += "Move ";
+        else if (fret & 0x30 == 0x10)
+            action += "Interact ";
+        else if (fret & 0x30 == 0x20)
+            action += "PutOrPick ";
+        else
+            assert(0);
+        if (fret & 0x0f == 0x01)
+            action += "R";
+        if (fret & 0x0f == 0x02)
+            action += "L";
+        if (fret & 0x0f == 0x04)
+            action += "D";
+        if (fret & 0x0f == 0x08)
+            action += "U";
+        action += "\n";
 
         /* 合成一个字符串再输出，否则输出有可能会被打断 */
         std::cout << action;
