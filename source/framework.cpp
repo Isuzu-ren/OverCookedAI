@@ -645,7 +645,6 @@ bool frame_read(int nowFrame, int &fret)
     {
         if (Players[i].live > 0)
             continue;
-        assert(0);
         if (ptask[i].completed >= ptask[i].stpsum)
         {
             temptask = deqOrder.front();
@@ -668,6 +667,7 @@ bool frame_read(int nowFrame, int &fret)
             }
             if (!flag3)
                 continue;
+            assert(0);
             deqOrder.pop_front();
             ptask[i] = temptask;
             RunningTaskSum++;
