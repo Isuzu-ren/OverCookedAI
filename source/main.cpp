@@ -32,38 +32,39 @@ int main()
         /* 输出当前帧的操作，此处仅作示例 */
         std::cout << "Frame " << i << "\n";
 
-        action = "";
-        if (fret & 0x30 == 0)
-            action = action + "Move ";
-        else if (fret & 0x30 == 0x10)
-            action = action + "Interact ";
-        else if (fret & 0x30 == 0x20)
-            action = action + "PutOrPick ";
-        if (fret & 0x0f == 0x01)
-            action = action + "R";
-        if (fret & 0x0f == 0x02)
-            action = action + "L";
-        if (fret & 0x0f == 0x04)
-            action = action + "D";
-        if (fret & 0x0f == 0x08)
-            action = action + "U";
-        action = action + "\n";
-        fret >>= 6;
-        if (fret & 0x30 == 0)
-            action = action + "Move ";
-        else if (fret & 0x30 == 0x10)
-            action = action + "Interact ";
-        else if (fret & 0x30 == 0x20)
-            action = action + "PutOrPick ";
-        if (fret & 0x0f == 0x01)
-            action = action + "R";
-        if (fret & 0x0f == 0x02)
-            action = action + "L";
-        if (fret & 0x0f == 0x04)
-            action = action + "D";
-        if (fret & 0x0f == 0x08)
-            action = action + "U";
-        action = action + "\n";
+        // action = "";
+        // if (fret & 0x30 == 0)
+        //     action = action + "Move ";
+        // else if (fret & 0x30 == 0x10)
+        //     action = action + "Interact ";
+        // else if (fret & 0x30 == 0x20)
+        //     action = action + "PutOrPick ";
+        // if (fret & 0x0f == 0x01)
+        //     action = action + "R";
+        // if (fret & 0x0f == 0x02)
+        //     action = action + "L";
+        // if (fret & 0x0f == 0x04)
+        //     action = action + "D";
+        // if (fret & 0x0f == 0x08)
+        //     action = action + "U";
+        // action = action + "\n";
+        // fret >>= 6;
+        // if (fret & 0x30 == 0)
+        //     action = action + "Move ";
+        // else if (fret & 0x30 == 0x10)
+        //     action = action + "Interact ";
+        // else if (fret & 0x30 == 0x20)
+        //     action = action + "PutOrPick ";
+        // if (fret & 0x0f == 0x01)
+        //     action = action + "R";
+        // if (fret & 0x0f == 0x02)
+        //     action = action + "L";
+        // if (fret & 0x0f == 0x04)
+        //     action = action + "D";
+        // if (fret & 0x0f == 0x08)
+        //     action = action + "U";
+        // action = action + "\n";
+        action = "Move " + "R" + "\n" + "Move " + "R" + "\n";
 
         /* 合成一个字符串再输出，否则输出有可能会被打断 */
         std::cout << action << std::endl;
