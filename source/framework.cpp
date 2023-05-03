@@ -367,7 +367,7 @@ bool checkplatepos(Step &stp, const int op)
     assert(stp.ts == TAKING_INGREDIENT_TO_PLATE);
     for (int i = 0; i < 20; i++)
     {
-        if ((platearr[i].x >= 0) && (platearr[i].y >= 0) && (platearr[i].used = false))
+        if ((platearr[i].x >= 0) && (platearr[i].y >= 0) && (platearr[i].used == false))
         {
             platearr[i].used = true;
             CheckInteractPos(stp, int(platearr[i].x), int(platearr[i].y));
@@ -656,7 +656,7 @@ bool frame_read(int nowFrame, int &fret)
                 {
                     if (!flag3)
                     {
-                        if (checkplatepos(temptask.stp[j], k))
+                        if (checkplatepos(temptask.stp[j], i))
                             flag3 = true;
                         else
                             break;
