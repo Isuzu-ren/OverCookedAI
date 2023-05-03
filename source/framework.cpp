@@ -671,6 +671,13 @@ bool frame_read(int nowFrame, int &fret)
             ptask[i] = temptask;
             RunningTaskSum++;
         }
+
+        std::cout << i << " : " << ptask[i].plateindex << " " << ptask[i].completed << " " << ptask[i].stpsum << std::endl;
+        for (int j = 0; j < ptask[i].stpsum; j++)
+        {
+            std::cout << ptask[i].stp[j].desx << " " << ptask[i].stp[j].desy;
+        }
+
         int ret = Action(i);
         fret |= (ret << (6 * i));
     }
