@@ -20,7 +20,7 @@ int main()
         你可以在读入后进行一些相关预处理，时间限制：5秒钟
         init();
     */
-    std::string action;
+   std::string action;
     int totalFrame = 14400;
     for (int i = 0; i < totalFrame; i++)
     {
