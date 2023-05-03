@@ -643,32 +643,32 @@ bool frame_read(int nowFrame, int &fret)
     Task temptask;
     for (int i = 0; i < k; i++)
     {
-        if (Players[k].live > 0)
+        if (Players[i].live > 0)
             continue;
-        if (ptask[k].completed >= ptask[k].stpsum)
+        if (ptask[i].completed >= ptask[i].stpsum)
         {
             temptask = deqOrder.front();
             bool flag3 = false;
             double curplatex, curplatey;
-            for (int i = 0; i < temptask.stpsum; i++)
+            for (int j = 0; j < temptask.stpsum; j++)
             {
-                if (temptask.stp[i].ts == TAKING_INGREDIENT_TO_PLATE)
+                if (temptask.stp[j].ts == TAKING_INGREDIENT_TO_PLATE)
                 {
                     if (!flag3)
                     {
-                        if (checkplatepos(temptask.stp[i], k))
+                        if (checkplatepos(temptask.stp[j], k))
                             flag3 = true;
                         else
                             break;
                     }
                     else
-                        CheckInteractPos(temptask.stp[i], platearr[temptask.plateindex].x, platearr[temptask.plateindex].y);
+                        CheckInteractPos(temptask.stp[j], platearr[temptask.plateindex].x, platearr[temptask.plateindex].y);
                 }
             }
             if (!flag3)
                 continue;
             deqOrder.pop_front();
-            ptask[k] = temptask;
+            ptask[i] = temptask;
             RunningTaskSum++;
         }
         int ret = Action(i);
