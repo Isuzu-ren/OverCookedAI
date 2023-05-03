@@ -544,7 +544,6 @@ bool frame_read(int nowFrame, int &fret)
             Order[i].recipe.push_back(s);
         }
     }
-    OrderToTaskDeque();
     ss >> k;
     assert(k == 2);
     /* 读入玩家坐标、x方向速度、y方向速度、剩余复活时间 */
@@ -630,6 +629,15 @@ bool frame_read(int nowFrame, int &fret)
         }
     }
 
+    OrderToTaskDeque();
+    std::cout << deqOrder.size() << std::endl;
+    for (auto it : deqOrder)
+    {
+        for (int i = 0; i < it.stpsum; i++)
+        {
+            std::cout << it.stp[i].desx << ' ' << it.stp[i].desy << std::endl;
+        }
+    }
     fret = 0;
     checkplate();
     Task temptask;
