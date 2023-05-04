@@ -646,6 +646,8 @@ bool frame_read(int nowFrame, int &fret)
     // }
     fret = 0;
     checkplate();
+
+    std::cout << "Frame " << nowFrame << "\n";
     // std::cout << platenum << std::endl;
     // for (int i = 0; i < platenum; i++)
     // {
@@ -683,11 +685,10 @@ bool frame_read(int nowFrame, int &fret)
             RunningTaskSum++;
         }
 
-        std::cout << "Frame " << nowFrame << "\n";
         std::cout << i << " : " << ptask[i].plateindex << " " << ptask[i].completed << " " << ptask[i].stpsum << std::endl;
         for (int j = 0; j < ptask[i].stpsum; j++)
         {
-            std::cout << ptask[i].stp[j].desx << " " << ptask[i].stp[j].desy;
+            std::cout << ptask[i].stp[j].desx << " " << ptask[i].stp[j].desy << std::endl;
         }
 
         int ret = Action(i);
