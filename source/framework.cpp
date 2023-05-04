@@ -638,19 +638,19 @@ bool frame_read(int nowFrame, int &fret)
     //         std::cout << it.stp[i].desx << ' ' << it.stp[i].desy << std::endl;
     //     }
     // }
-    std::cout << "Frame " << nowFrame << "\n";
-    std::cout << platenum << std::endl;
-    for (int i = 0; i < platenum; i++)
-    {
-        std::cout << platearr[i].x << " " << platearr[i].y << std::endl;
-    }
+    // std::cout << "Frame " << nowFrame << "\n";
+    // std::cout << platenum << std::endl;
+    // for (int i = 0; i < platenum; i++)
+    // {
+    //     std::cout << platearr[i].x << " " << platearr[i].y << std::endl;
+    // }
     fret = 0;
     checkplate();
-    std::cout << platenum << std::endl;
-    for (int i = 0; i < platenum; i++)
-    {
-        std::cout << platearr[i].x << " " << platearr[i].y << std::endl;
-    }
+    // std::cout << platenum << std::endl;
+    // for (int i = 0; i < platenum; i++)
+    // {
+    //     std::cout << platearr[i].x << " " << platearr[i].y << std::endl;
+    // }
     Task temptask;
     for (int i = 0; i < k; i++)
     {
@@ -683,11 +683,11 @@ bool frame_read(int nowFrame, int &fret)
             RunningTaskSum++;
         }
 
-        // std::cout << i << " : " << ptask[i].plateindex << " " << ptask[i].completed << " " << ptask[i].stpsum << std::endl;
-        // for (int j = 0; j < ptask[i].stpsum; j++)
-        // {
-        //     std::cout << ptask[i].stp[j].desx << " " << ptask[i].stp[j].desy;
-        // }
+        std::cout << i << " : " << ptask[i].plateindex << " " << ptask[i].completed << " " << ptask[i].stpsum << std::endl;
+        for (int j = 0; j < ptask[i].stpsum; j++)
+        {
+            std::cout << ptask[i].stp[j].desx << " " << ptask[i].stp[j].desy;
+        }
 
         int ret = Action(i);
         fret |= (ret << (6 * i));
