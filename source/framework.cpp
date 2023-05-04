@@ -25,37 +25,11 @@
 // };
 // static Status p0status, p1status;
 
-enum DirectionInteract
-{
-    LEFT,
-    RIGHT,
-    UP,
-    DOWN,
-    CHECKED
-};
-enum TypeInteract
-{
-    TAKE,
-    INTERACT
-};
-
-enum TypeStep
-{
-    GO_TO_INGREDIENT,
-    TAKING_INGREDIENT_TO_COOK,
-    COOKING,
-    TAKING_INGREDIENT_TO_PLATE,
-    TAKE_UP_PLATE,
-    TAKING_PLATE_TO_SERVICEWINDOWS,
-    TAKE_UP_DIRTYPLATE,
-    TAKING_DIRTYPLATE_TO_SINK,
-    WASHING,
-    COLLISION_AVOIDENCE
-};
 struct Step
 {
     int desx, desy;      // 终点坐标
     bool descheck;       // 终点是否已确定
+    bool stay;           // 是否需要停在终点
     DirectionInteract d; // 交互方向
     TypeInteract ta;     // 交互方式
     TypeStep ts;         // 任务内容
@@ -69,11 +43,18 @@ struct Task
     // int plateindex; // 使用的盘子编号
 };
 
-std::string IngredientName[5] =
-    {"fish", "rice", "kelp"};
+struct Plate
+{
+    double x, y;
+    bool used;          // false表示未被使用
+    bool curframecheck; // 当前帧的确认，用于识别
+};
 
-std::string ContainerName[5] =
-    {"Pan", "Pot", "Plate", "DirtyPlates"};
+// std::string IngredientName[5] =
+//     {"fish", "rice", "kelp"};
+
+// std::string ContainerName[5] =
+//     {"Pan", "Pot", "Plate", "DirtyPlates"};
 
 /* 按照读入顺序定义 */
 int width, height;
@@ -92,14 +73,121 @@ int entityCount;
 struct Entity Entity[20 + 5];
 int remainFrame, Fund;
 
-struct Plate
-{
-    double x, y;
-    bool used;          // false表示未被使用
-    bool curframecheck; // 当前帧的确认，用于识别
-};
+int xservicewindows, yservicewindows;
+int xsink, ysink;
+int xplatereturn, yplatereturn;
+Task WashDirtyPlate;
 int platenum = 0;
 Plate platearr[20];
+Task totalOrderParseTask[20 + 5];
+
+// 初始化一些信息 确定盘子的总数和各自的坐标 确定服务台坐标和洗盘子水槽坐标 然后确定洗碗事件的基本信息
+void init_map()
+{
+    for (int i = 0; i < entityCount; i++)
+    {
+        for (auto it : Entity[i].entity)
+        {
+            if (it == "Plate")
+            {
+                platearr[platenum].used = false;
+                platearr[platenum].x = Entity[i].x;
+                platearr[platenum].y = Entity[i].y;
+                platenum++;
+                break;
+            }
+        }
+    }
+    for (int i = platenum; i < 20; i++)
+    {
+        platearr[i].x = -1;
+        platearr[i].y = -1;
+    }
+    for (int i = 0; i < height * width; i++)
+    {
+        if ((!isupper(Map[i / width][i % width])) && (getTileKind(Map[i / width][i % width]) == TileKind::ServiceWindow))
+        {
+            xservicewindows = i % width;
+            yservicewindows = i / width;
+            break;
+        }
+    }
+    for (int i = 0; i < height * width; i++)
+    {
+        if ((!isupper(Map[i / width][i % width])) && (getTileKind(Map[i / width][i % width]) == TileKind::Sink))
+        {
+            xsink = i % width;
+            ysink = i / width;
+            break;
+        }
+    }
+    for (int i = 0; i < height * width; i++)
+    {
+        if ((!isupper(Map[i / width][i % width])) && (getTileKind(Map[i / width][i % width]) == TileKind::PlateReturn))
+        {
+            xplatereturn = i % width;
+            yplatereturn = i / width;
+            break;
+        }
+    }
+    WashDirtyPlate.completed = 0;
+    CheckInteractPos(WashDirtyPlate.stp[0], xplatereturn, yplatereturn);
+    WashDirtyPlate.stp[0].descheck = true;
+    WashDirtyPlate.stp[0].ta = TAKE;
+    WashDirtyPlate.stp[0].ts = TAKE_UP_DIRTYPLATE;
+    WashDirtyPlate.stp[0].stay = false;
+    CheckInteractPos(WashDirtyPlate.stp[1], xsink, ysink);
+    WashDirtyPlate.stp[1].descheck = true;
+    WashDirtyPlate.stp[1].ta = TAKE;
+    WashDirtyPlate.stp[1].ts = TAKING_DIRTYPLATE_TO_SINK;
+    WashDirtyPlate.stp[0].stay = false;
+    WashDirtyPlate.stp[2].desx = WashDirtyPlate.stp[1].desx;
+    WashDirtyPlate.stp[2].desy = WashDirtyPlate.stp[1].desy;
+    WashDirtyPlate.stp[2].d = WashDirtyPlate.stp[1].d;
+    WashDirtyPlate.stp[2].descheck = true;
+    WashDirtyPlate.stp[2].ta = INTERACT;
+    WashDirtyPlate.stp[2].ts = WASHING;
+    WashDirtyPlate.stp[2].stay = true;
+    WashDirtyPlate.stpsum = 3;
+    // double dis[(20 + 2) * (20 + 2)][(20 + 2) * (20 + 2)] = {};
+    // int pre[(20 + 2) * (20 + 2)][(20 + 2) * (20 + 2)] = {};
+    // for (int i = 0; i < height; i++)
+    // {
+    //     for (int j = 0; j < width; j++)
+    //     {
+    //         if ((!isupper(Map[i][j])) && (getTileKind(Map[i][j]) == TileKind::ServiceWindow))
+    //         {
+    //             xservicewindows = i;
+    //             yservicewindows = j;
+    //             break;
+    //         }
+    //     }
+    // }
+
+    //     const double sq2 = sqrt(2);
+    //     for (int i = 0; i < height; i++)
+    //     {
+    //         for (int j = 0; j < width; j++)
+    //         {
+    //             int cur = i * width + j;
+    //             if ((!isupper(Map[i][j])) && (getTileKind(Map[i][j]) == TileKind::Floor))
+    //             {
+    //                 if ((i - 1 >= 0) && (j - 1 >= 0) &&
+    //                     (getTileKind(Map[i - 1][j - 1]) == TileKind::Floor) &&
+    //                     (getTileKind(Map[i - 1][j]) == TileKind::Floor) &&
+    //                     (getTileKind(Map[i][j - 1]) == TileKind::Floor))
+    //                 {
+    //                     dis[cur][cur - width - 1] = sq2;
+    //                 }
+    //                 if ((i - 1 >= 0) &&
+    //                     (getTileKind(Map[i - 1][j]) == TileKind::Floor))
+    //                 {
+    //                     dis[cur][cur - width] = 1;
+    //                 }
+    //             }
+    //         }
+    //     }
+}
 
 const double epsilon = 1e-4;
 void checkplate()
@@ -183,158 +271,6 @@ void CheckInteractPos(Step &stp, const int x, const int y)
     stp.descheck = true;
 }
 
-// double dis[(20 + 2) * (20 + 2)][(20 + 2) * (20 + 2)] = {};
-// int pre[(20 + 2) * (20 + 2)][(20 + 2) * (20 + 2)] = {};
-
-int xservicewindows, yservicewindows;
-int xsink, ysink;
-int xplatereturn, yplatereturn;
-Task WashDirtyPlate;
-
-// 初始化一些信息，确定盘子的总数和各自的坐标，确定服务台坐标和洗盘子水槽坐标
-void init_map()
-{
-    for (int i = 0; i < entityCount; i++)
-    {
-        for (auto it : Entity[i].entity)
-        {
-            if (it == "Plate")
-            {
-                platearr[platenum].used = false;
-                platearr[platenum].x = Entity[i].x;
-                platearr[platenum].y = Entity[i].y;
-                platenum++;
-                break;
-            }
-        }
-    }
-    for (int i = platenum; i < 20; i++)
-    {
-        platearr[i].x = -1;
-        platearr[i].y = -1;
-    }
-    for (int i = 0; i < height * width; i++)
-    {
-        if ((!isupper(Map[i / width][i % width])) && (getTileKind(Map[i / width][i % width]) == TileKind::ServiceWindow))
-        {
-            xservicewindows = i % width;
-            yservicewindows = i / width;
-            break;
-        }
-    }
-    for (int i = 0; i < height * width; i++)
-    {
-        if ((!isupper(Map[i / width][i % width])) && (getTileKind(Map[i / width][i % width]) == TileKind::Sink))
-        {
-            xsink = i % width;
-            ysink = i / width;
-            break;
-        }
-    }
-    for (int i = 0; i < height * width; i++)
-    {
-        if ((!isupper(Map[i / width][i % width])) && (getTileKind(Map[i / width][i % width]) == TileKind::PlateReturn))
-        {
-            xplatereturn = i % width;
-            yplatereturn = i / width;
-            break;
-        }
-    }
-    WashDirtyPlate.completed = 0;
-    CheckInteractPos(WashDirtyPlate.stp[0], xplatereturn, yplatereturn);
-    WashDirtyPlate.stp[0].descheck = true;
-    WashDirtyPlate.stp[0].ta = TAKE;
-    WashDirtyPlate.stp[0].ts = TAKE_UP_DIRTYPLATE;
-    CheckInteractPos(WashDirtyPlate.stp[1], xsink, ysink);
-    WashDirtyPlate.stp[1].descheck = true;
-    WashDirtyPlate.stp[1].ta = TAKE;
-    WashDirtyPlate.stp[1].ts = TAKING_DIRTYPLATE_TO_SINK;
-    WashDirtyPlate.stp[2].desx = WashDirtyPlate.stp[1].desx;
-    WashDirtyPlate.stp[2].desy = WashDirtyPlate.stp[1].desy;
-    WashDirtyPlate.stp[2].d = WashDirtyPlate.stp[1].d;
-    WashDirtyPlate.stp[2].descheck = true;
-    WashDirtyPlate.stp[2].ta = INTERACT;
-    WashDirtyPlate.stp[2].ts = WASHING;
-    WashDirtyPlate.stpsum = 3;
-    // for (int i = 0; i < height; i++)
-    // {
-    //     for (int j = 0; j < width; j++)
-    //     {
-    //         if ((!isupper(Map[i][j])) && (getTileKind(Map[i][j]) == TileKind::ServiceWindow))
-    //         {
-    //             xservicewindows = i;
-    //             yservicewindows = j;
-    //             break;
-    //         }
-    //     }
-    // }
-
-    //     const double sq2 = sqrt(2);
-    //     for (int i = 0; i < height; i++)
-    //     {
-    //         for (int j = 0; j < width; j++)
-    //         {
-    //             int cur = i * width + j;
-    //             if ((!isupper(Map[i][j])) && (getTileKind(Map[i][j]) == TileKind::Floor))
-    //             {
-    //                 if ((i - 1 >= 0) && (j - 1 >= 0) &&
-    //                     (getTileKind(Map[i - 1][j - 1]) == TileKind::Floor) &&
-    //                     (getTileKind(Map[i - 1][j]) == TileKind::Floor) &&
-    //                     (getTileKind(Map[i][j - 1]) == TileKind::Floor))
-    //                 {
-    //                     dis[cur][cur - width - 1] = sq2;
-    //                 }
-    //                 if ((i - 1 >= 0) &&
-    //                     (getTileKind(Map[i - 1][j]) == TileKind::Floor))
-    //                 {
-    //                     dis[cur][cur - width] = 1;
-    //                 }
-    //             }
-    //         }
-    //     }
-}
-
-Task totalOrderParseTask[20 + 5];
-// 该函数只负责最初解析订单所需要做的事，目前一个订单对应一个任务，但之后可能修改为更适合合作完成的分解小任务，其解析的任务中含有未确定的目标，例如并未确定盘子要在何处取，当任务真正被分配然后执行的时候才会确定
-Task ParseOrder(const struct Order &order)
-{
-    Task task;
-    task.stpsum = 0;
-    // 取食材，并放到盘子里
-    for (auto it : order.recipe)
-    {
-        for (int i = 0; i < IngredientCount; i++)
-        {
-            if (Ingredient[i].name == it)
-            {
-                CheckInteractPos(task.stp[task.stpsum], Ingredient[i].x, Ingredient[i].y);
-                task.stp[task.stpsum].descheck = true;
-                task.stp[task.stpsum].ta = TAKE;
-                task.stp[task.stpsum].ts = GO_TO_INGREDIENT;
-                task.stpsum++;
-                task.stp[task.stpsum].descheck = false;
-                task.stp[task.stpsum].ta = TAKE;
-                task.stp[task.stpsum].ts = TAKING_INGREDIENT_TO_PLATE;
-                task.stpsum++;
-                break;
-            }
-        }
-    }
-    // 拿起盘子
-    task.stp[task.stpsum].descheck = false;
-    task.stp[task.stpsum].ta = TAKE;
-    task.stp[task.stpsum].ts = TAKE_UP_PLATE;
-    task.stpsum++;
-    // 将盘子送往服务台
-    CheckInteractPos(task.stp[task.stpsum], xservicewindows, yservicewindows);
-    task.stp[task.stpsum].descheck = true;
-    task.stp[task.stpsum].ta = TAKE;
-    task.stp[task.stpsum].ts = TAKING_PLATE_TO_SERVICEWINDOWS;
-    task.stpsum++;
-    task.completed = 0;
-    return task;
-}
-
 // ret 低四位表示移动方向 0001-右 0010-左 0100-下 1000-上
 int Move(const double px, const double py, const int dx, const int dy)
 {
@@ -358,10 +294,6 @@ int Move(const double px, const double py, const int dx, const int dy)
     return ret;
 }
 
-int RunningTaskSum = 0;
-std::deque<Task> deqOrder;
-Task ptask[2 + 2];
-
 bool checkplatepos(Step &stp, const int op)
 {
     assert(stp.ts == TAKING_INGREDIENT_TO_PLATE);
@@ -378,32 +310,117 @@ bool checkplatepos(Step &stp, const int op)
     return false;
 }
 
+// 该函数只负责最初解析订单所需要做的事，目前一个订单对应一个任务，但之后可能修改为更适合合作完成的分解小任务，其解析的任务中含有未确定的目标，例如并未确定盘子要在何处取，当任务真正被分配然后执行的时候才会确定
+Task ParseOrder(const struct Order &order)
+{
+    Task task;
+    task.stpsum = 0;
+    // 取食材，并放到盘子里
+    for (auto it : order.recipe)
+    {
+        for (int i = 0; i < IngredientCount; i++)
+        {
+            if (Ingredient[i].name == it)
+            {
+                CheckInteractPos(task.stp[task.stpsum], Ingredient[i].x, Ingredient[i].y);
+                task.stp[task.stpsum].descheck = true;
+                task.stp[task.stpsum].ta = TAKE;
+                task.stp[task.stpsum].ts = GO_TO_INGREDIENT;
+                task.stp[task.stpsum].stay = false;
+                task.stpsum++;
+                task.stp[task.stpsum].descheck = false;
+                task.stp[task.stpsum].ta = TAKE;
+                task.stp[task.stpsum].ts = TAKING_INGREDIENT_TO_PLATE;
+                task.stp[task.stpsum].stay = false;
+                task.stpsum++;
+                break;
+            }
+        }
+    }
+    // 拿起盘子
+    task.stp[task.stpsum].descheck = false;
+    task.stp[task.stpsum].ta = TAKE;
+    task.stp[task.stpsum].ts = TAKE_UP_PLATE;
+    task.stp[task.stpsum].stay = false;
+    task.stpsum++;
+    // 将盘子送往服务台
+    CheckInteractPos(task.stp[task.stpsum], xservicewindows, yservicewindows);
+    task.stp[task.stpsum].descheck = true;
+    task.stp[task.stpsum].ta = TAKE;
+    task.stp[task.stpsum].ts = TAKING_PLATE_TO_SERVICEWINDOWS;
+    task.stp[task.stpsum].stay = false;
+    task.stpsum++;
+    task.completed = 0;
+    return task;
+}
+
+int RunningTaskSum = 0;
+std::deque<Task> deqOrder;
+Task ptask[2 + 2];
+DirtyPlatesFlag dirtyplateflag;
+
 // ret 低6位表示行动方案 低4位 0001-右 0010-左 0100-下 1000-上 低56位 00-Move 01-Interact 10-PutOrPick
 int Action(const int op)
 {
     assert(op < 2);
     Task &ct = ptask[op];
-    int ret = Move(Players[op].x, Players[op].y, ct.stp[ct.completed].desx, ct.stp[ct.completed].desy);
+    Step &cs = ct.stp[ct.completed];
+    int ret = Move(Players[op].x, Players[op].y, cs.desx, cs.desy);
     // std :: cout << op << " " << Players[op].x << " " << Players[op].y << " " << ct.stp[ct.completed].desx << " " << ct.stp[ct.completed].desy << " ret= " << ret << "\n";
     if (ret != 0)
         return ret;
-    if (ct.stp[ct.completed].ta == INTERACT)
+
+    bool flag4;
+    if (cs.ts == WASHING)
+    {
+        if (cs.descheck)
+            cs.descheck = false;
+        else
+        {
+            flag4 = false;
+            for (int i = 0; i < entityCount; i++)
+            {
+                for (auto it : Entity[i].entity)
+                {
+                    if ((it == "DirtyPlates") && (fabs(Entity[i].x - xsink) < epsilon) && (fabs(Entity[i].y - ysink) < epsilon))
+                    {
+                        flag4 = true;
+                        break;
+                    }
+                }
+                if (flag4)
+                    break;
+            }
+            if (!flag4)
+            {
+                ct.completed++;
+                dirtyplateflag = NONE;
+            }
+        }
+    }
+    // else if (cs.ts == TAKE_UP_DIRTYPLATE)
+    // {
+    // }
+
+    if (cs.ta == INTERACT)
         ret |= 0x10;
-    else if (ct.stp[ct.completed].ta == TAKE)
+    else if (cs.ta == TAKE)
         ret |= 0x20;
     else
         assert(0);
-    if (ct.stp[ct.completed].d == RIGHT)
+    if (cs.d == RIGHT)
         ret |= 0x01;
-    else if (ct.stp[ct.completed].d == LEFT)
+    else if (cs.d == LEFT)
         ret |= 0x02;
-    else if (ct.stp[ct.completed].d == DOWN)
+    else if (cs.d == DOWN)
         ret |= 0x04;
-    else if (ct.stp[ct.completed].d == UP)
+    else if (cs.d == UP)
         ret |= 0x08;
     else
         assert(0);
-    ct.completed++;
+
+    if (cs.ts != WASHING)
+        ct.completed++;
     if (ct.completed == ct.stpsum)
         RunningTaskSum--;
     return ret;
@@ -428,6 +445,23 @@ void OrderToTaskDeque()
     {
         int t = checkOrder(Order[i]);
         deqOrder.emplace_back(totalOrderParseTask[t]);
+    }
+}
+
+void CheckDirtyPlate()
+{
+    if (dirtyplateflag != NONE)
+        return;
+    for (int i = 0; i < entityCount; i++)
+    {
+        for (auto it : Entity[i].entity)
+        {
+            if ((it == "DirtyPlates") && (fabs(Entity[i].x - xplatereturn) < epsilon) && (fabs(Entity[i].y - yplatereturn) < epsilon))
+            {
+                dirtyplateflag = UNDISTRIBUTED;
+                return;
+            }
+        }
     }
 }
 
@@ -506,6 +540,7 @@ void init_read()
     ptask[0].completed = 0;
     ptask[1].completed = 0;
     RunningTaskSum = 0;
+    dirtyplateflag = NONE;
 }
 
 bool frame_read(int nowFrame, int &fret)
@@ -646,6 +681,7 @@ bool frame_read(int nowFrame, int &fret)
     // }
     fret = 0;
     checkplate();
+    CheckDirtyPlate();
 
     // std::cout << "Frame " << nowFrame << "\n";
     // std::cout << platenum << std::endl;
@@ -660,6 +696,12 @@ bool frame_read(int nowFrame, int &fret)
             continue;
         if (ptask[i].completed >= ptask[i].stpsum)
         {
+            if (dirtyplateflag == UNDISTRIBUTED)
+            {
+                ptask[i] = WashDirtyPlate;
+                RunningTaskSum++;
+                continue;
+            }
             temptask = deqOrder.front();
             int flag3 = -1;
             double curplatex, curplatey;

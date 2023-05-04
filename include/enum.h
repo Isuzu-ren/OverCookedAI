@@ -77,4 +77,39 @@ inline char getAbbrev(TileKind kind) {
     }
 }
 
+enum DirectionInteract
+{
+    LEFT,
+    RIGHT,
+    UP,
+    DOWN,
+    CHECKED
+};
+enum TypeInteract
+{
+    TAKE,
+    INTERACT
+};
+enum TypeStep
+{
+    GO_TO_INGREDIENT,
+    TAKING_INGREDIENT_TO_COOK,
+    COOKING,
+    TAKING_INGREDIENT_TO_PLATE,
+    TAKE_UP_PLATE,
+    TAKING_PLATE_TO_SERVICEWINDOWS,
+    TAKE_UP_DIRTYPLATE,
+    TAKING_DIRTYPLATE_TO_SINK,
+    WASHING,
+    COLLISION_AVOIDENCE
+};
+
+enum DirtyPlatesFlag
+{
+    NONE,
+    UNDISTRIBUTED,
+    DISTRIBUTED,
+    SINKUSING
+};
+
 #endif
