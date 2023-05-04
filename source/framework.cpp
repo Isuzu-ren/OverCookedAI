@@ -339,19 +339,19 @@ Task ParseOrder(const struct Order &order)
 int Move(const double px, const double py, const int dx, const int dy)
 {
     int ret = 0;
-    if (px <= double(dx + 0.35))
+    if (px <= double(dx + 0.2))
     {
         ret |= 0x1;
     }
-    else if (px >= double(dx + 0.65))
+    else if (px >= double(dx + 0.8))
     {
         ret |= 0x2;
     }
-    if (py <= double(dy + 0.35))
+    if (py <= double(dy + 0.2))
     {
         ret |= 0x4;
     }
-    else if (py >= double(dy + 0.65))
+    else if (py >= double(dy + 0.8))
     {
         ret |= 0x8;
     }
