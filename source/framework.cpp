@@ -641,14 +641,14 @@ bool frame_read(int nowFrame, int &fret)
     std::cout << platenum << std::endl;
     for (int i = 0; i < platenum; i++)
     {
-        std::cout << platearr[i].x << " " << platearr[i].y;
+        std::cout << platearr[i].x << " " << platearr[i].y << std::endl;
     }
     fret = 0;
     checkplate();
     std::cout << platenum << std::endl;
     for (int i = 0; i < platenum; i++)
     {
-        std::cout << platearr[i].x << " " << platearr[i].y;
+        std::cout << platearr[i].x << " " << platearr[i].y << std::endl;
     }
     Task temptask;
     for (int i = 0; i < k; i++)
