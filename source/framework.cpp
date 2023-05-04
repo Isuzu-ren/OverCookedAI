@@ -431,6 +431,8 @@ int Action(const int op)
     else
         assert(0);
 
+    if (cs.ts == TAKE_UP_PLATE)
+        plateused.erase(std::make_pair(cs.desx, cs.desy));
     if (cs.ts != WASHING)
         ct.completed++;
     if (cs.ts == TAKING_PLATE_TO_SERVICEWINDOWS)
