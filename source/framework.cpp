@@ -695,6 +695,7 @@ bool frame_read(int nowFrame, int &fret)
         int ret = Action(i);
         fret |= (ret << (6 * i));
     }
+    std::cout << "fret=" << fret << std::endl;
 
     return false;
 }
