@@ -385,7 +385,7 @@ int Action(const int op)
     assert(op < 2);
     Task &ct = ptask[op];
     int ret = Move(Players[op].x, Players[op].y, ct.stp[ct.completed].desx, ct.stp[ct.completed].desy);
-    std :: cout << op << " " << Players[op].x << " " << Players[op].y << " " << ct.stp[ct.completed].desx << " " << ct.stp[ct.completed].desy << " ret= " << ret << "\n";
+    // std :: cout << op << " " << Players[op].x << " " << Players[op].y << " " << ct.stp[ct.completed].desx << " " << ct.stp[ct.completed].desy << " ret= " << ret << "\n";
     if (ret != 0)
         return ret;
     if (ct.stp[ct.completed].ta == INTERACT)
