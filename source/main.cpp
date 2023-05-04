@@ -31,7 +31,7 @@ int main()
 
         /* 输出当前帧的操作，此处仅作示例 */
         std::cout << "Frame " << i << "\n";
-        std::cout << "fret= " << fret << "\n";
+        std::cout << "fret= " << fret << " " << (fret & 0x0f)<< "\n";
 
         action = "";
         if ((fret & 0x30) == 0)
@@ -50,7 +50,7 @@ int main()
             action = action + "U";
         action = action + "\n";
         fret >>= 6;
-        std::cout << "fret= " << fret << "\n";
+        std::cout << "fret= " << fret << " " << (fret & 0x0f) << "\n";
         if ((fret & 0x30) == 0)
             action = action + "Move ";
         else if ((fret & 0x30) == 0x10)
