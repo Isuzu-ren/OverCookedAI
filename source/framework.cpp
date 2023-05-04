@@ -454,13 +454,10 @@ void CheckDirtyPlate()
         return;
     for (int i = 0; i < entityCount; i++)
     {
-        for (auto it : Entity[i].entity)
+        if ((Entity[i].containerKind == ContainerKind::DirtyPlates) && (fabs(Entity[i].x - xplatereturn) < epsilon) && (fabs(Entity[i].y - yplatereturn) < epsilon))
         {
-            if ((it == "DirtyPlates") && (fabs(Entity[i].x - xplatereturn) < epsilon) && (fabs(Entity[i].y - yplatereturn) < epsilon))
-            {
-                dirtyplateflag = UNDISTRIBUTED;
-                return;
-            }
+            dirtyplateflag = UNDISTRIBUTED;
+            return;
         }
     }
 }
