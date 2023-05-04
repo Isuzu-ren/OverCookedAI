@@ -432,7 +432,18 @@ int Action(const int op)
         assert(0);
 
     if (cs.ts == TAKE_UP_PLATE)
-        plateused.erase(std::make_pair(cs.desx, cs.desy));
+    {
+        std::pair<int, int> pos;
+        if (cs.d == RIGHT)
+            pos = std::make_pair(cs.desx + 1, cs.desy);
+        else if (cs.d == LEFT)
+            pos = std::make_pair(cs.desx - 1, cs.desy);
+        else if (cs.d == DOWN)
+            pos = std::make_pair(cs.desx, cs.desy + 1);
+        else if (cs.d == UP)
+            pos = std::make_pair(cs.desx, cs.desy - 1);
+        plateused.erase(pos);
+    }
     if (cs.ts != WASHING)
         ct.completed++;
     if (cs.ts == TAKING_PLATE_TO_SERVICEWINDOWS)
