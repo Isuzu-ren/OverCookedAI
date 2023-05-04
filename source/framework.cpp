@@ -380,16 +380,11 @@ int Action(const int op)
             flag4 = false;
             for (int i = 0; i < entityCount; i++)
             {
-                for (auto it : Entity[i].entity)
+                if ((Entity[i].containerKind == ContainerKind::DirtyPlates) && (fabs(Entity[i].x - xsink) < epsilon) && (fabs(Entity[i].y - ysink) < epsilon))
                 {
-                    if ((it == "DirtyPlates") && (fabs(Entity[i].x - xsink) < epsilon) && (fabs(Entity[i].y - ysink) < epsilon))
-                    {
-                        flag4 = true;
-                        break;
-                    }
-                }
-                if (flag4)
+                    flag4 = true;
                     break;
+                }
             }
             if (!flag4)
             {
