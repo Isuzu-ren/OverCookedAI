@@ -268,7 +268,18 @@ void checkplate()
             }
         }
     }
-    platenum += add;
+    platenum = 0;
+    for (int i = 0; i < 20; i++)
+    {
+        if (platearr[i].curframecheck)
+            platenum++;
+        else
+        {
+            platearr[i].x = -1;
+            platearr[i].y = -1;
+        }
+    }
+    // platenum += add;
 }
 
 // ret 低四位表示移动方向 0001-右 0010-左 0100-下 1000-上
