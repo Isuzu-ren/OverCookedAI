@@ -683,7 +683,7 @@ bool frame_read(int nowFrame, int &fret)
                     }
                 }
             }
-            if (!flag3)
+            if (flag3 == -1)
                 continue;
             deqOrder.pop_front();
             ptask[i] = temptask;
