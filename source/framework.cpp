@@ -666,7 +666,7 @@ bool frame_read(int nowFrame, int &fret)
             double curplatex, curplatey;
             for (int j = 0; j < temptask.stpsum; j++)
             {
-                if (temptask.stp[j].ts == TAKING_INGREDIENT_TO_PLATE)
+                if ((temptask.stp[j].ts == TAKING_INGREDIENT_TO_PLATE) || (temptask.stp[j].ts == TAKE_UP_PLATE))
                 {
                     if (!flag3)
                     {
