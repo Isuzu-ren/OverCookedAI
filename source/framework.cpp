@@ -676,7 +676,8 @@ bool frame_read(int nowFrame, int &fret)
                             break;
                     }
                     else
-                        CheckInteractPos(temptask.stp[j], platearr[temptask.plateindex].x, platearr[temptask.plateindex].y);
+                        ;
+                        // CheckInteractPos(temptask.stp[j], platearr[temptask.plateindex].x, platearr[temptask.plateindex].y);
                 }
             }
             if (!flag3)
