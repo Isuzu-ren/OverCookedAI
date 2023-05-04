@@ -10,6 +10,7 @@
 #include <deque>
 #include <cctype>
 #include <cmath>
+#include <set>
 
 // enum Status
 // {
@@ -77,6 +78,7 @@ int xservicewindows, yservicewindows;
 int xsink, ysink;
 int xplatereturn, yplatereturn;
 Task WashDirtyPlate;
+std::set<std::pair<int, int>> plateused;
 int platenum = 0;
 Plate platearr[20];
 Task totalOrderParseTask[20 + 5];
@@ -118,21 +120,21 @@ void CheckInteractPos(Step &stp, const int x, const int y)
 // 初始化一些信息 确定盘子的总数和各自的坐标 确定服务台坐标和洗盘子水槽坐标 然后确定洗碗事件的基本信息
 void init_map()
 {
-    for (int i = 0; i < entityCount; i++)
-    {
-        if (Entity[i].containerKind == ContainerKind::Plate)
-        {
-            platearr[platenum].used = false;
-            platearr[platenum].x = Entity[i].x;
-            platearr[platenum].y = Entity[i].y;
-            platenum++;
-        }
-    }
-    for (int i = platenum; i < 20; i++)
-    {
-        platearr[i].x = -1;
-        platearr[i].y = -1;
-    }
+    // for (int i = 0; i < entityCount; i++)
+    // {
+    //     if (Entity[i].containerKind == ContainerKind::Plate)
+    //     {
+    //         platearr[platenum].used = false;
+    //         platearr[platenum].x = Entity[i].x;
+    //         platearr[platenum].y = Entity[i].y;
+    //         platenum++;
+    //     }
+    // }
+    // for (int i = platenum; i < 20; i++)
+    // {
+    //     platearr[i].x = -1;
+    //     platearr[i].y = -1;
+    // }
     for (int i = 0; i < height * width; i++)
     {
         if ((!isupper(Map[i / width][i % width])) && (getTileKind(Map[i / width][i % width]) == TileKind::ServiceWindow))
@@ -220,6 +222,11 @@ void init_map()
 }
 
 const double epsilon = 1e-4;
+double fround(double r)
+{
+    return (r > 0.0) ? floor(r + 0.5) : ceil(r - 0.5);
+}
+
 void checkplate()
 {
     for (int i = 0; i < 20; i++)
@@ -301,14 +308,20 @@ int Move(const double px, const double py, const int dx, const int dy)
 bool checkplatepos(Step &stp, const int op)
 {
     assert(stp.ts == TAKING_INGREDIENT_TO_PLATE);
-    for (int i = 0; i < 20; i++)
+    for (int i = 0; i < entityCount; i++)
     {
-        if ((platearr[i].x >= 0) && (platearr[i].y >= 0) && (platearr[i].used == false))
+        if (Entity[i].containerKind == ContainerKind::Plate)
         {
-            platearr[i].used = true;
-            CheckInteractPos(stp, int(platearr[i].x), int(platearr[i].y));
-            stp.descheck = true;
-            return true;
+            int x = fround(Entity[i].x);
+            int y = fround(Entity[i].y);
+            std::pair<int, int> pos = std::make_pair(x, y);
+            if (plateused.find(pos) == plateused.end())
+            {
+                CheckInteractPos(stp, x, y);
+                stp.descheck = true;
+                plateused.emplace(pos);
+                return true;
+            }
         }
     }
     return false;
@@ -361,7 +374,7 @@ Task ParseOrder(const struct Order &order)
 // int RunningTaskSum = 0;
 std::deque<Task> deqOrder;
 Task ptask[2 + 2];
-DirtyPlatesFlag dirtyplateflag;
+PlateFlag dirtyplateflag;
 
 // ret 低6位表示行动方案 低4位 0001-右 0010-左 0100-下 1000-上 低56位 00-Move 01-Interact 10-PutOrPick
 int Action(const int op)
@@ -540,6 +553,7 @@ void init_read()
     ptask[1].completed = 0;
     // RunningTaskSum = 0;
     dirtyplateflag = NONE;
+    plateused.clear();
 }
 
 bool frame_read(int nowFrame, int &fret)

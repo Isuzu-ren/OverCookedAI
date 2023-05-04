@@ -104,12 +104,11 @@ enum TypeStep
     COLLISION_AVOIDENCE
 };
 
-enum DirtyPlatesFlag
+enum PlateFlag
 {
     NONE,
     UNDISTRIBUTED,
-    DISTRIBUTED,
-    SINKUSING
+    DISTRIBUTED
 };
 
 #endif
