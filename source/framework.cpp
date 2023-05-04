@@ -354,7 +354,7 @@ Task ParseOrder(const struct Order &order)
     return task;
 }
 
-int RunningTaskSum = 0;
+// int RunningTaskSum = 0;
 std::deque<Task> deqOrder;
 Task ptask[2 + 2];
 DirtyPlatesFlag dirtyplateflag;
@@ -416,8 +416,10 @@ int Action(const int op)
 
     if (cs.ts != WASHING)
         ct.completed++;
-    if (ct.completed == ct.stpsum)
-        RunningTaskSum--;
+    if (cs.ts == TAKING_PLATE_TO_SERVICEWINDOWS)
+        deqOrder.pop_front();
+    // if (ct.completed == ct.stpsum)
+    //     RunningTaskSum--;
     return ret;
 }
 
@@ -434,12 +436,13 @@ int checkOrder(const struct Order &order)
 
 void OrderToTaskDeque()
 {
-    if (RunningTaskSum + deqOrder.size() >= orderCount)
-        return;
-    for (int i = deqOrder.size() + RunningTaskSum; i < orderCount; i++)
+    if (deqOrder.size() < orderCount)
     {
-        int t = checkOrder(Order[i]);
-        deqOrder.emplace_back(totalOrderParseTask[t]);
+        for (int i = deqOrder.size(); i < orderCount; i++)
+        {
+            int t = checkOrder(Order[i]);
+            deqOrder.emplace_back(totalOrderParseTask[t]);
+        }
     }
 }
 
@@ -531,7 +534,7 @@ void init_read()
     ptask[1].stpsum = 0;
     ptask[0].completed = 0;
     ptask[1].completed = 0;
-    RunningTaskSum = 0;
+    // RunningTaskSum = 0;
     dirtyplateflag = NONE;
 }
 
@@ -692,7 +695,7 @@ bool frame_read(int nowFrame, int &fret)
             {
                 dirtyplateflag = DISTRIBUTED;
                 ptask[i] = WashDirtyPlate;
-                RunningTaskSum++;
+                // RunningTaskSum++;
                 continue;
             }
             temptask = deqOrder.front();
@@ -720,9 +723,8 @@ bool frame_read(int nowFrame, int &fret)
             }
             if (flag3 == -1)
                 continue;
-            deqOrder.pop_front();
             ptask[i] = temptask;
-            RunningTaskSum++;
+            // RunningTaskSum++;
         }
 
         // std::cout << i << " : " << ptask[i].plateindex << " " << ptask[i].completed << " " << ptask[i].stpsum << std::endl;
