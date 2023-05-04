@@ -375,6 +375,7 @@ Task ParseOrder(const struct Order &order)
 std::deque<Task> deqOrder;
 Task ptask[2 + 2];
 PlateFlag dirtyplateflag;
+std::pair<int, int> platefree[2];
 
 // ret 低6位表示行动方案 低4位 0001-右 0010-左 0100-下 1000-上 低56位 00-Move 01-Interact 10-PutOrPick
 int Action(const int op)
@@ -442,7 +443,7 @@ int Action(const int op)
             pos = std::make_pair(cs.desx, cs.desy + 1);
         else if (cs.d == UP)
             pos = std::make_pair(cs.desx, cs.desy - 1);
-        plateused.erase(pos);
+        platefree[op] = pos;
     }
     if (cs.ts != WASHING)
         ct.completed++;
@@ -706,8 +707,12 @@ bool frame_read(int nowFrame, int &fret)
     //     std::cout << platearr[i].x << " " << platearr[i].y << std::endl;
     // }
     fret = 0;
-    checkplate();
+    // checkplate();
     CheckDirtyPlate();
+    for (int i = 0; i < k; i++)
+    {
+        platefree[i] = std::make_pair(-1, -1);
+    }
 
     // std::cout << "Frame " << nowFrame << "\n";
     // std::cout << platenum << std::endl;
@@ -766,6 +771,11 @@ bool frame_read(int nowFrame, int &fret)
 
         int ret = Action(i);
         fret |= (ret << (6 * i));
+    }
+    for (int i = 0; i < k; i++)
+    {
+        if ((platefree[i].first != -1) && (platefree[i].second != -1))
+            plateused.erase(platefree[i]);
     }
     // std::cout << "fret=" << fret << std::endl;
 
