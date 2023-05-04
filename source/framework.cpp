@@ -120,16 +120,12 @@ void init_map()
 {
     for (int i = 0; i < entityCount; i++)
     {
-        for (auto it : Entity[i].entity)
+        if (Entity[i].containerKind == ContainerKind::Plate)
         {
-            if (it == "Plate")
-            {
-                platearr[platenum].used = false;
-                platearr[platenum].x = Entity[i].x;
-                platearr[platenum].y = Entity[i].y;
-                platenum++;
-                break;
-            }
+            platearr[platenum].used = false;
+            platearr[platenum].x = Entity[i].x;
+            platearr[platenum].y = Entity[i].y;
+            platenum++;
         }
     }
     for (int i = platenum; i < 20; i++)
@@ -234,35 +230,32 @@ void checkplate()
     int add = 0;
     for (int i = 0; i < entityCount; i++)
     {
-        for (auto it : Entity[i].entity)
+        if (Entity[i].containerKind == ContainerKind::Plate)
         {
-            if (it == "Plate")
+            flag1 = false;
+            for (int j = 0; j < 20; j++)
             {
-                flag1 = false;
-                for (int j = 0; j < 20; j++)
+                if ((platearr[j].curframecheck == false) &&
+                    (fabs(Entity[i].x - platearr[j].x) < epsilon) &&
+                    (fabs(Entity[i].y - platearr[j].y) < epsilon))
                 {
-                    if ((platearr[j].curframecheck == false) &&
-                        (fabs(Entity[i].x - platearr[j].x) < epsilon) &&
-                        (fabs(Entity[i].y - platearr[j].y) < epsilon))
-                    {
-                        platearr[j].curframecheck = true;
-                        flag1 = true;
-                        break;
-                    }
+                    platearr[j].curframecheck = true;
+                    flag1 = true;
+                    break;
                 }
-                if (!flag1)
+            }
+            if (!flag1)
+            {
+                add++;
+                for (int i = 0; i < 20; i++)
                 {
-                    add++;
-                    for (int i = 0; i < 20; i++)
+                    if ((platearr[i].x == -1) || (platearr[i].y == -1))
                     {
-                        if ((platearr[i].x == -1) || (platearr[i].y == -1))
-                        {
-                            platearr[i].x = Entity[i].x;
-                            platearr[i].y = Entity[i].y;
-                            platearr[i].curframecheck = true;
-                            platearr[i].used = false;
-                            break;
-                        }
+                        platearr[i].x = Entity[i].x;
+                        platearr[i].y = Entity[i].y;
+                        platearr[i].curframecheck = true;
+                        platearr[i].used = false;
+                        break;
                     }
                 }
             }
