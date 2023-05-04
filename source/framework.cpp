@@ -81,6 +81,40 @@ int platenum = 0;
 Plate platearr[20];
 Task totalOrderParseTask[20 + 5];
 
+// 找到一个可以和位于坐标(y,x)的实体或特殊地砖交互的地点，相关信息记录在步骤stp中
+void CheckInteractPos(Step &stp, const int x, const int y)
+{
+    if ((x > 0) && (!isupper(Map[y][x - 1])) && (getTileKind(Map[y][x - 1]) == TileKind::Floor))
+    {
+        stp.desx = x - 1;
+        stp.desy = y;
+        stp.d = RIGHT;
+    }
+    else if ((x < width - 1) && (!isupper(Map[y][x + 1])) && (getTileKind(Map[y][x + 1]) == TileKind::Floor))
+    {
+        stp.desx = x + 1;
+        stp.desy = y;
+        stp.d = LEFT;
+    }
+    else if ((y > 0) && (!isupper(Map[y - 1][x])) && (getTileKind(Map[y - 1][x]) == TileKind::Floor))
+    {
+        stp.desx = x;
+        stp.desy = y - 1;
+        stp.d = DOWN;
+    }
+    else if ((y < height - 1) && (!isupper(Map[y + 1][x])) && (getTileKind(Map[y + 1][x]) == TileKind::Floor))
+    {
+        stp.desx = x;
+        stp.desy = y + 1;
+        stp.d = UP;
+    }
+    else
+    {
+        assert(0);
+    }
+    stp.descheck = true;
+}
+
 // 初始化一些信息 确定盘子的总数和各自的坐标 确定服务台坐标和洗盘子水槽坐标 然后确定洗碗事件的基本信息
 void init_map()
 {
@@ -235,40 +269,6 @@ void checkplate()
         }
     }
     platenum += add;
-}
-
-// 找到一个可以和位于坐标(y,x)的实体或特殊地砖交互的地点，相关信息记录在步骤stp中
-void CheckInteractPos(Step &stp, const int x, const int y)
-{
-    if ((x > 0) && (!isupper(Map[y][x - 1])) && (getTileKind(Map[y][x - 1]) == TileKind::Floor))
-    {
-        stp.desx = x - 1;
-        stp.desy = y;
-        stp.d = RIGHT;
-    }
-    else if ((x < width - 1) && (!isupper(Map[y][x + 1])) && (getTileKind(Map[y][x + 1]) == TileKind::Floor))
-    {
-        stp.desx = x + 1;
-        stp.desy = y;
-        stp.d = LEFT;
-    }
-    else if ((y > 0) && (!isupper(Map[y - 1][x])) && (getTileKind(Map[y - 1][x]) == TileKind::Floor))
-    {
-        stp.desx = x;
-        stp.desy = y - 1;
-        stp.d = DOWN;
-    }
-    else if ((y < height - 1) && (!isupper(Map[y + 1][x])) && (getTileKind(Map[y + 1][x]) == TileKind::Floor))
-    {
-        stp.desx = x;
-        stp.desy = y + 1;
-        stp.d = UP;
-    }
-    else
-    {
-        assert(0);
-    }
-    stp.descheck = true;
 }
 
 // ret 低四位表示移动方向 0001-右 0010-左 0100-下 1000-上
@@ -698,6 +698,7 @@ bool frame_read(int nowFrame, int &fret)
         {
             if (dirtyplateflag == UNDISTRIBUTED)
             {
+                dirtyplateflag = DISTRIBUTED;
                 ptask[i] = WashDirtyPlate;
                 RunningTaskSum++;
                 continue;
