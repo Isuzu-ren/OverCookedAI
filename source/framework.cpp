@@ -339,19 +339,19 @@ Task ParseOrder(const struct Order &order)
 int Move(const double px, const double py, const int dx, const int dy)
 {
     int ret = 0;
-    if (px <= double(dx + 0.2))
+    if (px <= double(dx + 0.15))
     {
         ret |= 0x1;
     }
-    else if (px >= double(dx + 0.8))
+    else if (px >= double(dx + 0.85))
     {
         ret |= 0x2;
     }
-    if (py <= double(dy + 0.2))
+    if (py <= double(dy + 0.15))
     {
         ret |= 0x4;
     }
-    else if (py >= double(dy + 0.8))
+    else if (py >= double(dy + 0.85))
     {
         ret |= 0x8;
     }
@@ -638,8 +638,18 @@ bool frame_read(int nowFrame, int &fret)
     //         std::cout << it.stp[i].desx << ' ' << it.stp[i].desy << std::endl;
     //     }
     // }
+    std::cout << platenum << std::endl;
+    for (int i = 0; i < platenum; i++)
+    {
+        std::cout << platearr[i].x << " " << platearr[i].y;
+    }
     fret = 0;
     checkplate();
+    std::cout << platenum << std::endl;
+    for (int i = 0; i < platenum; i++)
+    {
+        std::cout << platearr[i].x << " " << platearr[i].y;
+    }
     Task temptask;
     for (int i = 0; i < k; i++)
     {
