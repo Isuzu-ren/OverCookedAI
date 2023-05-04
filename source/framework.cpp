@@ -683,6 +683,7 @@ bool frame_read(int nowFrame, int &fret)
             RunningTaskSum++;
         }
 
+        std::cout << "Frame " << nowFrame << "\n";
         std::cout << i << " : " << ptask[i].plateindex << " " << ptask[i].completed << " " << ptask[i].stpsum << std::endl;
         for (int j = 0; j < ptask[i].stpsum; j++)
         {
