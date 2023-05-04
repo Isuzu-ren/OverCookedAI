@@ -63,10 +63,10 @@ struct Step
 
 struct Task
 {
-    Step stp[10];   // 每步需要完成的任务
-    int stpsum;     // 总步数
-    int completed;  // 完成数量
-    int plateindex; // 使用的盘子编号
+    Step stp[10];  // 每步需要完成的任务
+    int stpsum;    // 总步数
+    int completed; // 完成数量
+    // int plateindex; // 使用的盘子编号
 };
 
 std::string IngredientName[5] =
@@ -372,7 +372,6 @@ bool checkplatepos(Step &stp, const int op)
             platearr[i].used = true;
             CheckInteractPos(stp, int(platearr[i].x), int(platearr[i].y));
             stp.descheck = true;
-            ptask[op].plateindex = i;
             return true;
         }
     }
@@ -662,22 +661,26 @@ bool frame_read(int nowFrame, int &fret)
         if (ptask[i].completed >= ptask[i].stpsum)
         {
             temptask = deqOrder.front();
-            bool flag3 = false;
+            int flag3 = -1;
             double curplatex, curplatey;
             for (int j = 0; j < temptask.stpsum; j++)
             {
                 if ((temptask.stp[j].ts == TAKING_INGREDIENT_TO_PLATE) || (temptask.stp[j].ts == TAKE_UP_PLATE))
                 {
-                    if (!flag3)
+                    if (flag3 == -1)
                     {
                         if (checkplatepos(temptask.stp[j], i))
-                            flag3 = true;
+                            flag3 = j;
                         else
                             break;
                     }
                     else
-                        ;
-                        // CheckInteractPos(temptask.stp[j], platearr[temptask.plateindex].x, platearr[temptask.plateindex].y);
+                    {
+                        temptask.stp[j].descheck = true;
+                        temptask.stp[j].desx = temptask.stp[flag3].desx;
+                        temptask.stp[j].desy = temptask.stp[flag3].desy;
+                        temptask.stp[j].d = temptask.stp[flag3].d;
+                    }
                 }
             }
             if (!flag3)
