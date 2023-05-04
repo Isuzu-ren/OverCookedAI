@@ -638,6 +638,7 @@ bool frame_read(int nowFrame, int &fret)
     //         std::cout << it.stp[i].desx << ' ' << it.stp[i].desy << std::endl;
     //     }
     // }
+    std::cout << "Frame " << nowFrame << "\n";
     std::cout << platenum << std::endl;
     for (int i = 0; i < platenum; i++)
     {
