@@ -189,22 +189,24 @@ bool CheckPlatePos(Step &stp)
 // 移动和行动相关
 
 // ret 低四位表示移动方向 0001-右 0010-左 0100-下 1000-上
-int Move(const double px, const double py, const int dx, const int dy)
+int Move(const int op, const int dx, const int dy)
 {
+    double px = Players[op].x;
+    double py = Players[op].y;
     int ret = 0;
-    if (px <= double(dx + 0.15))
+    if (px <= double(dx) + 0.1)
     {
         ret |= 0x1;
     }
-    else if (px >= double(dx + 0.85))
+    else if (px >= double(dx) + 0.9)
     {
         ret |= 0x2;
     }
-    if (py <= double(dy + 0.15))
+    if (py <= double(dy) + 0.1)
     {
         ret |= 0x4;
     }
-    else if (py >= double(dy + 0.85))
+    else if (py >= double(dy) + 0.9)
     {
         ret |= 0x8;
     }
@@ -217,7 +219,7 @@ int Action(const int op)
     assert(op < 2);
     Task &ct = ptask[op];
     Step &cs = ct.stp[ct.completed];
-    int ret = Move(Players[op].x, Players[op].y, cs.desx, cs.desy);
+    int ret = Move(op, cs.desx, cs.desy);
     // std :: cout << op << " " << Players[op].x << " " << Players[op].y << " " << ct.stp[ct.completed].desx << " " << ct.stp[ct.completed].desy << " ret= " << ret << "\n";
     if (ret != 0)
         return ret;
