@@ -196,19 +196,19 @@ int Move(const int op, const int dx, const int dy)
     double px = Players[op].x;
     double py = Players[op].y;
     int ret = 0;
-    if (px <= double(dx) + 0.05)
+    if (px <= double(dx) + 0.15)
     {
         ret |= 0x1;
     }
-    else if (px >= double(dx) + 0.95)
+    else if (px >= double(dx) + 0.85)
     {
         ret |= 0x2;
     }
-    if (py <= double(dy) + 0.05)
+    if (py <= double(dy) + 0.15)
     {
         ret |= 0x4;
     }
-    else if (py >= double(dy) + 0.95)
+    else if (py >= double(dy) + 0.85)
     {
         ret |= 0x8;
     }
@@ -607,7 +607,7 @@ int FrameDo()
         CollisionAvoidenceTime--;
         return CollisionAvoidenceRet;
     }
-    
+
     // 初始化操作
     int fret = 0;
     OrderToTaskDeque();
