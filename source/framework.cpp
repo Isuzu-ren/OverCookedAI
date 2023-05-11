@@ -626,7 +626,7 @@ int FrameDo()
     }
     for (int i = 0; i < deqOrder.size(); i++)
     {
-        std::cerr << deqOrder[i].stp[0].desx << "\n";
+        std::cout << deqOrder[i].stp[0].desx << "\n";
     }
     CheckDirtyPlate();
     for (int i = 0; i < k; i++)
