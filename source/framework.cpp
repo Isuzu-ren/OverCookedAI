@@ -214,15 +214,12 @@ int Move(const int op, const int dx, const int dy)
     }
     double fx = fabs(px - dx);
     double fy = fabs(py - dy);
-    if (op == 1)
+    if (fabs(fx - fy) > 1)
     {
-        if (fabs(fx - fy) > 0.75)
-        {
-            if (fx > fy)
-                ret &= 0x3;
-            else
-                ret &= 0xc;
-        }
+        if (fx > fy)
+            ret &= 0x3;
+        else
+            ret &= 0xc;
     }
     return ret;
 }
