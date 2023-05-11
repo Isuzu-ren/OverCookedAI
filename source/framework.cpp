@@ -595,7 +595,7 @@ void InitDo()
     ptask[0].completed = 0;
     ptask[1].completed = 0;
     ptask[0].stp[0].ts = TAKING_PLATE_TO_SERVICEWINDOWS;
-    ptask[1].stp[0].ts = TAKING_PLATE_TO_SERVICEWINDOWS;
+    ptask[1].stp[0].ts = GO_TO_INGREDIENT;
     // RunningTaskSum = 0;
     dirtyplateflag = NONE;
     plateused.clear();
