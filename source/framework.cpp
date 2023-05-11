@@ -568,7 +568,7 @@ int FrameDo()
             break;
         nearplayer = CheckPlayerInteractDistance(temptask.stp[0]);
         FreePlayer[nearplayer] = false;
-        ptask[nearplayer] = WashDirtyPlate;
+        ptask[nearplayer] = temptask;
     }
     
     // 具体分配
