@@ -137,6 +137,23 @@ bool CheckInteractSuc(Step &stp, const int op)
         return (Players[op].containerKind == ContainerKind::None);
     else if (stp.ts == TAKE_UP_DIRTYPLATE)
         return (Players[op].containerKind == ContainerKind::DirtyPlates);
+    else if (stp.ts == TAKING_DIRTYPLATE_TO_SINK)
+        return (Players[op].containerKind == ContainerKind::None);
+    else if (stp.ts == WASHING)
+    {
+        bool flag4 = false;
+        for (int i = 0; i < entityCount; i++)
+        {
+            if ((Entity[i].containerKind == ContainerKind::DirtyPlates) && (fabs(Entity[i].x - xsink) < epsilon) && (fabs(Entity[i].y - ysink) < epsilon))
+            {
+                flag4 = true;
+                break;
+            }
+        }
+        if (!flag4)
+            dirtyplateflag = NONE;
+        return !flag4;
+    }
     else
         return false;
 }
@@ -218,7 +235,7 @@ int Action(const int op)
             }
             if (!flag4)
             {
-                ct.completed++;
+                // ct.completed++;
                 dirtyplateflag = NONE;
             }
         }
@@ -257,8 +274,8 @@ int Action(const int op)
             pos = std::make_pair(cs.desx, cs.desy - 1);
         platefree[op] = pos;
     }
-    if (cs.ts != WASHING)
-        ct.completed++;
+    // if (cs.ts != WASHING)
+    //     ct.completed++;
     if (cs.ts == TAKING_PLATE_TO_SERVICEWINDOWS)
         deqOrder.pop_front();
     // if (ct.completed == ct.stpsum)
@@ -512,6 +529,11 @@ int FrameDo()
     // 初始化操作
     int fret = 0;
     OrderToTaskDeque();
+    for (int i = 0; i < k; i++)
+    {
+        if (CheckInteractSuc(ptask[i].stp[ptask[i].completed], i))
+            ptask[i].completed++;
+    }
     CheckDirtyPlate();
     for (int i = 0; i < k; i++)
     {
