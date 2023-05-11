@@ -570,15 +570,17 @@ int FrameDo()
         FreePlayer[nearplayer] = false;
         ptask[nearplayer] = temptask;
     }
-    
+
     // 具体分配
     int ret = 0;
     for (int i = 0; i < k; i++)
     {
+        if (FreePlayer[i])
+            continue;
         ret = Action(i);
         fret |= (ret << (6 * i));
     }
-    
+
     // 结束操作
     for (int i = 0; i < k; i++)
     {
