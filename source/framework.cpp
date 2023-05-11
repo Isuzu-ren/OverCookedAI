@@ -210,6 +210,18 @@ int Move(const int op, const int dx, const int dy)
     {
         ret |= 0x8;
     }
+    if (op == 1)
+    {
+        double fx = fabs(px - dx);
+        double fy = fabs(py - dy);
+        if (fabs(fx - fy) > 1)
+        {
+            if (fx > fy)
+                ret &= 0xc;
+            else
+                ret &= 0x3;
+        }
+    }
     return ret;
 }
 
