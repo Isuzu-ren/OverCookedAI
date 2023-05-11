@@ -151,7 +151,12 @@ bool CheckInteractSuc(Step &stp, const int op)
             }
         }
         if (!flag4)
-            dirtyplateflag = NONE;
+        {
+            if (dirtyplateflag == TWODISTRIBUTED)
+                dirtyplateflag = DISTRIBUTED;
+            else
+                dirtyplateflag = NONE;
+        }
         return !flag4;
     }
     else
@@ -601,6 +606,13 @@ int FrameDo()
                 FreePlayer[nearplayer] = false;
                 ptask[nearplayer] = WashDirtyPlate;
                 dirtyplateflag = DISTRIBUTED;
+            }
+            else if (dirtyplateflag == DISTRIBUTED)
+            {
+                nearplayer = CheckPlayerInteractDistance(WashDirtyPlate.stp[0]);
+                FreePlayer[nearplayer] = false;
+                ptask[nearplayer] = WashDirtyPlate;
+                dirtyplateflag = TWODISTRIBUTED;
             }
             break;
         }
