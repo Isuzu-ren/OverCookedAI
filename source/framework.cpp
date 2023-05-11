@@ -142,7 +142,7 @@ bool CheckInteractSuc(Step &stp, const int op)
 }
 
 // 分配一个可用的盘子
-bool CheckPlatePos(Step &stp, const int op)
+bool CheckPlatePos(Step &stp)
 {
     assert(stp.ts == TAKING_INGREDIENT_TO_PLATE);
     for (int i = 0; i < entityCount; i++)
@@ -550,7 +550,7 @@ int FrameDo()
             {
                 if (flag3 == -1)
                 {
-                    if (CheckPlatePos(temptask.stp[j], i))
+                    if (CheckPlatePos(temptask.stp[j]))
                         flag3 = j;
                     else
                         break;
