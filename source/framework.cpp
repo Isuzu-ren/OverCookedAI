@@ -214,7 +214,7 @@ int Move(const int op, const int dx, const int dy)
     {
         double fx = fabs(px - dx);
         double fy = fabs(py - dy);
-        if (fabs(fx - fy) > 1)
+        if (fabs(fx - fy) > 0.5)
         {
             if (fx > fy)
                 ret &= 0x3;
