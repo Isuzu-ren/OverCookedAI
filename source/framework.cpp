@@ -217,9 +217,9 @@ int Move(const int op, const int dx, const int dy)
         if (fabs(fx - fy) > 1)
         {
             if (fx > fy)
-                ret &= 0xc;
-            else
                 ret &= 0x3;
+            else
+                ret &= 0xc;
         }
     }
     return ret;
