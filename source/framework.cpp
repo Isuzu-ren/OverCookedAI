@@ -67,16 +67,16 @@ int xplatereturn, yplatereturn;          // 归还盘子处坐标
 Task WashDirtyPlate;                     // 洗盘子任务
 std::set<std::pair<int, int>> plateused; // 已分配的盘子的坐标
 std::pair<int, int> platefree[2];        // 当前帧需要释放的分配盘子坐标
+PlateFlag dirtyplateflag;                // 脏盘标志
+int platenum = 0;                        // 盘子总数
 std::deque<Task> deqOrder;               // 订单任务队列
 Task ptask[2 + 2];                       // 玩家正在执行的任务
-Task ptaskbackup[2 + 2];                 // 死亡时重新分配
-PlateFlag dirtyplateflag;                // 脏盘标志
+Task ptaskbackup[2 + 2];                 // 死亡时重新分配的备份
 Task totalOrderParseTask[20 + 5];        // 订单解析数组
 bool FreePlayer[2] = {};                 // 当前帧玩家是否空闲
 
 // 抛弃或暂无用的全局变量
 // int RunningTaskSum = 0;
-int platenum = 0;
 Plate platearr[20];
 
 // 判断浮点数相等
@@ -361,6 +361,13 @@ void init_map()
             break;
         }
     }
+    for (int i = 0; i < entityCount; i++)
+    {
+        if (Entity[i].containerKind == ContainerKind::Plate)
+        {
+            platenum++;
+        }
+    }
     WashDirtyPlate.completed = 0;
     CheckInteractPos(WashDirtyPlate.stp[0], xplatereturn, yplatereturn);
     WashDirtyPlate.stp[0].descheck = true;
@@ -587,13 +594,22 @@ int FrameDo()
             }
         }
         if (flag3 == -1)
+        {
+            if (dirtyplateflag == NONE)
+            {
+                nearplayer = CheckPlayerInteractDistance(WashDirtyPlate.stp[0]);
+                FreePlayer[nearplayer] = false;
+                ptask[nearplayer] = WashDirtyPlate;
+                dirtyplateflag = DISTRIBUTED;
+            }
             break;
+        }
         nearplayer = CheckPlayerInteractDistance(temptask.stp[0]);
         FreePlayer[nearplayer] = false;
         ptask[nearplayer] = temptask;
     }
 
-    // 具体分配
+    // 具体行动
     int ret = 0;
     for (int i = 0; i < k; i++)
     {

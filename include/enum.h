@@ -108,7 +108,8 @@ enum PlateFlag
 {
     NONE,
     UNDISTRIBUTED,
-    DISTRIBUTED
+    DISTRIBUTED,
+    TWODISTRIBUTED
 };
 
 #endif
