@@ -194,19 +194,19 @@ int Move(const int op, const int dx, const int dy)
     double px = Players[op].x;
     double py = Players[op].y;
     int ret = 0;
-    if (px <= double(dx) + 0.1)
+    if (px <= double(dx) + 0.05)
     {
         ret |= 0x1;
     }
-    else if (px >= double(dx) + 0.9)
+    else if (px >= double(dx) + 0.95)
     {
         ret |= 0x2;
     }
-    if (py <= double(dy) + 0.1)
+    if (py <= double(dy) + 0.05)
     {
         ret |= 0x4;
     }
-    else if (py >= double(dy) + 0.9)
+    else if (py >= double(dy) + 0.95)
     {
         ret |= 0x8;
     }
