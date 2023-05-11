@@ -69,17 +69,18 @@ std::set<std::pair<int, int>> plateused; // 已分配的盘子的坐标
 std::pair<int, int> platefree[2];        // 当前帧需要释放的分配盘子坐标
 PlateFlag dirtyplateflag;                // 脏盘标志
 int platenum = 0;                        // 盘子总数
-std::deque<Task> deqOrder;               // 订单任务队列
-Task ptask[2 + 2];                       // 玩家正在执行的任务
-Task ptaskbackup[2 + 2];                 // 死亡时重新分配的备份
-Task totalOrderParseTask[20 + 5];        // 订单解析数组
-bool FreePlayer[2] = {};                 // 当前帧玩家是否空闲
-int CollisionAvoidenceTime = 0;          // 碰撞避免行动时间
-int CollisionAvoidenceRet = 0;           // 碰撞应对策略
+int orderIn = 0;
+Task ptask[2 + 2];                // 玩家正在执行的任务
+Task ptaskbackup[2 + 2];          // 死亡时重新分配的备份
+Task totalOrderParseTask[20 + 5]; // 订单解析数组
+bool FreePlayer[2] = {};          // 当前帧玩家是否空闲
+int CollisionAvoidenceTime = 0;   // 碰撞避免行动时间
+int CollisionAvoidenceRet = 0;    // 碰撞应对策略
 
 // 抛弃或暂无用的全局变量
 // int RunningTaskSum = 0;
 Plate platearr[20];
+// std::deque<Task> deqOrder;               // 订单任务队列
 
 // 判断浮点数相等
 const double epsilon = 1e-4;
@@ -523,17 +524,17 @@ int checkOrder(const struct Order &order)
 }
 
 // 订单数减少时读取新的订单
-void OrderToTaskDeque()
-{
-    if (deqOrder.size() < orderCount)
-    {
-        for (int i = deqOrder.size(); i < orderCount; i++)
-        {
-            int t = checkOrder(Order[i]);
-            deqOrder.emplace_back(totalOrderParseTask[t]);
-        }
-    }
-}
+// void OrderToTaskDeque()
+// {
+//     if (deqOrder.size() < orderCount)
+//     {
+//         for (int i = deqOrder.size(); i < orderCount; i++)
+//         {
+//             int t = checkOrder(Order[i]);
+//             deqOrder.emplace_back(totalOrderParseTask[t]);
+//         }
+//     }
+// }
 
 // 确认归还盘子处是否有脏盘子并设置脏盘标志
 void CheckDirtyPlate()
@@ -589,7 +590,8 @@ void InitDo()
     {
         totalOrderParseTask[i] = ParseOrder(totalOrder[i]);
     }
-    deqOrder.clear();
+    // deqOrder.clear();
+    orderIn = 0;
     ptask[0].stpsum = 0;
     ptask[1].stpsum = 0;
     ptask[0].completed = 0;
@@ -617,9 +619,9 @@ int FrameDo()
     {
         if (CheckInteractSuc(ptask[i].stp[ptask[i].completed], i))
         {
-            if (ptask[i].stp[ptask[i].completed].ts == TAKING_PLATE_TO_SERVICEWINDOWS)
+            if(ptask[i].stp[ptask[i].completed].ts == TAKING_PLATE_TO_SERVICEWINDOWS)
             {
-                OrderToTaskDeque();
+                orderIn--;
             }
             ptask[i].completed++;
         }
@@ -654,7 +656,8 @@ int FrameDo()
             ptask[nearplayer] = WashDirtyPlate;
             continue;
         }
-        temptask = deqOrder.front();
+        // temptask = deqOrder.front();
+        temptask = totalOrderParseTask[checkOrder(Order[orderIn])];
         int flag3 = -1;
         for (int j = 0; j < temptask.stpsum; j++)
         {
@@ -694,7 +697,7 @@ int FrameDo()
             }
             break;
         }
-        deqOrder.pop_front();
+        orderIn++;
         nearplayer = CheckPlayerInteractDistance(temptask.stp[0]);
         FreePlayer[nearplayer] = false;
         ptask[nearplayer] = temptask;
