@@ -136,9 +136,7 @@ bool CheckInteractSuc(Step &stp, const int op)
     else if ((stp.ts == TAKE_UP_PLATE) || (stp.ts == TAKING_PLATE_TO_PAN_OR_POT))
         return (Players[op].containerKind == ContainerKind::Plate);
     else if (stp.ts == TAKING_PLATE_TO_SERVICEWINDOWS)
-    {
-        return (Players[op].containerKind == ContainerKind::None);
-    }
+        return Players[op].entity.empty();
     else if (stp.ts == TAKE_UP_DIRTYPLATE)
         return (Players[op].containerKind == ContainerKind::DirtyPlates);
     else if (stp.ts == TAKING_DIRTYPLATE_TO_SINK)
@@ -596,6 +594,8 @@ void InitDo()
     ptask[1].stpsum = 0;
     ptask[0].completed = 0;
     ptask[1].completed = 0;
+    ptask[0].stp[0].ts = TAKING_PLATE_TO_SERVICEWINDOWS;
+    ptask[1].stp[0].ts = TAKING_PLATE_TO_SERVICEWINDOWS;
     // RunningTaskSum = 0;
     dirtyplateflag = NONE;
     plateused.clear();
