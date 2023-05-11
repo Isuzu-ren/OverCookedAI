@@ -702,7 +702,7 @@ int FrameDo()
     }
     if (CollisionDetection(fret))
     {
-        CollisionAvoidenceTime = 5;
+        CollisionAvoidenceTime = 10;
         CollisionAct(fret);
         fret = CollisionAvoidenceRet;
     }
