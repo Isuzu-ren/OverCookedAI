@@ -129,6 +129,7 @@ void CheckInteractPos(Step &stp, const int x, const int y)
 // 确认交互是否成功
 bool CheckInteractSuc(Step &stp, const int op)
 {
+    bool flag4;
     if (stp.ts == GO_TO_INGREDIENT)
         return (!Players[op].entity.empty());
     else if ((stp.ts == TAKING_INGREDIENT_TO_PLATE) || (stp.ts == TAKING_INGREDIENT_TO_COOK_OR_CUT))
@@ -136,14 +137,19 @@ bool CheckInteractSuc(Step &stp, const int op)
     else if ((stp.ts == TAKE_UP_PLATE) || (stp.ts == TAKING_PLATE_TO_PAN_OR_POT))
         return (Players[op].containerKind == ContainerKind::Plate);
     else if (stp.ts == TAKING_PLATE_TO_SERVICEWINDOWS)
-        return (Players[op].containerKind == ContainerKind::None);
+    {
+        flag4 = (Players[op].containerKind == ContainerKind::None);
+        if (flag4)
+            deqOrder.pop_front();
+        return flag4;
+    }
     else if (stp.ts == TAKE_UP_DIRTYPLATE)
         return (Players[op].containerKind == ContainerKind::DirtyPlates);
     else if (stp.ts == TAKING_DIRTYPLATE_TO_SINK)
         return (Players[op].containerKind == ContainerKind::None);
     else if (stp.ts == WASHING)
     {
-        bool flag4 = false;
+        flag4 = false;
         for (int i = 0; i < entityCount; i++)
         {
             if ((Entity[i].containerKind == ContainerKind::DirtyPlates) && (fabs(Entity[i].x - xsink) < epsilon) && (fabs(Entity[i].y - ysink) < epsilon))
@@ -297,8 +303,8 @@ int Action(const int op)
     }
     // if (cs.ts != WASHING)
     //     ct.completed++;
-    if (cs.ts == TAKING_PLATE_TO_SERVICEWINDOWS)
-        deqOrder.pop_front();
+    // if (cs.ts == TAKING_PLATE_TO_SERVICEWINDOWS)
+    //     deqOrder.pop_front();
     // if (ct.completed == ct.stpsum)
     //     RunningTaskSum--;
     return ret;
@@ -610,12 +616,12 @@ int FrameDo()
 
     // 初始化操作
     int fret = 0;
-    OrderToTaskDeque();
     for (int i = 0; i < k; i++)
     {
         if (CheckInteractSuc(ptask[i].stp[ptask[i].completed], i))
             ptask[i].completed++;
     }
+    OrderToTaskDeque();
     CheckDirtyPlate();
     for (int i = 0; i < k; i++)
     {
