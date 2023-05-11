@@ -616,7 +616,13 @@ int FrameDo()
     for (int i = 0; i < k; i++)
     {
         if (CheckInteractSuc(ptask[i].stp[ptask[i].completed], i))
+        {
+            if (ptask[i].stp[ptask[i].completed].ts == TAKING_PLATE_TO_SERVICEWINDOWS)
+            {
+                OrderToTaskDeque();
+            }
             ptask[i].completed++;
+        }
     }
     CheckDirtyPlate();
     for (int i = 0; i < k; i++)
@@ -632,8 +638,6 @@ int FrameDo()
         else
             FreePlayer[i] = false;
     }
-    if (FreePlayer[0] || FreePlayer[1])
-        OrderToTaskDeque();
 
     // 具体分配
     Task temptask;
