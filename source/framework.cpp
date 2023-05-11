@@ -139,8 +139,8 @@ bool CheckInteractSuc(Step &stp, const int op)
     else if (stp.ts == TAKING_PLATE_TO_SERVICEWINDOWS)
     {
         flag4 = (Players[op].containerKind == ContainerKind::None);
-        if (flag4)
-            deqOrder.pop_front();
+        // if (flag4)
+        //     deqOrder.pop_front();
         return flag4;
     }
     else if (stp.ts == TAKE_UP_DIRTYPLATE)
@@ -692,6 +692,7 @@ int FrameDo()
             }
             break;
         }
+        deqOrder.pop_front();
         nearplayer = CheckPlayerInteractDistance(temptask.stp[0]);
         FreePlayer[nearplayer] = false;
         ptask[nearplayer] = temptask;
