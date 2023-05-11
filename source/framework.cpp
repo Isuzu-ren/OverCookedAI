@@ -129,7 +129,6 @@ void CheckInteractPos(Step &stp, const int x, const int y)
 // 确认交互是否成功
 bool CheckInteractSuc(Step &stp, const int op)
 {
-    bool flag4;
     if (stp.ts == GO_TO_INGREDIENT)
         return (!Players[op].entity.empty());
     else if ((stp.ts == TAKING_INGREDIENT_TO_PLATE) || (stp.ts == TAKING_INGREDIENT_TO_COOK_OR_CUT))
@@ -138,10 +137,7 @@ bool CheckInteractSuc(Step &stp, const int op)
         return (Players[op].containerKind == ContainerKind::Plate);
     else if (stp.ts == TAKING_PLATE_TO_SERVICEWINDOWS)
     {
-        flag4 = (Players[op].containerKind == ContainerKind::None);
-        // if (flag4)
-        //     deqOrder.pop_front();
-        return flag4;
+        return (Players[op].containerKind == ContainerKind::None);
     }
     else if (stp.ts == TAKE_UP_DIRTYPLATE)
         return (Players[op].containerKind == ContainerKind::DirtyPlates);
@@ -149,7 +145,7 @@ bool CheckInteractSuc(Step &stp, const int op)
         return (Players[op].containerKind == ContainerKind::None);
     else if (stp.ts == WASHING)
     {
-        flag4 = false;
+        bool flag4 = false;
         for (int i = 0; i < entityCount; i++)
         {
             if ((Entity[i].containerKind == ContainerKind::DirtyPlates) && (fabs(Entity[i].x - xsink) < epsilon) && (fabs(Entity[i].y - ysink) < epsilon))
@@ -622,7 +618,6 @@ int FrameDo()
         if (CheckInteractSuc(ptask[i].stp[ptask[i].completed], i))
             ptask[i].completed++;
     }
-    OrderToTaskDeque();
     CheckDirtyPlate();
     for (int i = 0; i < k; i++)
     {
@@ -637,6 +632,8 @@ int FrameDo()
         else
             FreePlayer[i] = false;
     }
+    if (FreePlayer[0] || FreePlayer[1])
+        OrderToTaskDeque();
 
     // 具体分配
     Task temptask;
