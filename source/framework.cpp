@@ -74,6 +74,7 @@ Task ptask[2 + 2];                       // 玩家正在执行的任务
 Task ptaskbackup[2 + 2];                 // 死亡时重新分配的备份
 Task totalOrderParseTask[20 + 5];        // 订单解析数组
 bool FreePlayer[2] = {};                 // 当前帧玩家是否空闲
+int CollisionAvoidenceTime[2] = {};      // 碰撞避免行动时间
 
 // 抛弃或暂无用的全局变量
 // int RunningTaskSum = 0;
@@ -236,29 +237,29 @@ int Action(const int op)
     if (ret != 0)
         return ret;
 
-    bool flag4;
-    if (cs.ts == WASHING)
-    {
-        if (cs.descheck)
-            cs.descheck = false;
-        else
-        {
-            flag4 = false;
-            for (int i = 0; i < entityCount; i++)
-            {
-                if ((Entity[i].containerKind == ContainerKind::DirtyPlates) && (fabs(Entity[i].x - xsink) < epsilon) && (fabs(Entity[i].y - ysink) < epsilon))
-                {
-                    flag4 = true;
-                    break;
-                }
-            }
-            if (!flag4)
-            {
-                // ct.completed++;
-                dirtyplateflag = NONE;
-            }
-        }
-    }
+    // bool flag4;
+    // if (cs.ts == WASHING)
+    // {
+    //     if (cs.descheck)
+    //         cs.descheck = false;
+    //     else
+    //     {
+    //         flag4 = false;
+    //         for (int i = 0; i < entityCount; i++)
+    //         {
+    //             if ((Entity[i].containerKind == ContainerKind::DirtyPlates) && (fabs(Entity[i].x - xsink) < epsilon) && (fabs(Entity[i].y - ysink) < epsilon))
+    //             {
+    //                 flag4 = true;
+    //                 break;
+    //             }
+    //         }
+    //         if (!flag4)
+    //         {
+    //             // ct.completed++;
+    //             dirtyplateflag = NONE;
+    //         }
+    //     }
+    // }
     // else if (cs.ts == TAKE_UP_DIRTYPLATE)
     // {
     // }
@@ -301,6 +302,8 @@ int Action(const int op)
     //     RunningTaskSum--;
     return ret;
 }
+
+// 碰撞应对
 
 // 订单解析相关
 
