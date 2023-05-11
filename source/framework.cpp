@@ -74,7 +74,8 @@ Task ptask[2 + 2];                       // 玩家正在执行的任务
 Task ptaskbackup[2 + 2];                 // 死亡时重新分配的备份
 Task totalOrderParseTask[20 + 5];        // 订单解析数组
 bool FreePlayer[2] = {};                 // 当前帧玩家是否空闲
-int CollisionAvoidenceTime[2] = {};      // 碰撞避免行动时间
+int CollisionAvoidenceTime = 0;          // 碰撞避免行动时间
+int CollisionAvoidenceRet = 0;           // 碰撞应对策略
 
 // 抛弃或暂无用的全局变量
 // int RunningTaskSum = 0;
@@ -303,7 +304,51 @@ int Action(const int op)
     return ret;
 }
 
+// 碰撞检测
+const double playercollisiondistance = 0.7 * 0.7 + 0.02;
+bool CollisionDetection(const int fret)
+{
+    if (((fret & 0x30) == 0) &&
+        (((fret >> 6) & 0x30) == 0) &&
+        (Players[0].X_Velocity < epsilon) &&
+        (Players[0].Y_Velocity < epsilon) &&
+        (Players[1].X_Velocity < epsilon) &&
+        (Players[1].Y_Velocity < epsilon) &&
+        (((Players[0].x - Players[1].x) * (Players[0].x - Players[1].x) + (Players[0].y - Players[1].y) * (Players[0].y - Players[1].y)) < playercollisiondistance))
+        return true;
+    else
+        return false;
+}
+
 // 碰撞应对
+void CollisionAct(const int fret)
+{
+    int td = 0;
+    const int cx0 = floor(Players[0].x);
+    const int cx1 = floor(Players[1].x);
+    const int cy0 = floor(Players[0].y);
+    const int cy1 = floor(Players[1].y);
+    const int d0 = fret & 0x0f;
+    const int d1 = (fret >> 6) & 0x0f;
+    if (((d1 & 0x01) == 0) && (!isupper(Map[cy0][cx0 - 1])) && (getTileKind(Map[cy0][cx0 - 1]) == TileKind::Floor))
+        td |= 0x02;
+    else if (((d1 & 0x02) == 0) && (!isupper(Map[cy0][cx0 + 1])) && (getTileKind(Map[cy0][cx0 + 1]) == TileKind::Floor))
+        td |= 0x01;
+    if (((d1 & 0x04) == 0) && (!isupper(Map[cy0 - 1][cx0])) && (getTileKind(Map[cy0 - 1][cx0]) == TileKind::Floor))
+        td |= 0x08;
+    else if (((d1 & 0x08) == 0) && (!isupper(Map[cy0 + 1][cx0])) && (getTileKind(Map[cy0 + 1][cx0]) == TileKind::Floor))
+        td |= 0x04;
+
+    if (((d0 & 0x01) == 0) && (!isupper(Map[cy1][cx1 - 1])) && (getTileKind(Map[cy1][cx1 - 1]) == TileKind::Floor))
+        td |= (0x02 << 6);
+    else if (((d0 & 0x02) == 0) && (!isupper(Map[cy1][cx1 + 1])) && (getTileKind(Map[cy1][cx1 + 1]) == TileKind::Floor))
+        td |= (0x01 << 6);
+    if (((d0 & 0x04) == 0) && (!isupper(Map[cy1 - 1][cx1])) && (getTileKind(Map[cy1 - 1][cx1]) == TileKind::Floor))
+        td |= (0x08 << 6);
+    else if (((d0 & 0x08) == 0) && (!isupper(Map[cy1 + 1][cx1])) && (getTileKind(Map[cy1 + 1][cx1]) == TileKind::Floor))
+        td |= (0x04 << 6);
+    CollisionAvoidenceRet = td;
+}
 
 // 订单解析相关
 
@@ -551,10 +596,18 @@ void InitDo()
     // RunningTaskSum = 0;
     dirtyplateflag = NONE;
     plateused.clear();
+    CollisionAvoidenceTime = 0;
 }
 
 int FrameDo()
 {
+    // 碰撞避免
+    if (CollisionAvoidenceTime > 0)
+    {
+        CollisionAvoidenceTime--;
+        return CollisionAvoidenceRet;
+    }
+    
     // 初始化操作
     int fret = 0;
     OrderToTaskDeque();
@@ -646,6 +699,12 @@ int FrameDo()
             continue;
         ret = Action(i);
         fret |= (ret << (6 * i));
+    }
+    if (CollisionDetection(fret))
+    {
+        CollisionAvoidenceTime = 5;
+        CollisionAct(fret);
+        fret = CollisionAvoidenceRet;
     }
 
     // 结束操作
