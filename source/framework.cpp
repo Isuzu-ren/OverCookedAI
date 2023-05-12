@@ -167,6 +167,18 @@ bool CheckInteractSuc(Step &stp, const int op)
         }
         return !flag4;
     }
+    else if (stp.ts == CHOPING)
+    {
+        for (int i = 0; i < entityCount; i++)
+        {
+            if ((Entity[i].containerKind == ContainerKind::None) &&
+                (fabs(Entity[i].x - xchoppingstation) < epsilon) &&
+                (fabs(Entity[i].y - ychoppingstation) < epsilon) &&
+                (Entity[i].entity.front() == stp.product))
+                return true;
+        }
+        return false;
+    }
     else
         return false;
 }
@@ -406,7 +418,16 @@ Task ParseOrder(const struct Order &order)
                 task.stp[task.stpsum].stay = true;
                 task.stp[task.stpsum].product = "c_fish";
                 task.stpsum++;
-                // 装盘
+                // 拿起
+                task.stp[task.stpsum].desx = task.stp[task.stpsum - 1].desx;
+                task.stp[task.stpsum].desy = task.stp[task.stpsum - 1].desy;
+                task.stp[task.stpsum].d = task.stp[task.stpsum - 1].d;
+                task.stp[task.stpsum].descheck = true;
+                task.stp[task.stpsum].ta = TAKE;
+                task.stp[task.stpsum].ts = GO_TO_INGREDIENT;
+                task.stp[task.stpsum].stay = false;
+                task.stpsum++;
+                // 去装盘
                 task.stp[task.stpsum].descheck = false;
                 task.stp[task.stpsum].ta = TAKE;
                 task.stp[task.stpsum].ts = TAKING_INGREDIENT_TO_PLATE;
