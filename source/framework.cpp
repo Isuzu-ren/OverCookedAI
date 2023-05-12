@@ -512,13 +512,6 @@ void init_map()
     // }
 }
 
-void SwapPlayersTask()
-{
-    Task t = ptask[0];
-    ptask[0] = ptask[1];
-    ptask[1] = t;
-}
-
 int checkOrder(const struct Order &order)
 {
     for (int i = 0; i < totalOrderCount; i++)
@@ -594,15 +587,6 @@ int CheckPlayerInteractDistance(Step &stp)
             ret = i;
     }
     assert(ret != -1);
-    return ret;
-}
-
-// 交换任务判定
-int CheckPlayerInteractDistanceToSwap(Step &stp)
-{
-    int ret = 0;
-    if (DistancePlayerToInteract(1, double(stp.desx) + 0.5, double(stp.desy) + 0.5) < DistancePlayerToInteract(ret, double(stp.desx) + 0.5, double(stp.desy) + 0.5))
-        ret = 1;
     return ret;
 }
 
@@ -720,27 +704,12 @@ int FrameDo()
                 ptask[nearplayer] = WashDirtyPlate;
                 dirtyplateflag = TWODISTRIBUTED;
             }
-            else
-                break;
+            break;
         }
-        else
-        {
-            deqOrder.pop_front();
-            nearplayer = CheckPlayerInteractDistance(temptask.stp[0]);
-            FreePlayer[nearplayer] = false;
-            ptask[nearplayer] = temptask;
-        }
-        if (!(FreePlayer[0] || FreePlayer[1]))
-        {
-            if ((ptask[0].stp[ptask[0].completed].ts == TAKE_UP_DIRTYPLATE) &&
-                (ptask[1].stp[ptask[1].completed].ts == GO_TO_INGREDIENT) &&
-                (CheckPlayerInteractDistanceToSwap(ptask[0].stp[ptask[0].completed]) == 1))
-                SwapPlayersTask();
-            else if ((ptask[1].stp[ptask[1].completed].ts == TAKE_UP_DIRTYPLATE) &&
-                     (ptask[0].stp[ptask[0].completed].ts == GO_TO_INGREDIENT) &&
-                     (CheckPlayerInteractDistanceToSwap(ptask[1].stp[ptask[1].completed]) == 0))
-                SwapPlayersTask();
-        }
+        deqOrder.pop_front();
+        nearplayer = CheckPlayerInteractDistance(temptask.stp[0]);
+        FreePlayer[nearplayer] = false;
+        ptask[nearplayer] = temptask;
     }
 
     // 具体行动
