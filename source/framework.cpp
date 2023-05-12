@@ -76,6 +76,7 @@ Task totalOrderParseTask[20 + 5];        // 订单解析数组
 bool FreePlayer[2] = {};                 // 当前帧玩家是否空闲
 int CollisionAvoidenceTime = 0;          // 碰撞避免行动时间
 int CollisionAvoidenceRet = 0;           // 碰撞应对策略
+int OrderInDeque = 0;
 
 // 抛弃或暂无用的全局变量
 // int RunningTaskSum = 0;
@@ -525,9 +526,9 @@ int checkOrder(const struct Order &order)
 // 订单数减少时读取新的订单
 void OrderToTaskDeque()
 {
-    int i = deqOrder.size();
-    int t = checkOrder(Order[i]);
-    deqOrder.emplace_back(totalOrderParseTask[t]);
+    // int t = checkOrder(Order[OrderInDeque]);
+    // OrderInDeque++;
+    // deqOrder.emplace_back(totalOrderParseTask[t]);
     // if (deqOrder.size() < orderCount)
     // {
     //     for (int i = deqOrder.size(); i < orderCount; i++)
@@ -536,6 +537,12 @@ void OrderToTaskDeque()
     //         deqOrder.emplace_back(totalOrderParseTask[t]);
     //     }
     // }
+    while (OrderInDeque < orderCount)
+    {
+        int t = checkOrder(Order[OrderInDeque]);
+        deqOrder.emplace_back(totalOrderParseTask[t]);
+        OrderInDeque++;
+    }
 }
 
 // 确认归还盘子处是否有脏盘子并设置脏盘标志
@@ -598,11 +605,12 @@ void InitDo()
     ptask[0].completed = 0;
     ptask[1].completed = 0;
     ptask[0].stp[0].ts = TAKING_PLATE_TO_SERVICEWINDOWS;
-    ptask[1].stp[0].ts = TAKING_PLATE_TO_SERVICEWINDOWS;
+    ptask[1].stp[0].ts = GO_TO_INGREDIENT;
     // RunningTaskSum = 0;
     dirtyplateflag = NONE;
     plateused.clear();
     CollisionAvoidenceTime = 0;
+    OrderInDeque = 1;
 }
 
 int FrameDo()
@@ -622,6 +630,7 @@ int FrameDo()
         {
             if (ptask[i].stp[ptask[i].completed].ts == TAKING_PLATE_TO_SERVICEWINDOWS)
             {
+                OrderInDeque--;
                 OrderToTaskDeque();
             }
             ptask[i].completed++;
