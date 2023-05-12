@@ -3,7 +3,8 @@
 #include <cassert>
 #include <string>
 
-enum class ContainerKind {
+enum class ContainerKind
+{
     None,
     Pan,
     Pot,
@@ -11,7 +12,8 @@ enum class ContainerKind {
     DirtyPlates,
 };
 
-enum class TileKind {
+enum class TileKind
+{
     None,
     Void,
     Floor,
@@ -27,8 +29,10 @@ enum class TileKind {
     PlateRack,
 };
 
-inline TileKind getTileKind(char kindChar) {
-    switch (kindChar) {
+inline TileKind getTileKind(char kindChar)
+{
+    switch (kindChar)
+    {
     case '_':
         return TileKind::Void;
     case '.':
@@ -54,8 +58,10 @@ inline TileKind getTileKind(char kindChar) {
     }
 }
 
-inline char getAbbrev(TileKind kind) {
-    switch (kind) {
+inline char getAbbrev(TileKind kind)
+{
+    switch (kind)
+    {
     case TileKind::IngredientBox:
         return 'i';
     case TileKind::Trashbin:
@@ -96,8 +102,10 @@ enum TypeStep
     TAKING_INGREDIENT_TO_PLATE,
     TAKE_UP_PLATE,
     TAKING_PLATE_TO_SERVICEWINDOWS,
-    TAKING_INGREDIENT_TO_COOK_OR_CUT,
-    TAKING_PLATE_TO_PAN_OR_POT,
+    TAKING_INGREDIENT_TO_COOK_OR_CHOP,
+    CHOPING,
+    TAKING_PLATE_TO_PAN,
+    TAKING_PLATE_TO_POT,
     TAKE_UP_DIRTYPLATE,
     TAKING_DIRTYPLATE_TO_SINK,
     WASHING,
@@ -110,6 +118,13 @@ enum PlateFlag
     UNDISTRIBUTED,
     DISTRIBUTED,
     TWODISTRIBUTED
+};
+
+enum CookMethod
+{
+    CHOP,
+    POT,
+    PAN
 };
 
 #endif
