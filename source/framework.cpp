@@ -215,16 +215,14 @@ int Move(const int op, const int dx, const int dy)
     }
     double fx = fabs(px - dx);
     double fy = fabs(py - dy);
-    if (op == 1)
+    if (fabs(fx - fy) > 1.25)
     {
-        if (fabs(fx - fy) > 1.25)
-        {
-            if (fx > fy)
-                ret &= 0x3;
-            else
-                ret &= 0xc;
-        }
+        if (fx > fy)
+            ret &= 0x3;
+        else
+            ret &= 0xc;
     }
+
     return ret;
 }
 
@@ -344,7 +342,7 @@ void CollisionAct(const int fret)
         td |= (0x01 << 6);
     else if (((d0 & 0x01) == 0) && (!isupper(Map[cy1][cx1 - 1])) && (getTileKind(Map[cy1][cx1 - 1]) == TileKind::Floor))
         td |= (0x02 << 6);
-    else if (((d0 & 0x08) == 0) && (!isupper(Map[cy1 + 1][cx1])) && (getTileKind(Map[cy1 + 1][cx1]) == TileKind::Floor))
+    if (((d0 & 0x08) == 0) && (!isupper(Map[cy1 + 1][cx1])) && (getTileKind(Map[cy1 + 1][cx1]) == TileKind::Floor))
         td |= (0x04 << 6);
     else if (((d0 & 0x04) == 0) && (!isupper(Map[cy1 - 1][cx1])) && (getTileKind(Map[cy1 - 1][cx1]) == TileKind::Floor))
         td |= (0x08 << 6);
