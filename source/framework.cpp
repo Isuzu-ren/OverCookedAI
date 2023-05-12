@@ -525,14 +525,17 @@ int checkOrder(const struct Order &order)
 // 订单数减少时读取新的订单
 void OrderToTaskDeque()
 {
-    if (deqOrder.size() < orderCount)
-    {
-        for (int i = deqOrder.size(); i < orderCount; i++)
-        {
-            int t = checkOrder(Order[i]);
-            deqOrder.emplace_back(totalOrderParseTask[t]);
-        }
-    }
+    int i = deqOrder.size();
+    int t = checkOrder(Order[i]);
+    deqOrder.emplace_back(totalOrderParseTask[t]);
+    // if (deqOrder.size() < orderCount)
+    // {
+    //     for (int i = deqOrder.size(); i < orderCount; i++)
+    //     {
+    //         int t = checkOrder(Order[i]);
+    //         deqOrder.emplace_back(totalOrderParseTask[t]);
+    //     }
+    // }
 }
 
 // 确认归还盘子处是否有脏盘子并设置脏盘标志
@@ -595,7 +598,7 @@ void InitDo()
     ptask[0].completed = 0;
     ptask[1].completed = 0;
     ptask[0].stp[0].ts = TAKING_PLATE_TO_SERVICEWINDOWS;
-    ptask[1].stp[0].ts = GO_TO_INGREDIENT;
+    ptask[1].stp[0].ts = TAKING_PLATE_TO_SERVICEWINDOWS;
     // RunningTaskSum = 0;
     dirtyplateflag = NONE;
     plateused.clear();
@@ -624,10 +627,10 @@ int FrameDo()
             ptask[i].completed++;
         }
     }
-    for (int i = 0; i < deqOrder.size(); i++)
-    {
-        std::cout << deqOrder[i].stp[0].desx << "\n";
-    }
+    // for (int i = 0; i < deqOrder.size(); i++)
+    // {
+    //     std::cout << deqOrder[i].stp[0].desx << "\n";
+    // }
     CheckDirtyPlate();
     for (int i = 0; i < k; i++)
     {
