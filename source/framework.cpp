@@ -212,7 +212,6 @@ bool CheckInteractSuc(Step &stp, const int op)
 // 分配一个可用的盘子
 bool CheckPlatePos(Step &stp)
 {
-    assert(stp.ts == TAKING_INGREDIENT_TO_PLATE);
     for (int i = 0; i < entityCount; i++)
     {
         if (Entity[i].containerKind == ContainerKind::Plate)
