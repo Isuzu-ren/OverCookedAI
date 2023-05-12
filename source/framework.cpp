@@ -597,6 +597,15 @@ int CheckPlayerInteractDistance(Step &stp)
     return ret;
 }
 
+// 交换任务判定
+int CheckPlayerInteractDistanceToSwap(Step &stp)
+{
+    int ret = 0;
+    if (DistancePlayerToInteract(1, double(stp.desx) + 0.5, double(stp.desy) + 0.5) < DistancePlayerToInteract(ret, double(stp.desx) + 0.5, double(stp.desy) + 0.5))
+        ret = 1;
+    return ret;
+}
+
 // 具体行动相关
 
 void InitDo()
@@ -725,11 +734,11 @@ int FrameDo()
         {
             if ((ptask[0].stp[ptask[0].completed].ts == TAKE_UP_DIRTYPLATE) &&
                 (ptask[1].stp[ptask[1].completed].ts == GO_TO_INGREDIENT) &&
-                (CheckPlayerInteractDistance(ptask[0].stp[ptask[0].completed]) == 1))
+                (CheckPlayerInteractDistanceToSwap(ptask[0].stp[ptask[0].completed]) == 1))
                 SwapPlayersTask();
             else if ((ptask[1].stp[ptask[1].completed].ts == TAKE_UP_DIRTYPLATE) &&
                      (ptask[0].stp[ptask[0].completed].ts == GO_TO_INGREDIENT) &&
-                     (CheckPlayerInteractDistance(ptask[1].stp[ptask[1].completed]) == 0))
+                     (CheckPlayerInteractDistanceToSwap(ptask[1].stp[ptask[1].completed]) == 0))
                 SwapPlayersTask();
         }
     }
