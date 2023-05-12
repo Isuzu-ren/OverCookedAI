@@ -140,7 +140,7 @@ bool CheckInteractSuc(Step &stp, const int op)
 {
     if (stp.ts == GO_TO_INGREDIENT)
         return (!Players[op].entity.empty());
-    else if ((stp.ts == TAKING_INGREDIENT_TO_PLATE) || (stp.ts == TAKING_INGREDIENT_TO_COOK_OR_CHOP))
+    else if ((stp.ts == TAKING_INGREDIENT_TO_PLATE) || (stp.ts == TAKING_INGREDIENT_TO_CHOP) || (stp.ts == TAKING_INGREDIENT_TO_PAN) || (stp.ts == TAKING_INGREDIENT_TO_POT))
         return Players[op].entity.empty();
     else if ((stp.ts == TAKE_UP_PLATE) || (stp.ts == TAKING_PLATE_TO_PAN) || (stp.ts == TAKING_PLATE_TO_POT))
         return (Players[op].containerKind == ContainerKind::Plate);
@@ -175,8 +175,31 @@ bool CheckInteractSuc(Step &stp, const int op)
         for (int i = 0; i < entityCount; i++)
         {
             if ((Entity[i].containerKind == ContainerKind::None) &&
+                (!Entity[i].entity.empty()) &&
                 (fabs(Entity[i].x - xchoppingstation) < epsilon) &&
                 (fabs(Entity[i].y - ychoppingstation) < epsilon) &&
+                (Entity[i].entity.front() == stp.product))
+                return true;
+        }
+        return false;
+    }
+    else if (stp.ts == TAKING_PLATE_TO_POT)
+    {
+        for (int i = 0; i < entityCount; i++)
+        {
+            if ((Entity[i].containerKind == ContainerKind::Pot) &&
+                (!Entity[i].entity.empty()) &&
+                (Entity[i].entity.front() == stp.product))
+                return true;
+        }
+        return false;
+    }
+    else if (stp.ts == TAKING_PLATE_TO_PAN)
+    {
+        for (int i = 0; i < entityCount; i++)
+        {
+            if ((Entity[i].containerKind == ContainerKind::Pan) &&
+                (!Entity[i].entity.empty()) &&
                 (Entity[i].entity.front() == stp.product))
                 return true;
         }
@@ -252,6 +275,37 @@ int Action(const int op)
     assert(op < 2);
     Task &ct = ptask[op];
     Step &cs = ct.stp[ct.completed];
+
+    if (cs.ts == TAKING_INGREDIENT_TO_CHOP)
+    {
+        for (int i = 0; i < entityCount; i++)
+        {
+            if ((Entity[i].containerKind == ContainerKind::None) &&
+                (fabs(Entity[i].x - xchoppingstation) < epsilon) &&
+                (fabs(Entity[i].y - ychoppingstation) < epsilon) &&
+                (!Entity[i].entity.empty()))
+                return 0;
+        }
+    }
+    else if (cs.ts == TAKING_INGREDIENT_TO_PAN)
+    {
+        for (int i = 0; i < entityCount; i++)
+        {
+            if ((Entity[i].containerKind == ContainerKind::Pan) &&
+                (!Entity[i].entity.empty()))
+                return 0;
+        }
+    }
+    else if (cs.ts == TAKING_INGREDIENT_TO_POT)
+    {
+        for (int i = 0; i < entityCount; i++)
+        {
+            if ((Entity[i].containerKind == ContainerKind::Pot) &&
+                (!Entity[i].entity.empty()))
+                return 0;
+        }
+    }
+
     int ret = Move(op, cs.desx, cs.desy);
     // std :: cout << op << " " << Players[op].x << " " << Players[op].y << " " << ct.stp[ct.completed].desx << " " << ct.stp[ct.completed].desy << " ret= " << ret << "\n";
     if (ret != 0)
@@ -408,7 +462,7 @@ Task ParseOrder(const struct Order &order)
                 CheckInteractPos(task.stp[task.stpsum], xchoppingstation, ychoppingstation);
                 task.stp[task.stpsum].descheck = true;
                 task.stp[task.stpsum].ta = TAKE;
-                task.stp[task.stpsum].ts = TAKING_INGREDIENT_TO_COOK_OR_CHOP;
+                task.stp[task.stpsum].ts = TAKING_INGREDIENT_TO_CHOP;
                 task.stp[task.stpsum].stay = false;
                 task.stpsum++;
                 // 切
@@ -470,7 +524,7 @@ Task ParseOrder(const struct Order &order)
                 CheckInteractPos(task.stp[task.stpsum], xpot, ypot);
                 task.stp[task.stpsum].descheck = true;
                 task.stp[task.stpsum].ta = TAKE;
-                task.stp[task.stpsum].ts = TAKING_INGREDIENT_TO_COOK_OR_CHOP;
+                task.stp[task.stpsum].ts = TAKING_INGREDIENT_TO_POT;
                 task.stp[task.stpsum].stay = false;
                 task.stpsum++;
                 // 拿盘子
@@ -846,6 +900,7 @@ void CheckDirtyPlate()
     }
 }
 
+// 确认场上盘子数量
 void CheckPlateNum()
 {
     platenum = 0;
@@ -934,7 +989,6 @@ int FrameDo()
             ptask[i].completed++;
         }
     }
-    CheckPlateNum();
     CheckDirtyPlate();
     for (int i = 0; i < k; i++)
     {
@@ -953,7 +1007,6 @@ int FrameDo()
     // 具体分配
     Task temptask;
     int nearplayer = 0;
-    int flag3;
     while (true)
     {
         if (!(FreePlayer[0] || FreePlayer[1]))
@@ -967,60 +1020,49 @@ int FrameDo()
             continue;
         }
         temptask = deqOrder.front();
-        flag3 = -1;
-        if ((temptask.potlock <= 0) || ((temptask.potlock > 0) && (!potused)))
+        int flag3 = -1;
+        for (int j = 0; j < temptask.stpsum; j++)
         {
-            for (int j = 0; j < temptask.stpsum; j++)
+            if ((temptask.stp[j].ts == TAKING_INGREDIENT_TO_PLATE) || (temptask.stp[j].ts == TAKE_UP_PLATE))
             {
-                if ((temptask.stp[j].ts == TAKING_INGREDIENT_TO_PLATE) || (temptask.stp[j].ts == TAKE_UP_PLATE))
+                if (flag3 == -1)
                 {
-                    if (flag3 == -1)
-                    {
-                        if (CheckPlatePos(temptask.stp[j]))
-                            flag3 = j;
-                        else
-                            break;
-                    }
+                    if (CheckPlatePos(temptask.stp[j]))
+                        flag3 = j;
                     else
-                    {
-                        temptask.stp[j].descheck = true;
-                        temptask.stp[j].desx = temptask.stp[flag3].desx;
-                        temptask.stp[j].desy = temptask.stp[flag3].desy;
-                        temptask.stp[j].d = temptask.stp[flag3].d;
-                    }
+                        break;
                 }
-            }
-            if (flag3 != -1)
-            {
-                if (temptask.potlock > 0)
-                    potused = true;
-                deqOrder.pop_front();
-                nearplayer = CheckPlayerInteractDistance(temptask.stp[0]);
-                FreePlayer[nearplayer] = false;
-                ptask[nearplayer] = temptask;
+                else
+                {
+                    temptask.stp[j].descheck = true;
+                    temptask.stp[j].desx = temptask.stp[flag3].desx;
+                    temptask.stp[j].desy = temptask.stp[flag3].desy;
+                    temptask.stp[j].d = temptask.stp[flag3].d;
+                }
             }
         }
         if (flag3 == -1)
         {
-            if (platenum < plateused.size() + 1)
+            if (dirtyplateflag == NONE)
             {
-                if (dirtyplateflag == NONE)
-                {
-                    nearplayer = CheckPlayerInteractDistance(WashDirtyPlate.stp[0]);
-                    FreePlayer[nearplayer] = false;
-                    ptask[nearplayer] = WashDirtyPlate;
-                    dirtyplateflag = DISTRIBUTED;
-                }
-                else if (dirtyplateflag == DISTRIBUTED)
-                {
-                    nearplayer = CheckPlayerInteractDistance(WashDirtyPlate.stp[0]);
-                    FreePlayer[nearplayer] = false;
-                    ptask[nearplayer] = WashDirtyPlate;
-                    dirtyplateflag = TWODISTRIBUTED;
-                }
+                nearplayer = CheckPlayerInteractDistance(WashDirtyPlate.stp[0]);
+                FreePlayer[nearplayer] = false;
+                ptask[nearplayer] = WashDirtyPlate;
+                dirtyplateflag = DISTRIBUTED;
+            }
+            else if (dirtyplateflag == DISTRIBUTED)
+            {
+                nearplayer = CheckPlayerInteractDistance(WashDirtyPlate.stp[0]);
+                FreePlayer[nearplayer] = false;
+                ptask[nearplayer] = WashDirtyPlate;
+                dirtyplateflag = TWODISTRIBUTED;
             }
             break;
         }
+        deqOrder.pop_front();
+        nearplayer = CheckPlayerInteractDistance(temptask.stp[0]);
+        FreePlayer[nearplayer] = false;
+        ptask[nearplayer] = temptask;
     }
 
     // 具体行动
