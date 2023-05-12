@@ -512,6 +512,13 @@ void init_map()
     // }
 }
 
+void SwapPlayersTask()
+{
+    Task t = ptask[0];
+    ptask[0] = ptask[1];
+    ptask[1] = t;
+}
+
 int checkOrder(const struct Order &order)
 {
     for (int i = 0; i < totalOrderCount; i++)
@@ -704,12 +711,27 @@ int FrameDo()
                 ptask[nearplayer] = WashDirtyPlate;
                 dirtyplateflag = TWODISTRIBUTED;
             }
-            break;
+            else
+                break;
         }
-        deqOrder.pop_front();
-        nearplayer = CheckPlayerInteractDistance(temptask.stp[0]);
-        FreePlayer[nearplayer] = false;
-        ptask[nearplayer] = temptask;
+        else
+        {
+            deqOrder.pop_front();
+            nearplayer = CheckPlayerInteractDistance(temptask.stp[0]);
+            FreePlayer[nearplayer] = false;
+            ptask[nearplayer] = temptask;
+        }
+        if (!(FreePlayer[0] || FreePlayer[1]))
+        {
+            if ((ptask[0].stp[ptask[0].completed].ts == TAKE_UP_DIRTYPLATE) &&
+                (ptask[1].stp[ptask[1].completed].ts == GO_TO_INGREDIENT) &&
+                (CheckPlayerInteractDistance(ptask[0].stp[ptask[0].completed]) == 1))
+                SwapPlayersTask();
+            else if ((ptask[1].stp[ptask[1].completed].ts == TAKE_UP_DIRTYPLATE) &&
+                     (ptask[0].stp[ptask[0].completed].ts == GO_TO_INGREDIENT) &&
+                     (CheckPlayerInteractDistance(ptask[1].stp[ptask[1].completed]) == 0))
+                SwapPlayersTask();
+        }
     }
 
     // 具体行动
