@@ -340,13 +340,13 @@ void CollisionAct(const int fret)
     else if (((d1 & 0x08) == 0) && (!isupper(Map[cy0 + 1][cx0])) && (getTileKind(Map[cy0 + 1][cx0]) == TileKind::Floor))
         td |= 0x04;
 
-    if (((d0 & 0x02) == 0) && (!isupper(Map[cy1][cx1 + 1])) && (getTileKind(Map[cy1][cx1 + 1]) == TileKind::Floor))
+    if (((d0 & 0x02) == 0) && ((td & 0x01) == 0) && (!isupper(Map[cy1][cx1 + 1])) && (getTileKind(Map[cy1][cx1 + 1]) == TileKind::Floor))
         td |= (0x01 << 6);
-    else if (((d0 & 0x01) == 0) && (!isupper(Map[cy1][cx1 - 1])) && (getTileKind(Map[cy1][cx1 - 1]) == TileKind::Floor))
+    else if (((d0 & 0x01) == 0) && ((td & 0x02) == 0) && (!isupper(Map[cy1][cx1 - 1])) && (getTileKind(Map[cy1][cx1 - 1]) == TileKind::Floor))
         td |= (0x02 << 6);
-    else if (((d0 & 0x08) == 0) && (!isupper(Map[cy1 + 1][cx1])) && (getTileKind(Map[cy1 + 1][cx1]) == TileKind::Floor))
+    if (((d0 & 0x08) == 0) && ((td & 0x04) == 0) && (!isupper(Map[cy1 + 1][cx1])) && (getTileKind(Map[cy1 + 1][cx1]) == TileKind::Floor))
         td |= (0x04 << 6);
-    else if (((d0 & 0x04) == 0) && (!isupper(Map[cy1 - 1][cx1])) && (getTileKind(Map[cy1 - 1][cx1]) == TileKind::Floor))
+    else if (((d0 & 0x04) == 0) && ((td & 0x08) == 0) && (!isupper(Map[cy1 - 1][cx1])) && (getTileKind(Map[cy1 - 1][cx1]) == TileKind::Floor))
         td |= (0x08 << 6);
 
     CollisionAvoidenceRet = td;
@@ -526,6 +526,12 @@ int checkOrder(const struct Order &order)
 // 订单数减少时读取新的订单
 void OrderToTaskDeque()
 {
+    while (OrderInDeque < orderCount)
+    {
+        int t = checkOrder(Order[OrderInDeque]);
+        deqOrder.emplace_back(totalOrderParseTask[t]);
+        OrderInDeque++;
+    }
     // int t = checkOrder(Order[OrderInDeque]);
     // OrderInDeque++;
     // deqOrder.emplace_back(totalOrderParseTask[t]);
@@ -537,12 +543,6 @@ void OrderToTaskDeque()
     //         deqOrder.emplace_back(totalOrderParseTask[t]);
     //     }
     // }
-    while (OrderInDeque < orderCount)
-    {
-        int t = checkOrder(Order[OrderInDeque]);
-        deqOrder.emplace_back(totalOrderParseTask[t]);
-        OrderInDeque++;
-    }
 }
 
 // 确认归还盘子处是否有脏盘子并设置脏盘标志
@@ -636,10 +636,6 @@ int FrameDo()
             ptask[i].completed++;
         }
     }
-    // for (int i = 0; i < deqOrder.size(); i++)
-    // {
-    //     std::cout << deqOrder[i].stp[0].desx << "\n";
-    // }
     CheckDirtyPlate();
     for (int i = 0; i < k; i++)
     {
