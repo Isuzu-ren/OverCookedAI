@@ -533,9 +533,7 @@ Task ParseOrder(const struct Order &order)
                 task.stp[task.stpsum].stay = false;
                 task.stpsum++;
                 // 拿盘子去装煮熟的饭
-                task.stp[task.stpsum].desx = task.stp[task.stpsum - 2].desx;
-                task.stp[task.stpsum].desy = task.stp[task.stpsum - 2].desy;
-                task.stp[task.stpsum].d = task.stp[task.stpsum - 2].d;
+                CheckInteractPos(task.stp[task.stpsum], xpot, ypot);
                 task.stp[task.stpsum].descheck = true;
                 task.stp[task.stpsum].ta = TAKE;
                 task.stp[task.stpsum].ts = TAKING_PLATE_TO_POT;
