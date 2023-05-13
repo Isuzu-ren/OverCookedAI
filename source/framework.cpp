@@ -183,28 +183,28 @@ bool CheckInteractSuc(Step &stp, const int op)
         }
         return false;
     }
-    else if (stp.ts == TAKING_PLATE_TO_POT)
-    {
-        for (int i = 0; i < entityCount; i++)
-        {
-            if ((Entity[i].containerKind == ContainerKind::Pot) &&
-                (!Entity[i].entity.empty()) &&
-                (Entity[i].entity.front() == stp.product))
-                return true;
-        }
-        return false;
-    }
-    else if (stp.ts == TAKING_PLATE_TO_PAN)
-    {
-        for (int i = 0; i < entityCount; i++)
-        {
-            if ((Entity[i].containerKind == ContainerKind::Pan) &&
-                (!Entity[i].entity.empty()) &&
-                (Entity[i].entity.front() == stp.product))
-                return true;
-        }
-        return false;
-    }
+    // else if (stp.ts == TAKING_PLATE_TO_POT)
+    // {
+    //     for (int i = 0; i < entityCount; i++)
+    //     {
+    //         if ((Entity[i].containerKind == ContainerKind::Pot) &&
+    //             (!Entity[i].entity.empty()) &&
+    //             (Entity[i].entity.front() == stp.product))
+    //             return true;
+    //     }
+    //     return false;
+    // }
+    // else if (stp.ts == TAKING_PLATE_TO_PAN)
+    // {
+    //     for (int i = 0; i < entityCount; i++)
+    //     {
+    //         if ((Entity[i].containerKind == ContainerKind::Pan) &&
+    //             (!Entity[i].entity.empty()) &&
+    //             (Entity[i].entity.front() == stp.product))
+    //             return true;
+    //     }
+    //     return false;
+    // }
     else
         return false;
 }
