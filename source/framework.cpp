@@ -532,14 +532,14 @@ Task ParseOrder(const struct Order &order)
                 task.stp[task.stpsum].ts = TAKE_UP_PLATE;
                 task.stp[task.stpsum].stay = false;
                 task.stpsum++;
-                // 拿盘子去装煮熟的饭
-                CheckInteractPos(task.stp[task.stpsum], xpot, ypot);
-                task.stp[task.stpsum].descheck = true;
-                task.stp[task.stpsum].ta = TAKE;
-                task.stp[task.stpsum].ts = TAKING_PLATE_TO_POT;
-                task.stp[task.stpsum].stay = true;
-                task.stp[task.stpsum].product = "s_rice";
-                task.stpsum++;
+                // // 拿盘子去装煮熟的饭
+                // CheckInteractPos(task.stp[task.stpsum], xpot, ypot);
+                // task.stp[task.stpsum].descheck = true;
+                // task.stp[task.stpsum].ta = TAKE;
+                // task.stp[task.stpsum].ts = TAKING_PLATE_TO_POT;
+                // task.stp[task.stpsum].stay = true;
+                // task.stp[task.stpsum].product = "s_rice";
+                // task.stpsum++;
                 // 将盘子送往服务台
                 CheckInteractPos(task.stp[task.stpsum], xservicewindows, yservicewindows);
                 task.stp[task.stpsum].descheck = true;
