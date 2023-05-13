@@ -142,7 +142,7 @@ bool CheckInteractSuc(Step &stp, const int op)
         return (!Players[op].entity.empty());
     else if ((stp.ts == TAKING_INGREDIENT_TO_PLATE) || (stp.ts == TAKING_INGREDIENT_TO_CHOP) || (stp.ts == TAKING_INGREDIENT_TO_PAN) || (stp.ts == TAKING_INGREDIENT_TO_POT))
         return (Players[op].entity.empty() && (Players[op].containerKind == ContainerKind::None));
-    else if ((stp.ts == TAKE_UP_PLATE) || (stp.ts == TAKING_PLATE_TO_PAN) || (stp.ts == TAKING_PLATE_TO_POT))
+    else if (stp.ts == TAKE_UP_PLATE)
         return (Players[op].containerKind == ContainerKind::Plate);
     else if (stp.ts == TAKING_PLATE_TO_SERVICEWINDOWS)
         return (Players[op].entity.empty() && (Players[op].containerKind == ContainerKind::None));
