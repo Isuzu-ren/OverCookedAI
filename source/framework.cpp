@@ -145,7 +145,7 @@ bool CheckInteractSuc(Step &stp, const int op)
     else if ((stp.ts == TAKE_UP_PLATE) || (stp.ts == TAKING_PLATE_TO_PAN) || (stp.ts == TAKING_PLATE_TO_POT))
         return (Players[op].containerKind == ContainerKind::Plate);
     else if (stp.ts == TAKING_PLATE_TO_SERVICEWINDOWS)
-        return Players[op].entity.empty();
+        return (Players[op].entity.empty() && (Players[op].containerKind == ContainerKind::None));
     else if (stp.ts == TAKE_UP_DIRTYPLATE)
         return (Players[op].containerKind == ContainerKind::DirtyPlates);
     else if (stp.ts == TAKING_DIRTYPLATE_TO_SINK)
