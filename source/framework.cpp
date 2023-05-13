@@ -141,7 +141,7 @@ bool CheckInteractSuc(Step &stp, const int op)
     if (stp.ts == GO_TO_INGREDIENT)
         return (!Players[op].entity.empty());
     else if ((stp.ts == TAKING_INGREDIENT_TO_PLATE) || (stp.ts == TAKING_INGREDIENT_TO_CHOP) || (stp.ts == TAKING_INGREDIENT_TO_PAN) || (stp.ts == TAKING_INGREDIENT_TO_POT))
-        return Players[op].entity.empty();
+        return (Players[op].entity.empty() && (Players[op].containerKind == ContainerKind::None));
     else if ((stp.ts == TAKE_UP_PLATE) || (stp.ts == TAKING_PLATE_TO_PAN) || (stp.ts == TAKING_PLATE_TO_POT))
         return (Players[op].containerKind == ContainerKind::Plate);
     else if (stp.ts == TAKING_PLATE_TO_SERVICEWINDOWS)
@@ -532,14 +532,14 @@ Task ParseOrder(const struct Order &order)
                 task.stp[task.stpsum].ts = TAKE_UP_PLATE;
                 task.stp[task.stpsum].stay = false;
                 task.stpsum++;
-                // // 拿盘子去装煮熟的饭
-                // CheckInteractPos(task.stp[task.stpsum], xpot, ypot);
-                // task.stp[task.stpsum].descheck = true;
-                // task.stp[task.stpsum].ta = TAKE;
-                // task.stp[task.stpsum].ts = TAKING_PLATE_TO_POT;
-                // task.stp[task.stpsum].stay = true;
-                // task.stp[task.stpsum].product = "s_rice";
-                // task.stpsum++;
+                // 拿盘子去装煮熟的饭
+                CheckInteractPos(task.stp[task.stpsum], xpot, ypot);
+                task.stp[task.stpsum].descheck = true;
+                task.stp[task.stpsum].ta = TAKE;
+                task.stp[task.stpsum].ts = TAKING_PLATE_TO_POT;
+                task.stp[task.stpsum].stay = true;
+                task.stp[task.stpsum].product = "s_rice";
+                task.stpsum++;
                 // 将盘子送往服务台
                 CheckInteractPos(task.stp[task.stpsum], xservicewindows, yservicewindows);
                 task.stp[task.stpsum].descheck = true;
