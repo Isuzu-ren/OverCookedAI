@@ -541,12 +541,12 @@ Task ParseOrder(const struct Order &order)
                 // task.stp[task.stpsum].product = "s_rice";
                 // task.stpsum++;
                 // 将盘子送往服务台
-                // CheckInteractPos(task.stp[task.stpsum], xservicewindows, yservicewindows);
-                // task.stp[task.stpsum].descheck = true;
-                // task.stp[task.stpsum].ta = TAKE;
-                // task.stp[task.stpsum].ts = TAKING_PLATE_TO_SERVICEWINDOWS;
-                // task.stp[task.stpsum].stay = false;
-                // task.stpsum++;
+                CheckInteractPos(task.stp[task.stpsum], xservicewindows, yservicewindows);
+                task.stp[task.stpsum].descheck = true;
+                task.stp[task.stpsum].ta = TAKE;
+                task.stp[task.stpsum].ts = TAKING_PLATE_TO_SERVICEWINDOWS;
+                task.stp[task.stpsum].stay = false;
+                task.stpsum++;
                 return task;
             }
         }
