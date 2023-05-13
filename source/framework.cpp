@@ -519,13 +519,13 @@ Task ParseOrder(const struct Order &order)
                 task.stp[task.stpsum].ts = GO_TO_INGREDIENT;
                 task.stp[task.stpsum].stay = false;
                 task.stpsum++;
-                // // 拿去Pot煮
-                // CheckInteractPos(task.stp[task.stpsum], xpot, ypot);
-                // task.stp[task.stpsum].descheck = true;
-                // task.stp[task.stpsum].ta = TAKE;
-                // task.stp[task.stpsum].ts = TAKING_INGREDIENT_TO_POT;
-                // task.stp[task.stpsum].stay = false;
-                // task.stpsum++;
+                // 拿去Pot煮
+                CheckInteractPos(task.stp[task.stpsum], xpot, ypot);
+                task.stp[task.stpsum].descheck = true;
+                task.stp[task.stpsum].ta = TAKE;
+                task.stp[task.stpsum].ts = TAKING_INGREDIENT_TO_POT;
+                task.stp[task.stpsum].stay = false;
+                task.stpsum++;
                 // 拿盘子
                 task.stp[task.stpsum].descheck = false;
                 task.stp[task.stpsum].ta = TAKE;
