@@ -25,7 +25,7 @@ struct Step
 
 struct Task
 {
-    Step stp[10];  // 每步需要完成的任务
+    Step stp[15];  // 每步需要完成的任务
     int stpsum;    // 总步数
     int completed; // 完成数量
     int cooktime;  // 加工所需时间
@@ -525,6 +525,77 @@ Task ParseOrder(const struct Order &order)
                 task.stp[task.stpsum].ta = TAKE;
                 task.stp[task.stpsum].ts = TAKE_UP_PLATE;
                 task.stp[task.stpsum].stay = false;
+                task.stpsum++;
+                // 将盘子送往服务台
+                CheckInteractPos(task.stp[task.stpsum], xservicewindows, yservicewindows);
+                task.stp[task.stpsum].descheck = true;
+                task.stp[task.stpsum].ta = TAKE;
+                task.stp[task.stpsum].ts = TAKING_PLATE_TO_SERVICEWINDOWS;
+                task.stp[task.stpsum].stay = false;
+                task.stpsum++;
+                return task;
+            }
+        }
+    }
+    else if(it=="s_fish")
+    {
+        for (int i = 0; i < IngredientCount; i++)
+        {
+            if (Ingredient[i].name == "fish")
+            {
+                // 取食材
+                CheckInteractPos(task.stp[task.stpsum], Ingredient[i].x, Ingredient[i].y);
+                task.stp[task.stpsum].descheck = true;
+                task.stp[task.stpsum].ta = TAKE;
+                task.stp[task.stpsum].ts = GO_TO_INGREDIENT;
+                task.stp[task.stpsum].stay = false;
+                task.stpsum++;
+                // 拿去切
+                CheckInteractPos(task.stp[task.stpsum], xchoppingstation, ychoppingstation);
+                task.stp[task.stpsum].descheck = true;
+                task.stp[task.stpsum].ta = TAKE;
+                task.stp[task.stpsum].ts = TAKING_INGREDIENT_TO_CHOP;
+                task.stp[task.stpsum].stay = false;
+                task.stpsum++;
+                // 切
+                task.stp[task.stpsum].desx = task.stp[task.stpsum - 1].desx;
+                task.stp[task.stpsum].desy = task.stp[task.stpsum - 1].desy;
+                task.stp[task.stpsum].d = task.stp[task.stpsum - 1].d;
+                task.stp[task.stpsum].descheck = true;
+                task.stp[task.stpsum].ta = INTERACT;
+                task.stp[task.stpsum].ts = CHOPING;
+                task.stp[task.stpsum].stay = true;
+                task.stp[task.stpsum].product = "c_fish";
+                task.stpsum++;
+                // 拿起
+                task.stp[task.stpsum].desx = task.stp[task.stpsum - 1].desx;
+                task.stp[task.stpsum].desy = task.stp[task.stpsum - 1].desy;
+                task.stp[task.stpsum].d = task.stp[task.stpsum - 1].d;
+                task.stp[task.stpsum].descheck = true;
+                task.stp[task.stpsum].ta = TAKE;
+                task.stp[task.stpsum].ts = GO_TO_INGREDIENT;
+                task.stp[task.stpsum].stay = false;
+                task.stpsum++;
+                // 拿去Pan煮
+                CheckInteractPos(task.stp[task.stpsum], xpan, ypan);
+                task.stp[task.stpsum].descheck = true;
+                task.stp[task.stpsum].ta = TAKE;
+                task.stp[task.stpsum].ts = TAKING_INGREDIENT_TO_PAN;
+                task.stp[task.stpsum].stay = false;
+                task.stpsum++;
+                // 拿盘子
+                task.stp[task.stpsum].descheck = false;
+                task.stp[task.stpsum].ta = TAKE;
+                task.stp[task.stpsum].ts = TAKE_UP_PLATE;
+                task.stp[task.stpsum].stay = false;
+                task.stpsum++;
+                // 拿盘子去装煮熟的饭
+                CheckInteractPos(task.stp[task.stpsum], xpan, ypan);
+                task.stp[task.stpsum].descheck = true;
+                task.stp[task.stpsum].ta = TAKE;
+                task.stp[task.stpsum].ts = TAKING_PLATE_TO_PAN;
+                task.stp[task.stpsum].stay = true;
+                task.stp[task.stpsum].product = "s_fish";
                 task.stpsum++;
                 // 将盘子送往服务台
                 CheckInteractPos(task.stp[task.stpsum], xservicewindows, yservicewindows);
