@@ -183,6 +183,15 @@ bool CheckInteractSuc(Step &stp, const int op)
         }
         return false;
     }
+    else if ((stp.ts == TAKING_PLATE_TO_POT) || (stp.ts == TAKING_PLATE_TO_PAN))
+    {
+        for (auto it : Players[op].entity)
+        {
+            if (it == stp.product)
+                return true;
+        }
+        return false;
+    }
     // else if (stp.ts == TAKING_PLATE_TO_POT)
     // {
     //     for (int i = 0; i < entityCount; i++)
@@ -366,6 +375,28 @@ int Action(const int op)
         else if (cs.d == UP)
             pos = std::make_pair(cs.desx, cs.desy - 1);
         platefree[op] = pos;
+    }
+    else if (cs.ts == TAKING_PLATE_TO_PAN)
+    {
+        for (int i = 0; i < entityCount; i++)
+        {
+            if ((Entity[i].containerKind == ContainerKind::Pan) &&
+                (!Entity[i].entity.empty()) &&
+                (Entity[i].entity.front() == cs.product))
+                return ret;
+        }
+        return 0;
+    }
+    else if (cs.ts == TAKING_PLATE_TO_POT)
+    {
+        for (int i = 0; i < entityCount; i++)
+        {
+            if ((Entity[i].containerKind == ContainerKind::Pot) &&
+                (!Entity[i].entity.empty()) &&
+                (Entity[i].entity.front() == cs.product))
+                return ret;
+        }
+        return 0;
     }
     // if (cs.ts != WASHING)
     //     ct.completed++;
