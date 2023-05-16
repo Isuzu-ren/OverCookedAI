@@ -636,7 +636,6 @@ void ParseOrder()
         stsk.completed = 0;
         stsk.stpsum = 0;
         stsk.cooktime = 0;
-        std::sort(totalOrder[i].recipe.begin(), totalOrder[i].recipe.end());
 
         // 记录配方中的所有食材的编号
         for (auto it : totalOrder[i].recipe)
@@ -1271,13 +1270,40 @@ void init_map()
     // }
 }
 
+bool checkorderass[20];
 int checkOrder(const struct Order &order)
 {
-    std::sort(order.recipe.begin(), order.recipe.end());
     for (int i = 0; i < totalOrderCount; i++)
     {
-        if (order.recipe == totalOrder[i].recipe)
-            return i;
+        if (order.recipe.size() == totalOrder[i].recipe.size())
+        {
+            for (int j = 0; j < order.recipe.size(); j++)
+            {
+                checkorderass[j] = false;
+            }
+            for (int j = 0; j < order.recipe.size(); j++)
+            {
+                for (int ii = 0; ii < order.recipe.size(); ii++)
+                {
+                    if ((!checkorderass[j]) && (order.recipe[ii] == totalOrder[i].recipe[j]))
+                    {
+                        checkorderass[j] = true;
+                        break;
+                    }
+                }
+            }
+            bool flag = true;
+            for (int j = 0; j < order.recipe.size(); j++)
+            {
+                if (!checkorderass[j])
+                {
+                    flag = false;
+                    break;
+                }
+            }
+            if (flag)
+                return i;
+        }
     }
     assert(0);
     return -1;
