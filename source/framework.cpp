@@ -8,7 +8,7 @@
 #include <vector>
 #include <string>
 #include <deque>
-#include <queue>
+#include <algorithm>
 #include <cctype>
 #include <cmath>
 #include <set>
@@ -636,6 +636,7 @@ void ParseOrder()
         stsk.completed = 0;
         stsk.stpsum = 0;
         stsk.cooktime = 0;
+        std::sort(totalOrder[i].recipe.begin(), totalOrder[i].recipe.end());
 
         // 记录配方中的所有食材的编号
         for (auto it : totalOrder[i].recipe)
@@ -1272,6 +1273,7 @@ void init_map()
 
 int checkOrder(const struct Order &order)
 {
+    std::sort(order.recipe.begin(), order.recipe.end());
     for (int i = 0; i < totalOrderCount; i++)
     {
         if (order.recipe == totalOrder[i].recipe)
