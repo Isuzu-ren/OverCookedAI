@@ -1371,12 +1371,11 @@ int CheckPlayerInteractDistance(Step &stp)
 // 具体分配
 void PlayTaskDistribute()
 {
-    Task temptask;
+    OrderTask otsk;
+    Task tsk;
     int nearplayer = 0;
-    while (true)
+    while (FreePlayer[0] || FreePlayer[1])
     {
-        if (!(FreePlayer[0] || FreePlayer[1]))
-            break;
         if (dirtyplateflag == UNDISTRIBUTED)
         {
             dirtyplateflag = DISTRIBUTED;
@@ -1385,15 +1384,17 @@ void PlayTaskDistribute()
             ptask[nearplayer] = WashDirtyPlate;
             continue;
         }
-        temptask = deqOrder.front();
+        otsk = NewdeqOrder.front();
+        assert(otsk.tsksum == 1);
+        tsk = otsk.tsk[0];
         int flag3 = -1;
-        for (int j = 0; j < temptask.stpsum; j++)
+        for (int j = 0; j < tsk.stpsum; j++)
         {
-            if ((temptask.stp[j].ts == TAKING_INGREDIENT_TO_PLATE) || (temptask.stp[j].ts == TAKE_UP_PLATE))
+            if ((tsk.stp[j].ts == TAKING_INGREDIENT_TO_PLATE) || (tsk.stp[j].ts == TAKE_UP_PLATE))
             {
                 if (flag3 == -1)
                 {
-                    if (CheckPlatePos(temptask.stp[j]))
+                    if (CheckPlatePos(tsk.stp[j]))
                         flag3 = j;
                     else
                         break;
@@ -1401,9 +1402,9 @@ void PlayTaskDistribute()
                 else
                 {
                     // temptask.stp[j].descheck = true;
-                    temptask.stp[j].desx = temptask.stp[flag3].desx;
-                    temptask.stp[j].desy = temptask.stp[flag3].desy;
-                    temptask.stp[j].d = temptask.stp[flag3].d;
+                    tsk.stp[j].desx = tsk.stp[flag3].desx;
+                    tsk.stp[j].desy = tsk.stp[flag3].desy;
+                    tsk.stp[j].d = tsk.stp[flag3].d;
                 }
             }
         }
@@ -1425,11 +1426,71 @@ void PlayTaskDistribute()
             }
             break;
         }
-        deqOrder.pop_front();
-        nearplayer = CheckPlayerInteractDistance(temptask.stp[0]);
+        NewdeqOrder.pop_front();
+        nearplayer = CheckPlayerInteractDistance(tsk.stp[0]);
         FreePlayer[nearplayer] = false;
-        ptask[nearplayer] = temptask;
+        ptask[nearplayer] = tsk;
     }
+
+    // Task temptask;
+    // int nearplayer = 0;
+    // while (true)
+    // {
+    //     if (!(FreePlayer[0] || FreePlayer[1]))
+    //         break;
+    //     if (dirtyplateflag == UNDISTRIBUTED)
+    //     {
+    //         dirtyplateflag = DISTRIBUTED;
+    //         nearplayer = CheckPlayerInteractDistance(WashDirtyPlate.stp[0]);
+    //         FreePlayer[nearplayer] = false;
+    //         ptask[nearplayer] = WashDirtyPlate;
+    //         continue;
+    //     }
+    //     temptask = deqOrder.front();
+    //     int flag3 = -1;
+    //     for (int j = 0; j < temptask.stpsum; j++)
+    //     {
+    //         if ((temptask.stp[j].ts == TAKING_INGREDIENT_TO_PLATE) || (temptask.stp[j].ts == TAKE_UP_PLATE))
+    //         {
+    //             if (flag3 == -1)
+    //             {
+    //                 if (CheckPlatePos(temptask.stp[j]))
+    //                     flag3 = j;
+    //                 else
+    //                     break;
+    //             }
+    //             else
+    //             {
+    //                 // temptask.stp[j].descheck = true;
+    //                 temptask.stp[j].desx = temptask.stp[flag3].desx;
+    //                 temptask.stp[j].desy = temptask.stp[flag3].desy;
+    //                 temptask.stp[j].d = temptask.stp[flag3].d;
+    //             }
+    //         }
+    //     }
+    //     if (flag3 == -1)
+    //     {
+    //         if (dirtyplateflag == NONE)
+    //         {
+    //             nearplayer = CheckPlayerInteractDistance(WashDirtyPlate.stp[0]);
+    //             FreePlayer[nearplayer] = false;
+    //             ptask[nearplayer] = WashDirtyPlate;
+    //             dirtyplateflag = DISTRIBUTED;
+    //         }
+    //         else if (dirtyplateflag == DISTRIBUTED)
+    //         {
+    //             nearplayer = CheckPlayerInteractDistance(WashDirtyPlate.stp[0]);
+    //             FreePlayer[nearplayer] = false;
+    //             ptask[nearplayer] = WashDirtyPlate;
+    //             dirtyplateflag = TWODISTRIBUTED;
+    //         }
+    //         break;
+    //     }
+    //     deqOrder.pop_front();
+    //     nearplayer = CheckPlayerInteractDistance(temptask.stp[0]);
+    //     FreePlayer[nearplayer] = false;
+    //     ptask[nearplayer] = temptask;
+    // }
 }
 
 // 具体行动相关
@@ -1479,7 +1540,8 @@ int FrameDo()
             if (ptask[i].stp[ptask[i].completed].ts == TAKING_PLATE_TO_SERVICEWINDOWS)
             {
                 OrderInDeque--;
-                OrderToTaskDeque();
+                // OrderToTaskDeque();
+                NewOrderToTaskDeque();
             }
             ptask[i].completed++;
         }
