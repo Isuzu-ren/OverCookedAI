@@ -764,17 +764,66 @@ void ParseOrder()
         }
         else if ((!TaskPan.empty()) && (!TaskPot.empty()))
         {
-            assert(0);
-            pantime = 0;
+            // pantime = 0;
+            // for (auto it : TaskPan)
+            // {
+            //     pantime += ingTask[it].cooktime;
+            // }
+            // pottime = 0;
+            // for (auto it : TaskPot)
+            // {
+            //     pottime += ingTask[it].cooktime;
+            // }
             for (auto it : TaskPan)
             {
-                pantime += ingTask[it].cooktime;
+                stsk.cooktime += ingTask[it].cooktime;
+                for (int j = 0; j < ingTask[it].stpsum; j++)
+                {
+                    stsk.stp[stsk.stpsum] = ingTask[it].stp[j];
+                    stsk.stpsum++;
+                }
             }
-            pottime = 0;
             for (auto it : TaskPot)
             {
-                pottime += ingTask[it].cooktime;
+                stsk.cooktime += ingTask[it].cooktime;
+                for (int j = 0; j < ingTask[it].stpsum; j++)
+                {
+                    stsk.stp[stsk.stpsum] = ingTask[it].stp[j];
+                    stsk.stpsum++;
+                }
             }
+            for (auto it : TaskNotUsePanOrPot)
+            {
+                stsk.cooktime += ingTask[it].cooktime;
+                for (int j = 0; j < ingTask[it].stpsum; j++)
+                {
+                    stsk.stp[stsk.stpsum] = ingTask[it].stp[j];
+                    stsk.stpsum++;
+                }
+                stsk.stp[stsk.stpsum].ta = TAKE;
+                stsk.stp[stsk.stpsum].ts = TAKING_INGREDIENT_TO_PLATE;
+                stsk.stpsum++;
+            }
+            stsk.stp[stsk.stpsum].ta = TAKE;
+            stsk.stp[stsk.stpsum].ts = TAKE_UP_PLATE;
+            stsk.stpsum++;
+            CheckInteractPos(stsk.stp[stsk.stpsum], xpan, ypan);
+            stsk.stp[stsk.stpsum].ta = TAKE;
+            stsk.stp[stsk.stpsum].ts = TAKING_PLATE_TO_PAN;
+            stsk.stp[stsk.stpsum].product = ingTask[TaskPan[TaskPan.size() - 1]].stp[ingTask[TaskPan[TaskPan.size() - 1]].stpsum - 1].product;
+            stsk.stpsum++;
+            CheckInteractPos(stsk.stp[stsk.stpsum], xpot, ypot);
+            stsk.stp[stsk.stpsum].ta = TAKE;
+            stsk.stp[stsk.stpsum].ts = TAKING_PLATE_TO_POT;
+            stsk.stp[stsk.stpsum].product = ingTask[TaskPot[TaskPot.size() - 1]].stp[ingTask[TaskPot[TaskPot.size() - 1]].stpsum - 1].product;
+            stsk.stpsum++;
+            CheckInteractPos(stsk.stp[stsk.stpsum], xservicewindows, yservicewindows);
+            stsk.stp[stsk.stpsum].ta = TAKE;
+            stsk.stp[stsk.stpsum].ts = TAKING_PLATE_TO_SERVICEWINDOWS;
+            stsk.stpsum++;
+            totalOrderTaskParse[i].tsk[0] = stsk;
+            totalOrderTaskParse[i].tsksum = 1;
+            totalOrderTaskParse[i].playerdistributed = 1;
         }
         else
             assert(0);
