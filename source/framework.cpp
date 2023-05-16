@@ -30,7 +30,6 @@ struct Task
     int cooktime;  // 加工所需时间
     bool panused;  // 是否需要使用Pan 仅初始化时使用
     bool potused;  // 是否需要使用Pot 仅初始化时使用
-    // std::pair<int, int> platepos; // 使用的盘子的坐标
 };
 
 struct OrderTask
@@ -52,13 +51,6 @@ struct IngAss
     int y;               // 原材料的坐标
     int price;           // 原材料的价格
 };
-
-// struct Plate
-// {
-//     double x, y;
-//     bool used;          // false表示未被使用
-//     bool curframecheck; // 当前帧的确认，用于识别
-// };
 
 /* 按照读入顺序定义 */
 int width, height;
@@ -150,7 +142,6 @@ void CheckInteractPos(Step &stp, const int x, const int y)
     }
     else
         assert(0);
-    // stp.descheck = true;
 }
 
 // 确认交互是否成功
@@ -781,353 +772,6 @@ void ParseOrder()
     }
 }
 
-// 该函数只负责最初解析订单所需要做的事，目前一个订单对应一个任务，但之后可能修改为更适合合作完成的分解小任务，其解析的任务中含有未确定的目标，例如并未确定盘子要在何处取，当任务真正被分配然后执行的时候才会确定
-Task ParseOrder(const struct Order &order)
-{
-    // Task task;
-    // task.stpsum = 0;
-    // task.completed = 0;
-    // assert(order.recipe.size() > 0);
-    // std::string taskParse[15] = {};                   // 订单解析时的辅助数组
-    // std::pair<int, int> taskParseTimeMethod[15] = {}; // 订单解析时的辅助数组 前为加工时间 后为料理方式 1-chop 2-pot 3-pan
-    // int taskParseGroup[10] = {};
-    // taskParseGroup[0] = 0;
-    // int t1 = 0, t2 = 0;
-    // bool f1;
-    // for (int i = 0; i < totalOrderCount; i++)
-    // {
-    //     t1 = 0;
-    //     t2 = 0;
-    //     // 解析订单中每样菜并放入数组中保存
-    //     for (auto it : order.recipe)
-    //     {
-    //         f1 = false;
-    //         for (int j = 0; j < recipeCount; j++)
-    //         {
-    //             if (Recipe[j].nameAfter == it)
-    //             {
-    //                 taskParse[t1] = it;
-    //                 taskParseTimeMethod[t1] = std::make_pair(Recipe[j].time, CheckCookMethods(Recipe[j].kind));
-    //                 t1++;
-    //                 taskParse[t1] = Recipe[j].nameBefore;
-    //                 taskParseTimeMethod[t1] = std::make_pair(0, 0);
-    //                 t1++;
-    //                 for (int ii = 0; ii < recipeCount; ii++)
-    //                 {
-    //                     if (Recipe[ii].nameAfter == taskParse[t1 - 1])
-    //                     {
-    //                         taskParseTimeMethod[t1 - 1] = std::make_pair(Recipe[ii].time, CheckCookMethods(Recipe[ii].kind));
-    //                         taskParseTimeMethod[t1] = std::make_pair(0, 0);
-    //                         taskParse[t1] = Recipe[ii].nameBefore;
-    //                         ii = 0;
-    //                         t1++;
-    //                     }
-    //                 }
-    //                 f1 = true;
-    //                 break;
-    //             }
-    //         }
-    //         if (f1)
-    //             continue;
-    //         for (int j = 0; j < IngredientCount; j++)
-    //         {
-    //             if (Ingredient[j].name == it)
-    //             {
-    //                 taskParse[t1] = it;
-    //                 taskParseTimeMethod[t1] = std::make_pair(0, 0);
-    //                 t1++;
-    //                 break;
-    //             }
-    //         }
-    //     }
-
-    //     task.stpsum = 0;
-    //     for (auto it : order.recipe)
-    //     {
-    //         // 若该项为食材本身则
-    //         for (int i = 0; i < IngredientCount; i++)
-    //         {
-    //             if (Ingredient[i].name == it)
-    //             {
-    //                 CheckInteractPos(task.stp[task.stpsum], Ingredient[i].x, Ingredient[i].y);
-    //                 task.stp[task.stpsum].descheck = true;
-    //                 task.stp[task.stpsum].ta = TAKE;
-    //                 task.stp[task.stpsum].ts = GO_TO_INGREDIENT;
-    //                 task.stp[task.stpsum].stay = false;
-    //                 task.stpsum++;
-    //                 task.stp[task.stpsum].descheck = false;
-    //                 task.stp[task.stpsum].ta = TAKE;
-    //                 task.stp[task.stpsum].ts = TAKING_INGREDIENT_TO_PLATE;
-    //                 task.stp[task.stpsum].stay = false;
-    //                 task.stpsum++;
-    //                 break;
-    //             }
-    //         }
-    //     }
-    // }
-
-    Task task;
-    task.stpsum = 0;
-    task.completed = 0;
-    assert(order.recipe.size() == 1);
-    auto it = order.recipe.front();
-    if (it == "c_fish")
-    {
-        for (int i = 0; i < IngredientCount; i++)
-        {
-            if (Ingredient[i].name == "fish")
-            {
-                // 取食材
-                CheckInteractPos(task.stp[task.stpsum], Ingredient[i].x, Ingredient[i].y);
-                // task.stp[task.stpsum].descheck = true;
-                task.stp[task.stpsum].ta = TAKE;
-                task.stp[task.stpsum].ts = GO_TO_INGREDIENT;
-                // task.stp[task.stpsum].stay = false;
-                task.stpsum++;
-                // 拿去切
-                CheckInteractPos(task.stp[task.stpsum], xchoppingstation, ychoppingstation);
-                // task.stp[task.stpsum].descheck = true;
-                task.stp[task.stpsum].ta = TAKE;
-                task.stp[task.stpsum].ts = TAKING_INGREDIENT_TO_CHOP;
-                // task.stp[task.stpsum].stay = false;
-                task.stpsum++;
-                // 切
-                task.stp[task.stpsum].desx = task.stp[task.stpsum - 1].desx;
-                task.stp[task.stpsum].desy = task.stp[task.stpsum - 1].desy;
-                task.stp[task.stpsum].d = task.stp[task.stpsum - 1].d;
-                // task.stp[task.stpsum].descheck = true;
-                task.stp[task.stpsum].ta = INTERACT;
-                task.stp[task.stpsum].ts = CHOPING;
-                // task.stp[task.stpsum].stay = true;
-                task.stp[task.stpsum].product = "c_fish";
-                task.stpsum++;
-                // 拿起
-                task.stp[task.stpsum].desx = task.stp[task.stpsum - 1].desx;
-                task.stp[task.stpsum].desy = task.stp[task.stpsum - 1].desy;
-                task.stp[task.stpsum].d = task.stp[task.stpsum - 1].d;
-                // task.stp[task.stpsum].descheck = true;
-                task.stp[task.stpsum].ta = TAKE;
-                task.stp[task.stpsum].ts = GO_TO_INGREDIENT;
-                // task.stp[task.stpsum].stay = false;
-                task.stpsum++;
-                // 去装盘
-                // task.stp[task.stpsum].descheck = false;
-                task.stp[task.stpsum].ta = TAKE;
-                task.stp[task.stpsum].ts = TAKING_INGREDIENT_TO_PLATE;
-                // task.stp[task.stpsum].stay = false;
-                task.stpsum++;
-                // 拿起盘子
-                // task.stp[task.stpsum].descheck = false;
-                task.stp[task.stpsum].ta = TAKE;
-                task.stp[task.stpsum].ts = TAKE_UP_PLATE;
-                // task.stp[task.stpsum].stay = false;
-                task.stpsum++;
-                // 将盘子送往服务台
-                CheckInteractPos(task.stp[task.stpsum], xservicewindows, yservicewindows);
-                // task.stp[task.stpsum].descheck = true;
-                task.stp[task.stpsum].ta = TAKE;
-                task.stp[task.stpsum].ts = TAKING_PLATE_TO_SERVICEWINDOWS;
-                // task.stp[task.stpsum].stay = false;
-                task.stpsum++;
-                return task;
-            }
-        }
-    }
-    else if (it == "s_fish")
-    {
-        for (int i = 0; i < IngredientCount; i++)
-        {
-            if (Ingredient[i].name == "fish")
-            {
-                // 取食材
-                CheckInteractPos(task.stp[task.stpsum], Ingredient[i].x, Ingredient[i].y);
-                // task.stp[task.stpsum].descheck = true;
-                task.stp[task.stpsum].ta = TAKE;
-                task.stp[task.stpsum].ts = GO_TO_INGREDIENT;
-                // task.stp[task.stpsum].stay = false;
-                task.stpsum++;
-                // 拿去切
-                CheckInteractPos(task.stp[task.stpsum], xchoppingstation, ychoppingstation);
-                // task.stp[task.stpsum].descheck = true;
-                task.stp[task.stpsum].ta = TAKE;
-                task.stp[task.stpsum].ts = TAKING_INGREDIENT_TO_CHOP;
-                // task.stp[task.stpsum].stay = false;
-                task.stpsum++;
-                // 切
-                task.stp[task.stpsum].desx = task.stp[task.stpsum - 1].desx;
-                task.stp[task.stpsum].desy = task.stp[task.stpsum - 1].desy;
-                task.stp[task.stpsum].d = task.stp[task.stpsum - 1].d;
-                // task.stp[task.stpsum].descheck = true;
-                task.stp[task.stpsum].ta = INTERACT;
-                task.stp[task.stpsum].ts = CHOPING;
-                // task.stp[task.stpsum].stay = true;
-                task.stp[task.stpsum].product = "c_fish";
-                task.stpsum++;
-                // 拿起
-                task.stp[task.stpsum].desx = task.stp[task.stpsum - 1].desx;
-                task.stp[task.stpsum].desy = task.stp[task.stpsum - 1].desy;
-                task.stp[task.stpsum].d = task.stp[task.stpsum - 1].d;
-                // task.stp[task.stpsum].descheck = true;
-                task.stp[task.stpsum].ta = TAKE;
-                task.stp[task.stpsum].ts = GO_TO_INGREDIENT;
-                // task.stp[task.stpsum].stay = false;
-                task.stpsum++;
-                // 拿去Pan煮
-                CheckInteractPos(task.stp[task.stpsum], xpan, ypan);
-                // task.stp[task.stpsum].descheck = true;
-                task.stp[task.stpsum].ta = TAKE;
-                task.stp[task.stpsum].ts = TAKING_INGREDIENT_TO_PAN;
-                // task.stp[task.stpsum].stay = false;
-                task.stpsum++;
-                // 拿盘子
-                // task.stp[task.stpsum].descheck = false;
-                task.stp[task.stpsum].ta = TAKE;
-                task.stp[task.stpsum].ts = TAKE_UP_PLATE;
-                // task.stp[task.stpsum].stay = false;
-                task.stpsum++;
-                // 拿盘子去装煮熟的饭
-                CheckInteractPos(task.stp[task.stpsum], xpan, ypan);
-                // task.stp[task.stpsum].descheck = true;
-                task.stp[task.stpsum].ta = TAKE;
-                task.stp[task.stpsum].ts = TAKING_PLATE_TO_PAN;
-                // task.stp[task.stpsum].stay = true;
-                task.stp[task.stpsum].product = "s_fish";
-                task.stpsum++;
-                // 将盘子送往服务台
-                CheckInteractPos(task.stp[task.stpsum], xservicewindows, yservicewindows);
-                // task.stp[task.stpsum].descheck = true;
-                task.stp[task.stpsum].ta = TAKE;
-                task.stp[task.stpsum].ts = TAKING_PLATE_TO_SERVICEWINDOWS;
-                // task.stp[task.stpsum].stay = false;
-                task.stpsum++;
-                return task;
-            }
-        }
-    }
-    else if (it == "s_rice")
-    {
-        for (int i = 0; i < IngredientCount; i++)
-        {
-            if (Ingredient[i].name == "rice")
-            {
-                // 取食材
-                CheckInteractPos(task.stp[task.stpsum], Ingredient[i].x, Ingredient[i].y);
-                // task.stp[task.stpsum].descheck = true;
-                task.stp[task.stpsum].ta = TAKE;
-                task.stp[task.stpsum].ts = GO_TO_INGREDIENT;
-                // task.stp[task.stpsum].stay = false;
-                task.stpsum++;
-                // 拿去Pot煮
-                CheckInteractPos(task.stp[task.stpsum], xpot, ypot);
-                // task.stp[task.stpsum].descheck = true;
-                task.stp[task.stpsum].ta = TAKE;
-                task.stp[task.stpsum].ts = TAKING_INGREDIENT_TO_POT;
-                // task.stp[task.stpsum].stay = false;
-                task.stpsum++;
-                // 拿盘子
-                // task.stp[task.stpsum].descheck = false;
-                task.stp[task.stpsum].ta = TAKE;
-                task.stp[task.stpsum].ts = TAKE_UP_PLATE;
-                // task.stp[task.stpsum].stay = false;
-                task.stpsum++;
-                // 拿盘子去装煮熟的饭
-                CheckInteractPos(task.stp[task.stpsum], xpot, ypot);
-                // task.stp[task.stpsum].descheck = true;
-                task.stp[task.stpsum].ta = TAKE;
-                task.stp[task.stpsum].ts = TAKING_PLATE_TO_POT;
-                // task.stp[task.stpsum].stay = true;
-                task.stp[task.stpsum].product = "s_rice";
-                task.stpsum++;
-                // 将盘子送往服务台
-                CheckInteractPos(task.stp[task.stpsum], xservicewindows, yservicewindows);
-                // task.stp[task.stpsum].descheck = true;
-                task.stp[task.stpsum].ta = TAKE;
-                task.stp[task.stpsum].ts = TAKING_PLATE_TO_SERVICEWINDOWS;
-                // task.stp[task.stpsum].stay = false;
-                task.stpsum++;
-                return task;
-            }
-        }
-    }
-    else
-    {
-        for (int i = 0; i < IngredientCount; i++)
-        {
-            if (Ingredient[i].name == it)
-            {
-                // 取食材，并放到盘子里
-                CheckInteractPos(task.stp[task.stpsum], Ingredient[i].x, Ingredient[i].y);
-                // task.stp[task.stpsum].descheck = true;
-                task.stp[task.stpsum].ta = TAKE;
-                task.stp[task.stpsum].ts = GO_TO_INGREDIENT;
-                // task.stp[task.stpsum].stay = false;
-                task.stpsum++;
-                // task.stp[task.stpsum].descheck = false;
-                task.stp[task.stpsum].ta = TAKE;
-                task.stp[task.stpsum].ts = TAKING_INGREDIENT_TO_PLATE;
-                // task.stp[task.stpsum].stay = false;
-                task.stpsum++;
-                // 拿起盘子
-                // task.stp[task.stpsum].descheck = false;
-                task.stp[task.stpsum].ta = TAKE;
-                task.stp[task.stpsum].ts = TAKE_UP_PLATE;
-                // task.stp[task.stpsum].stay = false;
-                task.stpsum++;
-                // 将盘子送往服务台
-                CheckInteractPos(task.stp[task.stpsum], xservicewindows, yservicewindows);
-                // task.stp[task.stpsum].descheck = true;
-                task.stp[task.stpsum].ta = TAKE;
-                task.stp[task.stpsum].ts = TAKING_PLATE_TO_SERVICEWINDOWS;
-                // task.stp[task.stpsum].stay = false;
-                task.stpsum++;
-                return task;
-            }
-        }
-    }
-    assert(0);
-    return task;
-
-    // Task task;
-    // task.stpsum = 0;
-    // // 取食材，并放到盘子里
-    // for (auto it : order.recipe)
-    // {
-    //     for (int i = 0; i < IngredientCount; i++)
-    //     {
-    //         if (Ingredient[i].name == it)
-    //         {
-    //             CheckInteractPos(task.stp[task.stpsum], Ingredient[i].x, Ingredient[i].y);
-    //             task.stp[task.stpsum].descheck = true;
-    //             task.stp[task.stpsum].ta = TAKE;
-    //             task.stp[task.stpsum].ts = GO_TO_INGREDIENT;
-    //             task.stp[task.stpsum].stay = false;
-    //             task.stpsum++;
-    //             task.stp[task.stpsum].descheck = false;
-    //             task.stp[task.stpsum].ta = TAKE;
-    //             task.stp[task.stpsum].ts = TAKING_INGREDIENT_TO_PLATE;
-    //             task.stp[task.stpsum].stay = false;
-    //             task.stpsum++;
-    //             break;
-    //         }
-    //     }
-    // }
-    // // 拿起盘子
-    // task.stp[task.stpsum].descheck = false;
-    // task.stp[task.stpsum].ta = TAKE;
-    // task.stp[task.stpsum].ts = TAKE_UP_PLATE;
-    // task.stp[task.stpsum].stay = false;
-    // task.stpsum++;
-    // // 将盘子送往服务台
-    // CheckInteractPos(task.stp[task.stpsum], xservicewindows, yservicewindows);
-    // task.stp[task.stpsum].descheck = true;
-    // task.stp[task.stpsum].ta = TAKE;
-    // task.stp[task.stpsum].ts = TAKING_PLATE_TO_SERVICEWINDOWS;
-    // task.stp[task.stpsum].stay = false;
-    // task.stpsum++;
-    // task.completed = 0;
-    // return task;
-}
-
 // 任务调度和分配相关
 
 // 初始化一些信息 确定盘子的总数和各自的坐标 确定服务台 水槽 盘子归还处坐标 然后确定洗碗事件的基本信息 原本是用来初始化寻路的但是还没写喵
@@ -1409,97 +1053,31 @@ void PlayTaskDistribute()
         FreePlayer[nearplayer] = false;
         ptask[nearplayer] = tsk;
     }
-
-    // Task temptask;
-    // int nearplayer = 0;
-    // while (true)
-    // {
-    //     if (!(FreePlayer[0] || FreePlayer[1]))
-    //         break;
-    //     if (dirtyplateflag == UNDISTRIBUTED)
-    //     {
-    //         dirtyplateflag = DISTRIBUTED;
-    //         nearplayer = CheckPlayerInteractDistance(WashDirtyPlate.stp[0]);
-    //         FreePlayer[nearplayer] = false;
-    //         ptask[nearplayer] = WashDirtyPlate;
-    //         continue;
-    //     }
-    //     temptask = deqOrder.front();
-    //     int flag3 = -1;
-    //     for (int j = 0; j < temptask.stpsum; j++)
-    //     {
-    //         if ((temptask.stp[j].ts == TAKING_INGREDIENT_TO_PLATE) || (temptask.stp[j].ts == TAKE_UP_PLATE))
-    //         {
-    //             if (flag3 == -1)
-    //             {
-    //                 if (CheckPlatePos(temptask.stp[j]))
-    //                     flag3 = j;
-    //                 else
-    //                     break;
-    //             }
-    //             else
-    //             {
-    //                 // temptask.stp[j].descheck = true;
-    //                 temptask.stp[j].desx = temptask.stp[flag3].desx;
-    //                 temptask.stp[j].desy = temptask.stp[flag3].desy;
-    //                 temptask.stp[j].d = temptask.stp[flag3].d;
-    //             }
-    //         }
-    //     }
-    //     if (flag3 == -1)
-    //     {
-    //         if (dirtyplateflag == NONE)
-    //         {
-    //             nearplayer = CheckPlayerInteractDistance(WashDirtyPlate.stp[0]);
-    //             FreePlayer[nearplayer] = false;
-    //             ptask[nearplayer] = WashDirtyPlate;
-    //             dirtyplateflag = DISTRIBUTED;
-    //         }
-    //         else if (dirtyplateflag == DISTRIBUTED)
-    //         {
-    //             nearplayer = CheckPlayerInteractDistance(WashDirtyPlate.stp[0]);
-    //             FreePlayer[nearplayer] = false;
-    //             ptask[nearplayer] = WashDirtyPlate;
-    //             dirtyplateflag = TWODISTRIBUTED;
-    //         }
-    //         break;
-    //     }
-    //     deqOrder.pop_front();
-    //     nearplayer = CheckPlayerInteractDistance(temptask.stp[0]);
-    //     FreePlayer[nearplayer] = false;
-    //     ptask[nearplayer] = temptask;
-    // }
 }
 
 // 具体行动相关
 
+// 初始读入后行为
 void InitDo()
 {
     init_map();
-    // for (int i = 0; i < totalOrderCount; i++)
-    // {
-    //     totalOrderParseTask[i] = ParseOrder(totalOrder[i]);
-    // }
-    // deqOrder.clear();
+    InitIngredientAss();
+    InitIngredientTask();
+    ParseOrder();
+    NewdeqOrder.clear();
     ptask[0].stpsum = 0;
     ptask[1].stpsum = 0;
     ptask[0].completed = 0;
     ptask[1].completed = 0;
     ptask[0].stp[0].ts = TAKING_PLATE_TO_SERVICEWINDOWS;
     ptask[1].stp[0].ts = GO_TO_INGREDIENT;
-    // RunningTaskSum = 0;
     dirtyplateflag = NONE;
     plateused.clear();
     CollisionAvoidenceTime = 0;
     OrderInDeque = 1;
-    // panused = false;
-    // potused = false;
-    InitIngredientAss();
-    InitIngredientTask();
-    ParseOrder();
-    NewdeqOrder.clear();
 }
 
+// 一帧的行为
 int FrameDo()
 {
     // 碰撞避免
@@ -1518,7 +1096,6 @@ int FrameDo()
             if (ptask[i].stp[ptask[i].completed].ts == TAKING_PLATE_TO_SERVICEWINDOWS)
             {
                 OrderInDeque--;
-                // OrderToTaskDeque();
                 NewOrderToTaskDeque();
             }
             ptask[i].completed++;
@@ -1539,67 +1116,8 @@ int FrameDo()
             FreePlayer[i] = false;
     }
 
-    // 具体分配
+    // 具体任务分配
     PlayTaskDistribute();
-    // Task temptask;
-    // int nearplayer = 0;
-    // while (true)
-    // {
-    //     if (!(FreePlayer[0] || FreePlayer[1]))
-    //         break;
-    //     if (dirtyplateflag == UNDISTRIBUTED)
-    //     {
-    //         dirtyplateflag = DISTRIBUTED;
-    //         nearplayer = CheckPlayerInteractDistance(WashDirtyPlate.stp[0]);
-    //         FreePlayer[nearplayer] = false;
-    //         ptask[nearplayer] = WashDirtyPlate;
-    //         continue;
-    //     }
-    //     temptask = deqOrder.front();
-    //     int flag3 = -1;
-    //     for (int j = 0; j < temptask.stpsum; j++)
-    //     {
-    //         if ((temptask.stp[j].ts == TAKING_INGREDIENT_TO_PLATE) || (temptask.stp[j].ts == TAKE_UP_PLATE))
-    //         {
-    //             if (flag3 == -1)
-    //             {
-    //                 if (CheckPlatePos(temptask.stp[j]))
-    //                     flag3 = j;
-    //                 else
-    //                     break;
-    //             }
-    //             else
-    //             {
-    //                 // temptask.stp[j].descheck = true;
-    //                 temptask.stp[j].desx = temptask.stp[flag3].desx;
-    //                 temptask.stp[j].desy = temptask.stp[flag3].desy;
-    //                 temptask.stp[j].d = temptask.stp[flag3].d;
-    //             }
-    //         }
-    //     }
-    //     if (flag3 == -1)
-    //     {
-    //         if (dirtyplateflag == NONE)
-    //         {
-    //             nearplayer = CheckPlayerInteractDistance(WashDirtyPlate.stp[0]);
-    //             FreePlayer[nearplayer] = false;
-    //             ptask[nearplayer] = WashDirtyPlate;
-    //             dirtyplateflag = DISTRIBUTED;
-    //         }
-    //         else if (dirtyplateflag == DISTRIBUTED)
-    //         {
-    //             nearplayer = CheckPlayerInteractDistance(WashDirtyPlate.stp[0]);
-    //             FreePlayer[nearplayer] = false;
-    //             ptask[nearplayer] = WashDirtyPlate;
-    //             dirtyplateflag = TWODISTRIBUTED;
-    //         }
-    //         break;
-    //     }
-    //     deqOrder.pop_front();
-    //     nearplayer = CheckPlayerInteractDistance(temptask.stp[0]);
-    //     FreePlayer[nearplayer] = false;
-    //     ptask[nearplayer] = temptask;
-    // }
 
     // 具体行动
     int ret = 0;
@@ -1624,119 +1142,7 @@ int FrameDo()
             plateused.erase(platefree[i]);
     }
     return fret;
-
-    // for (int i = 0; i < k; i++)
-    // {
-    //     if (Players[i].live > 0)
-    //         continue;
-    //     if (ptask[i].completed >= ptask[i].stpsum)
-    //     {
-    //         if (dirtyplateflag == UNDISTRIBUTED)
-    //         {
-    //             dirtyplateflag = DISTRIBUTED;
-    //             ptask[i] = WashDirtyPlate;
-    //             // RunningTaskSum++;
-    //             continue;
-    //         }
-    //         temptask = deqOrder.front();
-    //         int flag3 = -1;
-    //         // double curplatex, curplatey;
-    //         for (int j = 0; j < temptask.stpsum; j++)
-    //         {
-    //             if ((temptask.stp[j].ts == TAKING_INGREDIENT_TO_PLATE) || (temptask.stp[j].ts == TAKE_UP_PLATE))
-    //             {
-    //                 if (flag3 == -1)
-    //                 {
-    //                     if (CheckPlatePos(temptask.stp[j], i))
-    //                         flag3 = j;
-    //                     else
-    //                         break;
-    //                 }
-    //                 else
-    //                 {
-    //                     temptask.stp[j].descheck = true;
-    //                     temptask.stp[j].desx = temptask.stp[flag3].desx;
-    //                     temptask.stp[j].desy = temptask.stp[flag3].desy;
-    //                     temptask.stp[j].d = temptask.stp[flag3].d;
-    //                 }
-    //             }
-    //         }
-    //         if (flag3 == -1)
-    //             continue;
-    //         ptask[i] = temptask;
-    //         // RunningTaskSum++;
-    //     }
-    //     int ret = Action(i);
-    //     fret |= (ret << (6 * i));
-    // }
-    // for (int i = 0; i < k; i++)
-    // {
-    //     if ((platefree[i].first != -1) && (platefree[i].second != -1))
-    //         plateused.erase(platefree[i]);
-    // }
-    // return fret;
-
-    // std::cout << i << " : " << ptask[i].plateindex << " " << ptask[i].completed << " " << ptask[i].stpsum << std::endl;
-    // for (int j = 0; j < ptask[i].stpsum; j++)
-    // {
-    //     std::cout << ptask[i].stp[j].desx << " " << ptask[i].stp[j].desy << std::endl;
-    // }
 }
-
-// void checkplate()
-// {
-//     for (int i = 0; i < 20; i++)
-//     {
-//         platearr[i].curframecheck = false;
-//     }
-//     bool flag1 = false;
-//     int add = 0;
-//     for (int i = 0; i < entityCount; i++)
-//     {
-//         if (Entity[i].containerKind == ContainerKind::Plate)
-//         {
-//             flag1 = false;
-//             for (int j = 0; j < 20; j++)
-//             {
-//                 if ((platearr[j].curframecheck == false) &&
-//                     (fabs(Entity[i].x - platearr[j].x) < epsilon) &&
-//                     (fabs(Entity[i].y - platearr[j].y) < epsilon))
-//                 {
-//                     platearr[j].curframecheck = true;
-//                     flag1 = true;
-//                     break;
-//                 }
-//             }
-//             if (!flag1)
-//             {
-//                 add++;
-//                 for (int i = 0; i < 20; i++)
-//                 {
-//                     if ((platearr[i].x == -1) || (platearr[i].y == -1))
-//                     {
-//                         platearr[i].x = Entity[i].x;
-//                         platearr[i].y = Entity[i].y;
-//                         platearr[i].curframecheck = true;
-//                         platearr[i].used = false;
-//                         break;
-//                     }
-//                 }
-//             }
-//         }
-//     }
-//     platenum = 0;
-//     for (int i = 0; i < 20; i++)
-//     {
-//         if (platearr[i].curframecheck)
-//             platenum++;
-//         else
-//         {
-//             platearr[i].x = -1;
-//             platearr[i].y = -1;
-//         }
-//     }
-//     // platenum += add;
-// }
 
 void init_read()
 {
@@ -1935,31 +1341,6 @@ bool frame_read(int nowFrame, int &fret)
     }
 
     fret = FrameDo();
-    // std::cout << deqOrder.size() << std::endl;
-    // for (auto it : deqOrder)
-    // {
-    //     for (int i = 0; i < it.stpsum; i++)
-    //     {
-    //         std::cout << it.stp[i].desx << ' ' << it.stp[i].desy << std::endl;
-    //     }
-    // }
-    // std::cout << "Frame " << nowFrame << "\n";
-    // std::cout << platenum << std::endl;
-    // for (int i = 0; i < platenum; i++)
-    // {
-    //     std::cout << platearr[i].x << " " << platearr[i].y << std::endl;
-    // }
-
-    // checkplate();
-
-    // std::cout << "Frame " << nowFrame << "\n";
-    // std::cout << platenum << std::endl;
-    // for (int i = 0; i < platenum; i++)
-    // {
-    //     std::cout << platearr[i].x << " " << platearr[i].y << std::endl;
-    // }
-
-    // std::cout << "fret=" << fret << std::endl;
 
     return false;
 }
