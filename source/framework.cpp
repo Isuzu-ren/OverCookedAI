@@ -666,10 +666,10 @@ void ParseOrder()
                 {
                     stsk.stp[stsk.stpsum] = ingTask[it].stp[j];
                     stsk.stpsum++;
-                    stsk.stp[stsk.stpsum].ta = TAKE;
-                    stsk.stp[stsk.stpsum].ts = TAKING_INGREDIENT_TO_PLATE;
-                    stsk.stpsum++;
                 }
+                stsk.stp[stsk.stpsum].ta = TAKE;
+                stsk.stp[stsk.stpsum].ts = TAKING_INGREDIENT_TO_PLATE;
+                stsk.stpsum++;
             }
             stsk.stp[stsk.stpsum].ta = TAKE;
             stsk.stp[stsk.stpsum].ts = TAKE_UP_PLATE;
