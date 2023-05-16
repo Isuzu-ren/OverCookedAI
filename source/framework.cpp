@@ -774,7 +774,7 @@ void ParseOrder()
             // {
             //     pottime += ingTask[it].cooktime;
             // }
-            for (auto it : TaskPan)
+            for (auto it : TaskPot)
             {
                 stsk.cooktime += ingTask[it].cooktime;
                 for (int j = 0; j < ingTask[it].stpsum; j++)
@@ -783,7 +783,7 @@ void ParseOrder()
                     stsk.stpsum++;
                 }
             }
-            for (auto it : TaskPot)
+            for (auto it : TaskPan)
             {
                 stsk.cooktime += ingTask[it].cooktime;
                 for (int j = 0; j < ingTask[it].stpsum; j++)
@@ -807,15 +807,15 @@ void ParseOrder()
             stsk.stp[stsk.stpsum].ta = TAKE;
             stsk.stp[stsk.stpsum].ts = TAKE_UP_PLATE;
             stsk.stpsum++;
-            CheckInteractPos(stsk.stp[stsk.stpsum], xpan, ypan);
-            stsk.stp[stsk.stpsum].ta = TAKE;
-            stsk.stp[stsk.stpsum].ts = TAKING_PLATE_TO_PAN;
-            stsk.stp[stsk.stpsum].product = ingTask[TaskPan[TaskPan.size() - 1]].stp[ingTask[TaskPan[TaskPan.size() - 1]].stpsum - 1].product;
-            stsk.stpsum++;
             CheckInteractPos(stsk.stp[stsk.stpsum], xpot, ypot);
             stsk.stp[stsk.stpsum].ta = TAKE;
             stsk.stp[stsk.stpsum].ts = TAKING_PLATE_TO_POT;
             stsk.stp[stsk.stpsum].product = ingTask[TaskPot[TaskPot.size() - 1]].stp[ingTask[TaskPot[TaskPot.size() - 1]].stpsum - 1].product;
+            stsk.stpsum++;
+            CheckInteractPos(stsk.stp[stsk.stpsum], xpan, ypan);
+            stsk.stp[stsk.stpsum].ta = TAKE;
+            stsk.stp[stsk.stpsum].ts = TAKING_PLATE_TO_PAN;
+            stsk.stp[stsk.stpsum].product = ingTask[TaskPan[TaskPan.size() - 1]].stp[ingTask[TaskPan[TaskPan.size() - 1]].stpsum - 1].product;
             stsk.stpsum++;
             CheckInteractPos(stsk.stp[stsk.stpsum], xservicewindows, yservicewindows);
             stsk.stp[stsk.stpsum].ta = TAKE;
