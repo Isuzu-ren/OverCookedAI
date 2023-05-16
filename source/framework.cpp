@@ -528,11 +528,13 @@ void InitIngredientAss()
 Task ingTask[20 + 5];
 void InitIngredientTask()
 {
-    std::queue<int> que;
-    while (!que.empty())
-    {
-        que.pop();
-    }
+    std::deque<int> deq;
+    deq.clear();
+    // std::queue<int> que;
+    // while (!que.empty())
+    // {
+    //     que.pop();
+    // }
     int t1 = 0;
     for (int i = 0; i < ingasscount; i++)
     {
@@ -541,17 +543,21 @@ void InitIngredientTask()
         ingTask[i].cooktime = ingass[i].cooktime;
         ingTask[i].panused = false;
         ingTask[i].potused = false;
-        que.push(i);
+        // que.push(i);
+        deq.emplace_back(i);
         t1 = ingass[i].before;
         while (t1 >= 0)
         {
-            que.push(t1);
+            // que.push(t1);
+            deq.emplace_back(t1);
             t1 = ingass[t1].before;
         }
-        while (!que.empty())
+        while (!deq.empty())
         {
-            t1 = que.front();
-            que.pop();
+            // t1 = que.front();
+            // que.pop();
+            t1 = deq.front();
+            deq.pop_front();
             switch (ingass[t1].cookmethod)
             {
             case 0:
@@ -585,6 +591,7 @@ void InitIngredientTask()
                 ingTask[i].stpsum++;
                 break;
             case 2:
+                assert(ingTask[i].stpsum > 0);
                 // 将食材放入Pot
                 CheckInteractPos(ingTask[i].stp[ingTask[i].stpsum], xpot, ypot);
                 ingTask[i].stp[ingTask[i].stpsum].ta = TAKE;
@@ -594,6 +601,7 @@ void InitIngredientTask()
                 ingTask[i].potused = true;
                 break;
             case 3:
+                assert(ingTask[i].stpsum > 0);
                 // 将食材放入Pan
                 CheckInteractPos(ingTask[i].stp[ingTask[i].stpsum], xpan, ypan);
                 ingTask[i].stp[ingTask[i].stpsum].ta = TAKE;
