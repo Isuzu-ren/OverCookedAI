@@ -529,7 +529,6 @@ Task ingTask[20 + 5];
 void InitIngredientTask()
 {
     std::deque<int> deq;
-    deq.clear();
     // std::queue<int> que;
     // while (!que.empty())
     // {
@@ -538,18 +537,19 @@ void InitIngredientTask()
     int t1 = 0;
     for (int i = 0; i < ingasscount; i++)
     {
+        deq.clear();
         ingTask[i].completed = 0;
         ingTask[i].stpsum = 0;
         ingTask[i].cooktime = ingass[i].cooktime;
         ingTask[i].panused = false;
         ingTask[i].potused = false;
         // que.push(i);
-        deq.emplace_back(i);
+        deq.emplace_front(i);
         t1 = ingass[i].before;
         while (t1 >= 0)
         {
             // que.push(t1);
-            deq.emplace_back(t1);
+            deq.emplace_front(t1);
             t1 = ingass[t1].before;
         }
         while (!deq.empty())
