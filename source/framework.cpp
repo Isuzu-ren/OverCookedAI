@@ -28,8 +28,8 @@ struct Task
     int stpsum;    // 总步数
     int completed; // 完成数量
     int cooktime;  // 加工所需时间
-    bool panused;
-    bool potused;
+    bool panused;  // 是否需要使用Pan 仅初始化时使用
+    bool potused;  // 是否需要使用Pot 仅初始化时使用
     // std::pair<int, int> platepos; // 使用的盘子的坐标
 };
 
@@ -37,9 +37,20 @@ struct OrderTask
 {
     Task tsk[3];                  // 订单对应的任务
     int tsksum;                   // 订单对应的任务数
-    int tskdistributed;           // 已分配的任务数
     int playerdistributed;        // 分配给的玩家数
     std::pair<int, int> platepos; // 使用的盘子的坐标
+    // int tskdistributed;        // 已分配的任务数
+};
+
+struct IngAss
+{
+    std::string IngName; // 菜品名
+    int before;          // 前置菜品在辅助数组中的下标
+    int cooktime;        // 从初始起总加工时间
+    int cookmethod;      // 从前置菜品到当前菜品的加工方式
+    int x;               // 原材料的坐标
+    int y;               // 原材料的坐标
+    int price;           // 原材料的价格
 };
 
 // struct Plate
@@ -71,6 +82,7 @@ int xservicewindows, yservicewindows;    // 送菜窗口坐标
 int xsink, ysink;                        // 水槽坐标
 int xplatereturn, yplatereturn;          // 归还盘子处坐标
 int xchoppingstation, ychoppingstation;  // 切菜处坐标
+int xplaterack, yplaterack;              // 洗完盘子后盘子出现处坐标
 int xpan, ypan;                          // Pan坐标
 int xpot, ypot;                          // Pot坐标
 Task WashDirtyPlate;                     // 洗盘子任务
@@ -78,19 +90,25 @@ std::set<std::pair<int, int>> plateused; // 已分配的盘子的坐标
 std::pair<int, int> platefree[2];        // 当前帧需要释放的分配盘子坐标
 PlateFlag dirtyplateflag;                // 脏盘标志
 int platenum = 0;                        // 盘子总数
-std::deque<Task> deqOrder;               // 订单任务队列
 Task ptask[2 + 2];                       // 玩家正在执行的任务
 Task ptaskbackup[2 + 2];                 // 死亡时重新分配的备份
-Task totalOrderParseTask[20 + 5];        // 订单解析数组
 bool FreePlayer[2] = {};                 // 当前帧玩家是否空闲
 int CollisionAvoidenceTime = 0;          // 碰撞避免行动时间
 int CollisionAvoidenceRet = 0;           // 碰撞应对策略
 int OrderInDeque = 0;                    // 已解析后入队列的订单数
+IngAss ingass[20 + 5];                   // 记录一种菜品的相关信息
+int ingasscount;                         // 菜品种类数
+Task ingTask[20 + 5];                    // 与上述辅助数组相对应的拿到该菜品所需要的任务
+OrderTask totalOrderTaskParse[20 + 5];   // 订单对应的任务数组
+bool checkorderass[20 + 5];              // 订单解析辅助数组
+std::deque<OrderTask> NewdeqOrder;       // 重置版订单任务队列
 
 // 抛弃或暂无用的全局变量
 // int RunningTaskSum = 0;
 // Plate platearr[20];
 // bool panused, potused;
+// Task totalOrderParseTask[20 + 5];        // 订单解析数组
+// std::deque<Task> deqOrder;               // 订单任务队列
 
 // 判断浮点数相等
 const double epsilon = 1e-4;
@@ -192,28 +210,6 @@ bool CheckInteractSuc(Step &stp, const int op)
         }
         return false;
     }
-    // else if (stp.ts == TAKING_PLATE_TO_POT)
-    // {
-    //     for (int i = 0; i < entityCount; i++)
-    //     {
-    //         if ((Entity[i].containerKind == ContainerKind::Pot) &&
-    //             (!Entity[i].entity.empty()) &&
-    //             (Entity[i].entity.front() == stp.product))
-    //             return true;
-    //     }
-    //     return false;
-    // }
-    // else if (stp.ts == TAKING_PLATE_TO_PAN)
-    // {
-    //     for (int i = 0; i < entityCount; i++)
-    //     {
-    //         if ((Entity[i].containerKind == ContainerKind::Pan) &&
-    //             (!Entity[i].entity.empty()) &&
-    //             (Entity[i].entity.front() == stp.product))
-    //             return true;
-    //     }
-    //     return false;
-    // }
     else
         return false;
 }
@@ -231,7 +227,6 @@ bool CheckPlatePos(Step &stp)
             if (plateused.find(pos) == plateused.end())
             {
                 CheckInteractPos(stp, x, y);
-                // stp.descheck = true;
                 plateused.emplace(pos);
                 return true;
             }
@@ -273,7 +268,6 @@ int Move(const int op, const int dx, const int dy)
         else
             ret &= 0xc;
     }
-
     return ret;
 }
 
@@ -284,6 +278,7 @@ int Action(const int op)
     Task &ct = ptask[op];
     Step &cs = ct.stp[ct.completed];
 
+    // 处理地点冲突则停止移动
     if (cs.ts == TAKING_INGREDIENT_TO_CHOP)
     {
         for (int i = 0; i < entityCount; i++)
@@ -315,36 +310,8 @@ int Action(const int op)
     }
 
     int ret = Move(op, cs.desx, cs.desy);
-    // std :: cout << op << " " << Players[op].x << " " << Players[op].y << " " << ct.stp[ct.completed].desx << " " << ct.stp[ct.completed].desy << " ret= " << ret << "\n";
     if (ret != 0)
         return ret;
-
-    // bool flag4;
-    // if (cs.ts == WASHING)
-    // {
-    //     if (cs.descheck)
-    //         cs.descheck = false;
-    //     else
-    //     {
-    //         flag4 = false;
-    //         for (int i = 0; i < entityCount; i++)
-    //         {
-    //             if ((Entity[i].containerKind == ContainerKind::DirtyPlates) && (fabs(Entity[i].x - xsink) < epsilon) && (fabs(Entity[i].y - ysink) < epsilon))
-    //             {
-    //                 flag4 = true;
-    //                 break;
-    //             }
-    //         }
-    //         if (!flag4)
-    //         {
-    //             // ct.completed++;
-    //             dirtyplateflag = NONE;
-    //         }
-    //     }
-    // }
-    // else if (cs.ts == TAKE_UP_DIRTYPLATE)
-    // {
-    // }
 
     if (cs.ta == INTERACT)
         ret |= 0x10;
@@ -364,6 +331,7 @@ int Action(const int op)
         assert(0);
 
     if (cs.ts == TAKE_UP_PLATE)
+    // 释放使用的盘子的坐标
     {
         std::pair<int, int> pos;
         if (cs.d == RIGHT)
@@ -377,6 +345,7 @@ int Action(const int op)
         platefree[op] = pos;
     }
     else if (cs.ts == TAKING_PLATE_TO_PAN)
+    // 加工完成前不可以进行拿取
     {
         for (int i = 0; i < entityCount; i++)
         {
@@ -393,6 +362,7 @@ int Action(const int op)
         return 0;
     }
     else if (cs.ts == TAKING_PLATE_TO_POT)
+    // 加工完成前不可以进行拿取
     {
         for (int i = 0; i < entityCount; i++)
         {
@@ -408,12 +378,7 @@ int Action(const int op)
         }
         return 0;
     }
-    // if (cs.ts != WASHING)
-    //     ct.completed++;
-    // if (cs.ts == TAKING_PLATE_TO_SERVICEWINDOWS)
-    //     deqOrder.pop_front();
-    // if (ct.completed == ct.stpsum)
-    //     RunningTaskSum--;
+
     return ret;
 }
 
@@ -480,18 +445,7 @@ int CheckCookMethods(const std::string &s)
     return 0;
 }
 
-struct IngAss
-{
-    std::string IngName; // 菜品名
-    int before;          // 前置菜品在辅助数组中的下标
-    int cooktime;        // 从初始起总加工时间
-    int cookmethod;      // 从前置菜品到当前菜品的加工方式
-    int x;               // 原材料的坐标
-    int y;               // 原材料的坐标
-    int price;           // 原材料的价格
-};
-IngAss ingass[20 + 5];
-int ingasscount;
+// 初始化菜品辅助数组相关信息
 void InitIngredientAss()
 {
     ingasscount = IngredientCount;
@@ -525,37 +479,33 @@ void InitIngredientAss()
     }
 }
 
-Task ingTask[20 + 5];
+// 初始化拿到菜品所需任务的数组的相关信息
 void InitIngredientTask()
 {
     std::deque<int> deq;
-    // std::queue<int> que;
-    // while (!que.empty())
-    // {
-    //     que.pop();
-    // }
     int t1 = 0;
     for (int i = 0; i < ingasscount; i++)
     {
+        // 初始化一个任务
         deq.clear();
         ingTask[i].completed = 0;
         ingTask[i].stpsum = 0;
         ingTask[i].cooktime = ingass[i].cooktime;
         ingTask[i].panused = false;
         ingTask[i].potused = false;
-        // que.push(i);
+
+        // 将当前菜品和所有前驱菜品放入队列中
         deq.emplace_front(i);
         t1 = ingass[i].before;
         while (t1 >= 0)
         {
-            // que.push(t1);
             deq.emplace_front(t1);
             t1 = ingass[t1].before;
         }
+
+        // 将所有前置任务连起来得到完整的得到当前菜品的任务
         while (!deq.empty())
         {
-            // t1 = que.front();
-            // que.pop();
             t1 = deq.front();
             deq.pop_front();
             switch (ingass[t1].cookmethod)
@@ -618,7 +568,7 @@ void InitIngredientTask()
     }
 }
 
-OrderTask totalOrderTaskParse[20 + 5];
+// 对所有订单进行解析 解析的任务中含有未确定的目的地 例如盘子的位置是分配时才确定的
 void ParseOrder()
 {
     OrderTask otsk;
@@ -763,6 +713,7 @@ void ParseOrder()
             totalOrderTaskParse[i].playerdistributed = 1;
         }
         else if ((!TaskPan.empty()) && (!TaskPot.empty()))
+        // 需要同时用到Pan和Pot 暂时仅分给一个人完成
         {
             // pantime = 0;
             // for (auto it : TaskPan)
@@ -1236,32 +1187,19 @@ void init_map()
             break;
         }
     }
-    // for (int i = 0; i < entityCount; i++)
-    // {
-    //     if (Entity[i].containerKind == ContainerKind::Plate)
-    //     {
-    //         platenum++;
-    //     }
-    // }
     WashDirtyPlate.completed = 0;
     WashDirtyPlate.cooktime = 180;
     CheckInteractPos(WashDirtyPlate.stp[0], xplatereturn, yplatereturn);
-    // WashDirtyPlate.stp[0].descheck = true;
     WashDirtyPlate.stp[0].ta = TAKE;
     WashDirtyPlate.stp[0].ts = TAKE_UP_DIRTYPLATE;
-    // WashDirtyPlate.stp[0].stay = false;
     CheckInteractPos(WashDirtyPlate.stp[1], xsink, ysink);
-    // WashDirtyPlate.stp[1].descheck = true;
     WashDirtyPlate.stp[1].ta = TAKE;
     WashDirtyPlate.stp[1].ts = TAKING_DIRTYPLATE_TO_SINK;
-    // WashDirtyPlate.stp[0].stay = false;
     WashDirtyPlate.stp[2].desx = WashDirtyPlate.stp[1].desx;
     WashDirtyPlate.stp[2].desy = WashDirtyPlate.stp[1].desy;
     WashDirtyPlate.stp[2].d = WashDirtyPlate.stp[1].d;
-    // WashDirtyPlate.stp[2].descheck = true;
     WashDirtyPlate.stp[2].ta = INTERACT;
     WashDirtyPlate.stp[2].ts = WASHING;
-    // WashDirtyPlate.stp[2].stay = true;
     WashDirtyPlate.stpsum = 3;
 
     // double dis[(20 + 2) * (20 + 2)][(20 + 2) * (20 + 2)] = {};
@@ -1301,25 +1239,9 @@ void init_map()
     //             }
     //         }
     //     }
-
-    // for (int i = 0; i < entityCount; i++)
-    // {
-    //     if (Entity[i].containerKind == ContainerKind::Plate)
-    //     {
-    //         platearr[platenum].used = false;
-    //         platearr[platenum].x = Entity[i].x;
-    //         platearr[platenum].y = Entity[i].y;
-    //         platenum++;
-    //     }
-    // }
-    // for (int i = platenum; i < 20; i++)
-    // {
-    //     platearr[i].x = -1;
-    //     platearr[i].y = -1;
-    // }
 }
 
-bool checkorderass[20];
+// 解析当前订单对应于初始订单的编号
 int checkOrder(const struct Order &order)
 {
     for (int i = 0; i < totalOrderCount; i++)
@@ -1358,7 +1280,7 @@ int checkOrder(const struct Order &order)
     return -1;
 }
 
-std::deque<OrderTask> NewdeqOrder;
+// 订单数减少时读取新的订单
 void NewOrderToTaskDeque()
 {
     while (OrderInDeque < orderCount)
@@ -1367,28 +1289,6 @@ void NewOrderToTaskDeque()
         NewdeqOrder.emplace_back(totalOrderTaskParse[t]);
         OrderInDeque++;
     }
-}
-
-// 订单数减少时读取新的订单
-void OrderToTaskDeque()
-{
-    while (OrderInDeque < orderCount)
-    {
-        int t = checkOrder(Order[OrderInDeque]);
-        deqOrder.emplace_back(totalOrderParseTask[t]);
-        OrderInDeque++;
-    }
-    // int t = checkOrder(Order[OrderInDeque]);
-    // OrderInDeque++;
-    // deqOrder.emplace_back(totalOrderParseTask[t]);
-    // if (deqOrder.size() < orderCount)
-    // {
-    //     for (int i = deqOrder.size(); i < orderCount; i++)
-    //     {
-    //         int t = checkOrder(Order[i]);
-    //         deqOrder.emplace_back(totalOrderParseTask[t]);
-    //     }
-    // }
 }
 
 // 确认归还盘子处是否有脏盘子并设置脏盘标志
@@ -1427,7 +1327,7 @@ double DistancePlayerToInteract(const int op, const double ix, const double iy)
     return (dy * sq2 + dx - dy);
 }
 
-// 确认玩家和第一个交互地点距离以确定任务分配给更近的玩家
+// 确认空闲玩家中和任务交互地点距离以确定任务分配给更近的玩家
 int CheckPlayerInteractDistance(Step &stp)
 {
     int ret = -1;
@@ -1480,7 +1380,6 @@ void PlayTaskDistribute()
                 }
                 else
                 {
-                    // temptask.stp[j].descheck = true;
                     tsk.stp[j].desx = tsk.stp[flag3].desx;
                     tsk.stp[j].desy = tsk.stp[flag3].desy;
                     tsk.stp[j].d = tsk.stp[flag3].d;
@@ -1581,7 +1480,7 @@ void InitDo()
     // {
     //     totalOrderParseTask[i] = ParseOrder(totalOrder[i]);
     // }
-    deqOrder.clear();
+    // deqOrder.clear();
     ptask[0].stpsum = 0;
     ptask[1].stpsum = 0;
     ptask[0].completed = 0;
