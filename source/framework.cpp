@@ -1500,10 +1500,10 @@ void PlayTaskDistribute()
 void InitDo()
 {
     init_map();
-    for (int i = 0; i < totalOrderCount; i++)
-    {
-        totalOrderParseTask[i] = ParseOrder(totalOrder[i]);
-    }
+    // for (int i = 0; i < totalOrderCount; i++)
+    // {
+    //     totalOrderParseTask[i] = ParseOrder(totalOrder[i]);
+    // }
     deqOrder.clear();
     ptask[0].stpsum = 0;
     ptask[1].stpsum = 0;
