@@ -774,7 +774,8 @@ void ParseOrder()
                 pottime += ingTask[it].cooktime;
             }
         }
-        assert(0);
+        else
+            assert(0);
     }
 }
 
