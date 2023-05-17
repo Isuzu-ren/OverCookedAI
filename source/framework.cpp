@@ -861,69 +861,69 @@ void init_map()
     WashDirtyPlate.stp[2].ts = WASHING;
     WashDirtyPlate.stpsum = 3;
 
-    // if ((xplaterack == 0) || (xplaterack == width - 1))
-    // {
-    //     xplatewashshift = xplaterack;
-    //     yplatewashshift = 2 * height;
-    //     for (int i = 1; i < height - 1; i++)
-    //     {
-    //         if ((!isupper(Map[i][xplatewashshift])) &&
-    //             (getTileKind(Map[i][xplatewashshift]) == TileKind::Table) &&
-    //             (fabs(i - yplaterack) < fabs(yplatewashshift - yplaterack)))
-    //         {
-    //             if ((xplaterack == 0) &&
-    //                 (!isupper(Map[i][1])) &&
-    //                 (getTileKind(Map[i][1]) == TileKind::Floor))
-    //             {
-    //                 yplatewashshift = i;
-    //             }
-    //             else if ((xplaterack == width - 1) &&
-    //                      (!isupper(Map[i][width - 2])) &&
-    //                      (getTileKind(Map[i][width - 2]) == TileKind::Floor))
-    //             {
-    //                 yplatewashshift = i;
-    //             }
-    //         }
-    //     }
-    //     assert(yplatewashshift != 2 * height);
-    // }
-    // else if ((yplaterack == 0) || (yplaterack == height - 1))
-    // {
-    //     yplatewashshift = yplaterack;
-    //     xplatewashshift = 2 * width;
-    //     for (int i = 1; i < width - 1; i++)
-    //     {
-    //         if (i == xplaterack)
-    //             continue;
-    //         if ((!isupper(Map[yplatewashshift][i])) &&
-    //             (getTileKind(Map[yplatewashshift][i]) == TileKind::Table) &&
-    //             (fabs(i - xplaterack) < fabs(xplatewashshift - xplaterack)))
-    //         {
-    //             if ((yplaterack == 0) &&
-    //                 (!isupper(Map[1][i])) &&
-    //                 (getTileKind(Map[1][i]) == TileKind::Floor))
-    //             {
-    //                 xplatewashshift = i;
-    //             }
-    //             else if ((yplaterack == height - 1) &&
-    //                      (!isupper(Map[height - 2][i])) &&
-    //                      (getTileKind(Map[height - 2][i]) == TileKind::Floor))
-    //             {
-    //                 xplatewashshift = i;
-    //             }
-    //         }
-    //     }
-    //     assert(xplatewashshift != 2 * width);
-    // }
-    // else
-    //     assert(0);
-    // CheckInteractPos(WashDirtyPlate.stp[3], xplaterack, yplaterack);
-    // WashDirtyPlate.stp[3].ta = TAKE;
-    // WashDirtyPlate.stp[3].ts = CHECK_PLATE_STACK_TAKE_UP;
-    // CheckInteractPos(WashDirtyPlate.stp[4], xplatewashshift, yplatewashshift);
-    // WashDirtyPlate.stp[4].ta = TAKE;
-    // WashDirtyPlate.stp[4].ts = CHECK_PLATE_STACK_TAKE_DOWN;
-    // WashDirtyPlate.stpsum = 5;
+    if ((xplaterack == 0) || (xplaterack == width - 1))
+    {
+        xplatewashshift = xplaterack;
+        yplatewashshift = 2 * height;
+        for (int i = 1; i < height - 1; i++)
+        {
+            if ((!isupper(Map[i][xplatewashshift])) &&
+                (getTileKind(Map[i][xplatewashshift]) == TileKind::Table) &&
+                (fabs(i - yplaterack) < fabs(yplatewashshift - yplaterack)))
+            {
+                if ((xplaterack == 0) &&
+                    (!isupper(Map[i][1])) &&
+                    (getTileKind(Map[i][1]) == TileKind::Floor))
+                {
+                    yplatewashshift = i;
+                }
+                else if ((xplaterack == width - 1) &&
+                         (!isupper(Map[i][width - 2])) &&
+                         (getTileKind(Map[i][width - 2]) == TileKind::Floor))
+                {
+                    yplatewashshift = i;
+                }
+            }
+        }
+        assert(yplatewashshift != 2 * height);
+    }
+    else if ((yplaterack == 0) || (yplaterack == height - 1))
+    {
+        yplatewashshift = yplaterack;
+        xplatewashshift = 2 * width;
+        for (int i = 1; i < width - 1; i++)
+        {
+            if (i == xplaterack)
+                continue;
+            if ((!isupper(Map[yplatewashshift][i])) &&
+                (getTileKind(Map[yplatewashshift][i]) == TileKind::Table) &&
+                (fabs(i - xplaterack) < fabs(xplatewashshift - xplaterack)))
+            {
+                if ((yplaterack == 0) &&
+                    (!isupper(Map[1][i])) &&
+                    (getTileKind(Map[1][i]) == TileKind::Floor))
+                {
+                    xplatewashshift = i;
+                }
+                else if ((yplaterack == height - 1) &&
+                         (!isupper(Map[height - 2][i])) &&
+                         (getTileKind(Map[height - 2][i]) == TileKind::Floor))
+                {
+                    xplatewashshift = i;
+                }
+            }
+        }
+        assert(xplatewashshift != 2 * width);
+    }
+    else
+        assert(0);
+    CheckInteractPos(WashDirtyPlate.stp[3], xplaterack, yplaterack);
+    WashDirtyPlate.stp[3].ta = TAKE;
+    WashDirtyPlate.stp[3].ts = CHECK_PLATE_STACK_TAKE_UP;
+    CheckInteractPos(WashDirtyPlate.stp[4], xplatewashshift, yplatewashshift);
+    WashDirtyPlate.stp[4].ta = TAKE;
+    WashDirtyPlate.stp[4].ts = CHECK_PLATE_STACK_TAKE_DOWN;
+    WashDirtyPlate.stpsum = 5;
 
     // double dis[(20 + 2) * (20 + 2)][(20 + 2) * (20 + 2)] = {};
     // int pre[(20 + 2) * (20 + 2)][(20 + 2) * (20 + 2)] = {};
