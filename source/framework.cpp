@@ -873,6 +873,8 @@ void init_map()
         xttt = 2 * width;
         for (int i = 1; i < width - 1; i++)
         {
+            if (i == xplaterack)
+                continue;
             if ((!isupper(Map[yttt][i])) &&
                 (getTileKind(Map[yttt][i]) == TileKind::Table) &&
                 (fabs(i - xplaterack) < fabs(xttt - xplaterack)))
