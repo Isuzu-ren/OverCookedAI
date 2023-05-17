@@ -849,7 +849,7 @@ void init_map()
         {
             if ((!isupper(Map[i][xttt])) &&
                 (getTileKind(Map[i][xttt]) == TileKind::Table) &&
-                (abs(i - yplaterack) < abs(yttt - yplaterack)))
+                (fabs(i - yplaterack) < fabs(yttt - yplaterack)))
             {
                 if ((xplaterack == 0) &&
                     (!isupper(Map[i][1])) &&
@@ -875,20 +875,21 @@ void init_map()
         {
             if ((!isupper(Map[yttt][i])) &&
                 (getTileKind(Map[yttt][i]) == TileKind::Table) &&
-                (abs(i - xplaterack) < abs(xttt - xplaterack)))
+                (fabs(i - xplaterack) < fabs(xttt - xplaterack)))
             {
-                if ((yplaterack == 0) &&
-                    (!isupper(Map[1][i])) &&
-                    (getTileKind(Map[1][i]) == TileKind::Floor))
-                {
-                    xttt = i;
-                }
-                else if ((yplaterack == height - 1) &&
-                         (!isupper(Map[height - 2][i])) &&
-                         (getTileKind(Map[height - 1][i]) == TileKind::Floor))
-                {
-                    xttt = i;
-                }
+                xttt = i;
+                // if ((yplaterack == 0) &&
+                //     (!isupper(Map[1][i])) &&
+                //     (getTileKind(Map[1][i]) == TileKind::Floor))
+                // {
+                //     xttt = i;
+                // }
+                // else if ((yplaterack == height - 1) &&
+                //          (!isupper(Map[height - 2][i])) &&
+                //          (getTileKind(Map[height - 1][i]) == TileKind::Floor))
+                // {
+                //     xttt = i;
+                // }
             }
         }
         assert(xttt != 2 * width);
