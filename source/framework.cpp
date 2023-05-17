@@ -201,6 +201,10 @@ bool CheckInteractSuc(Step &stp, const int op)
         }
         return false;
     }
+    else if (stp.ts == CHECK_PLATE_STACK_TAKE_UP)
+        return (Players[op].containerKind == ContainerKind::Plate);
+    else if (stp.ts == CHECK_PLATE_STACK_TAKE_DOWN)
+        return (Players[op].entity.empty() && (Players[op].containerKind == ContainerKind::None));
     else
         return false;
 }
