@@ -916,13 +916,13 @@ void init_map()
     WashDirtyPlate.stp[2].ts = WASHING;
     WashDirtyPlate.stpsum = 3;
 
-    CheckInteractPos(WashDirtyPlate.stp[3], xplaterack, yplaterack);
-    WashDirtyPlate.stp[3].ta = TAKE;
-    WashDirtyPlate.stp[3].ts = CHECK_PLATE_STACK_TAKE_UP;
-    CheckInteractPos(WashDirtyPlate.stp[4], xplatewashshift, yplatewashshift);
-    WashDirtyPlate.stp[4].ta = TAKE;
-    WashDirtyPlate.stp[4].ts = CHECK_PLATE_STACK_TAKE_DOWN;
-    WashDirtyPlate.stpsum = 5;
+    // CheckInteractPos(WashDirtyPlate.stp[3], xplaterack, yplaterack);
+    // WashDirtyPlate.stp[3].ta = TAKE;
+    // WashDirtyPlate.stp[3].ts = CHECK_PLATE_STACK_TAKE_UP;
+    // CheckInteractPos(WashDirtyPlate.stp[4], xplatewashshift, yplatewashshift);
+    // WashDirtyPlate.stp[4].ta = TAKE;
+    // WashDirtyPlate.stp[4].ts = CHECK_PLATE_STACK_TAKE_DOWN;
+    // WashDirtyPlate.stpsum = 5;
 
     // double dis[(20 + 2) * (20 + 2)][(20 + 2) * (20 + 2)] = {};
     // int pre[(20 + 2) * (20 + 2)][(20 + 2) * (20 + 2)] = {};
@@ -1176,54 +1176,54 @@ int FrameDo()
                 OrderInDeque--;
                 NewOrderToTaskDeque();
             }
-            else if (ptask[i].stp[ptask[i].completed].ts == WASHING)
-            {
-                bool flag5 = false;
-                for (int j = 0; j < entityCount; j++)
-                {
-                    if ((Entity[j].containerKind == ContainerKind::Plate) && (fabs(Entity[j].x - xplaterack) < epsilon) && (fabs(Entity[j].y - yplaterack) < epsilon))
-                    {
-                        if (!Entity[j].entity.empty())
-                        {
-                            flag5 = true;
-                            break;
-                        }
-                    }
-                }
-                if (flag5)
-                {
-                    ptask[i].completed += 2;
-                    flag5 = true;
-                }
-                if (!flag5)
-                {
-                    if (DistancePlayerToInteract(i ^ 1, xplaterack, yplaterack) > 2)
-                    {
-                        for (int j = 0; j < entityCount; j++)
-                        {
-                            if ((Entity[j].containerKind == ContainerKind::Plate) && (fabs(Entity[j].x - xplatewashshift) < epsilon) && (fabs(Entity[j].y - yplaterack) < xplatewashshift))
-                            {
-                                flag5 = true;
-                                ptask[i].completed += 2;
-                                break;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        ptask[i].completed += 2;
-                        flag5 = true;
-                    }
-                }
-                if (!flag5)
-                {
-                    plateused.emplace(std::make_pair(xplaterack, yplaterack));
-                }
-            }
-            if (ptask[i].stp[ptask[i].completed].ts == CHECK_PLATE_STACK_TAKE_UP)
-            {
-                plateused.erase(std::make_pair(xplaterack, yplaterack));
-            }
+            // else if (ptask[i].stp[ptask[i].completed].ts == WASHING)
+            // {
+            //     bool flag5 = false;
+            //     for (int j = 0; j < entityCount; j++)
+            //     {
+            //         if ((Entity[j].containerKind == ContainerKind::Plate) && (fabs(Entity[j].x - xplaterack) < epsilon) && (fabs(Entity[j].y - yplaterack) < epsilon))
+            //         {
+            //             if (!Entity[j].entity.empty())
+            //             {
+            //                 flag5 = true;
+            //                 break;
+            //             }
+            //         }
+            //     }
+            //     if (flag5)
+            //     {
+            //         ptask[i].completed += 2;
+            //         flag5 = true;
+            //     }
+            //     if (!flag5)
+            //     {
+            //         if (DistancePlayerToInteract(i ^ 1, xplaterack, yplaterack) > 2)
+            //         {
+            //             for (int j = 0; j < entityCount; j++)
+            //             {
+            //                 if ((Entity[j].containerKind == ContainerKind::Plate) && (fabs(Entity[j].x - xplatewashshift) < epsilon) && (fabs(Entity[j].y - yplaterack) < xplatewashshift))
+            //                 {
+            //                     flag5 = true;
+            //                     ptask[i].completed += 2;
+            //                     break;
+            //                 }
+            //             }
+            //         }
+            //         else
+            //         {
+            //             ptask[i].completed += 2;
+            //             flag5 = true;
+            //         }
+            //     }
+            //     if (!flag5)
+            //     {
+            //         plateused.emplace(std::make_pair(xplaterack, yplaterack));
+            //     }
+            // }
+            // if (ptask[i].stp[ptask[i].completed].ts == CHECK_PLATE_STACK_TAKE_UP)
+            // {
+            //     plateused.erase(std::make_pair(xplaterack, yplaterack));
+            // }
             ptask[i].completed++;
         }
     }
