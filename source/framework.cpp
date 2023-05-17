@@ -1179,9 +1179,7 @@ int FrameDo()
             else if (ptask[i].stp[ptask[i].completed].ts == WASHING)
             {
                 bool flag5 = false;
-                if (plateused.find(std::make_pair(xplaterack, yplaterack)) != plateused.end())
-                    flag5 = true;
-                for (int j = 0; (j < entityCount) && (!flag5); j++)
+                for (int j = 0; j < entityCount; j++)
                 {
                     if ((Entity[j].containerKind == ContainerKind::Plate) && (fabs(Entity[j].x - xplaterack) < epsilon) && (fabs(Entity[j].y - yplaterack) < epsilon))
                     {
