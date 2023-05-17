@@ -13,7 +13,7 @@
 #include <cmath>
 #include <set>
 
-#define WASHPLATESHIFT
+// #define WASHPLATESHIFT
 
 struct Step
 {
