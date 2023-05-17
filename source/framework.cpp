@@ -879,19 +879,18 @@ void init_map()
                 (getTileKind(Map[yttt][i]) == TileKind::Table) &&
                 (fabs(i - xplaterack) < fabs(xttt - xplaterack)))
             {
-                xttt = i;
-                // if ((yplaterack == 0) &&
-                //     (!isupper(Map[1][i])) &&
-                //     (getTileKind(Map[1][i]) == TileKind::Floor))
-                // {
-                //     xttt = i;
-                // }
-                // else if ((yplaterack == height - 1) &&
-                //          (!isupper(Map[height - 2][i])) &&
-                //          (getTileKind(Map[height - 1][i]) == TileKind::Floor))
-                // {
-                //     xttt = i;
-                // }
+                if ((yplaterack == 0) &&
+                    (!isupper(Map[1][i])) &&
+                    (getTileKind(Map[1][i]) == TileKind::Floor))
+                {
+                    xttt = i;
+                }
+                else if ((yplaterack == height - 1) &&
+                         (!isupper(Map[height - 2][i])) &&
+                         (getTileKind(Map[height - 2][i]) == TileKind::Floor))
+                {
+                    xttt = i;
+                }
             }
         }
         assert(xttt != 2 * width);
@@ -913,10 +912,10 @@ void init_map()
     WashDirtyPlate.stp[2].ts = WASHING;
     CheckInteractPos(WashDirtyPlate.stp[3], xplaterack, yplaterack);
     WashDirtyPlate.stp[3].ta = TAKE;
-    WashDirtyPlate.stp[3].ts = CHECK_PLATE_STACK;
+    WashDirtyPlate.stp[3].ts = CHECK_PLATE_STACK_TAKE_UP;
     CheckInteractPos(WashDirtyPlate.stp[4], xttt, yttt);
     WashDirtyPlate.stp[4].ta = TAKE;
-    WashDirtyPlate.stp[4].ts = CHECK_PLATE_STACK;
+    WashDirtyPlate.stp[4].ts = CHECK_PLATE_STACK_TAKE_DOWN;
     WashDirtyPlate.stpsum = 5;
 
     // double dis[(20 + 2) * (20 + 2)][(20 + 2) * (20 + 2)] = {};
