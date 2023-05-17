@@ -1178,11 +1178,11 @@ int FrameDo()
             {
                 bool flag5 = false;
                 int ttt = 0;
-                for (int i = 0; i < entityCount; i++)
+                for (int j = 0; j < entityCount; j++)
                 {
-                    if ((Entity[i].containerKind == ContainerKind::Plate) && (fabs(Entity[i].x - xplaterack) < epsilon) && (fabs(Entity[i].y - yplaterack) < epsilon))
+                    if ((Entity[j].containerKind == ContainerKind::Plate) && (fabs(Entity[j].x - xplaterack) < epsilon) && (fabs(Entity[j].y - yplaterack) < epsilon))
                     {
-                        if (!Entity[i].entity.empty())
+                        if (!Entity[j].entity.empty())
                         {
                             flag5 = true;
                             break;
@@ -1197,11 +1197,11 @@ int FrameDo()
                 }
                 if (!flag5)
                 {
-                    if (DistancePlayerToInteract(i ^ 1, Entity[i].x, Entity[i].y) > 2)
+                    if (DistancePlayerToInteract(i ^ 1, xplaterack, yplaterack) > 2)
                     {
-                        for (int i = 0; i < entityCount; i++)
+                        for (int j = 0; j < entityCount; j++)
                         {
-                            if ((Entity[i].containerKind == ContainerKind::Plate) && (fabs(Entity[i].x - xplatewashshift) < epsilon) && (fabs(Entity[i].y - yplaterack) < xplatewashshift))
+                            if ((Entity[j].containerKind == ContainerKind::Plate) && (fabs(Entity[j].x - xplatewashshift) < epsilon) && (fabs(Entity[j].y - yplaterack) < xplatewashshift))
                             {
                                 ptask[i].completed += 2;
                                 break;
