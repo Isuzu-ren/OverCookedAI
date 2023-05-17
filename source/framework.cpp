@@ -95,6 +95,7 @@ Task ingTask[20 + 5];                    // 与上述辅助数组相对应的拿
 OrderTask totalOrderTaskParse[20 + 5];   // 订单对应的任务数组
 bool checkorderass[20 + 5];              // 订单解析辅助数组
 std::deque<OrderTask> NewdeqOrder;       // 重置版订单任务队列
+int PlateRackNum = 0;
 
 // 抛弃或暂无用的全局变量
 // int RunningTaskSum = 0;
@@ -845,62 +846,6 @@ void init_map()
             break;
         }
     }
-    if ((xplaterack == 0) || (xplaterack == width - 1))
-    {
-        xplatewashshift = xplaterack;
-        yplatewashshift = 2 * height;
-        for (int i = 1; i < height - 1; i++)
-        {
-            if ((!isupper(Map[i][xplatewashshift])) &&
-                (getTileKind(Map[i][xplatewashshift]) == TileKind::Table) &&
-                (fabs(i - yplaterack) < fabs(yplatewashshift - yplaterack)))
-            {
-                if ((xplaterack == 0) &&
-                    (!isupper(Map[i][1])) &&
-                    (getTileKind(Map[i][1]) == TileKind::Floor))
-                {
-                    yplatewashshift = i;
-                }
-                else if ((xplaterack == width - 1) &&
-                         (!isupper(Map[i][width - 2])) &&
-                         (getTileKind(Map[i][width - 2]) == TileKind::Floor))
-                {
-                    yplatewashshift = i;
-                }
-            }
-        }
-        assert(yplatewashshift != 2 * height);
-    }
-    else if ((yplaterack == 0) || (yplaterack == height - 1))
-    {
-        yplatewashshift = yplaterack;
-        xplatewashshift = 2 * width;
-        for (int i = 1; i < width - 1; i++)
-        {
-            if (i == xplaterack)
-                continue;
-            if ((!isupper(Map[yplatewashshift][i])) &&
-                (getTileKind(Map[yplatewashshift][i]) == TileKind::Table) &&
-                (fabs(i - xplaterack) < fabs(xplatewashshift - xplaterack)))
-            {
-                if ((yplaterack == 0) &&
-                    (!isupper(Map[1][i])) &&
-                    (getTileKind(Map[1][i]) == TileKind::Floor))
-                {
-                    xplatewashshift = i;
-                }
-                else if ((yplaterack == height - 1) &&
-                         (!isupper(Map[height - 2][i])) &&
-                         (getTileKind(Map[height - 2][i]) == TileKind::Floor))
-                {
-                    xplatewashshift = i;
-                }
-            }
-        }
-        assert(xplatewashshift != 2 * width);
-    }
-    else
-        assert(0);
     WashDirtyPlate.completed = 0;
     WashDirtyPlate.cooktime = 180;
     CheckInteractPos(WashDirtyPlate.stp[0], xplatereturn, yplatereturn);
@@ -916,6 +861,62 @@ void init_map()
     WashDirtyPlate.stp[2].ts = WASHING;
     WashDirtyPlate.stpsum = 3;
 
+    // if ((xplaterack == 0) || (xplaterack == width - 1))
+    // {
+    //     xplatewashshift = xplaterack;
+    //     yplatewashshift = 2 * height;
+    //     for (int i = 1; i < height - 1; i++)
+    //     {
+    //         if ((!isupper(Map[i][xplatewashshift])) &&
+    //             (getTileKind(Map[i][xplatewashshift]) == TileKind::Table) &&
+    //             (fabs(i - yplaterack) < fabs(yplatewashshift - yplaterack)))
+    //         {
+    //             if ((xplaterack == 0) &&
+    //                 (!isupper(Map[i][1])) &&
+    //                 (getTileKind(Map[i][1]) == TileKind::Floor))
+    //             {
+    //                 yplatewashshift = i;
+    //             }
+    //             else if ((xplaterack == width - 1) &&
+    //                      (!isupper(Map[i][width - 2])) &&
+    //                      (getTileKind(Map[i][width - 2]) == TileKind::Floor))
+    //             {
+    //                 yplatewashshift = i;
+    //             }
+    //         }
+    //     }
+    //     assert(yplatewashshift != 2 * height);
+    // }
+    // else if ((yplaterack == 0) || (yplaterack == height - 1))
+    // {
+    //     yplatewashshift = yplaterack;
+    //     xplatewashshift = 2 * width;
+    //     for (int i = 1; i < width - 1; i++)
+    //     {
+    //         if (i == xplaterack)
+    //             continue;
+    //         if ((!isupper(Map[yplatewashshift][i])) &&
+    //             (getTileKind(Map[yplatewashshift][i]) == TileKind::Table) &&
+    //             (fabs(i - xplaterack) < fabs(xplatewashshift - xplaterack)))
+    //         {
+    //             if ((yplaterack == 0) &&
+    //                 (!isupper(Map[1][i])) &&
+    //                 (getTileKind(Map[1][i]) == TileKind::Floor))
+    //             {
+    //                 xplatewashshift = i;
+    //             }
+    //             else if ((yplaterack == height - 1) &&
+    //                      (!isupper(Map[height - 2][i])) &&
+    //                      (getTileKind(Map[height - 2][i]) == TileKind::Floor))
+    //             {
+    //                 xplatewashshift = i;
+    //             }
+    //         }
+    //     }
+    //     assert(xplatewashshift != 2 * width);
+    // }
+    // else
+    //     assert(0);
     // CheckInteractPos(WashDirtyPlate.stp[3], xplaterack, yplaterack);
     // WashDirtyPlate.stp[3].ta = TAKE;
     // WashDirtyPlate.stp[3].ts = CHECK_PLATE_STACK_TAKE_UP;
@@ -1153,6 +1154,7 @@ void InitDo()
     plateused.clear();
     CollisionAvoidenceTime = 0;
     OrderInDeque = 1;
+    PlateRackNum = 0;
 }
 
 // 一帧的行为
@@ -1176,54 +1178,58 @@ int FrameDo()
                 OrderInDeque--;
                 NewOrderToTaskDeque();
             }
-            // else if (ptask[i].stp[ptask[i].completed].ts == WASHING)
-            // {
-            //     bool flag5 = false;
-            //     for (int j = 0; j < entityCount; j++)
-            //     {
-            //         if ((Entity[j].containerKind == ContainerKind::Plate) && (fabs(Entity[j].x - xplaterack) < epsilon) && (fabs(Entity[j].y - yplaterack) < epsilon))
-            //         {
-            //             if (!Entity[j].entity.empty())
-            //             {
-            //                 flag5 = true;
-            //                 break;
-            //             }
-            //         }
-            //     }
-            //     if (flag5)
-            //     {
-            //         ptask[i].completed += 2;
-            //         flag5 = true;
-            //     }
-            //     if (!flag5)
-            //     {
-            //         if (DistancePlayerToInteract(i ^ 1, xplaterack, yplaterack) > 2)
-            //         {
-            //             for (int j = 0; j < entityCount; j++)
-            //             {
-            //                 if ((Entity[j].containerKind == ContainerKind::Plate) && (fabs(Entity[j].x - xplatewashshift) < epsilon) && (fabs(Entity[j].y - yplaterack) < xplatewashshift))
-            //                 {
-            //                     flag5 = true;
-            //                     ptask[i].completed += 2;
-            //                     break;
-            //                 }
-            //             }
-            //         }
-            //         else
-            //         {
-            //             ptask[i].completed += 2;
-            //             flag5 = true;
-            //         }
-            //     }
-            //     if (!flag5)
-            //     {
-            //         plateused.emplace(std::make_pair(xplaterack, yplaterack));
-            //     }
-            // }
-            // if (ptask[i].stp[ptask[i].completed].ts == CHECK_PLATE_STACK_TAKE_UP)
-            // {
-            //     plateused.erase(std::make_pair(xplaterack, yplaterack));
-            // }
+            else if (ptask[i].stp[ptask[i].completed].ts == WASHING)
+            {
+                PlateRackNum++;
+                bool flag5 = false;
+                if (PlateRackNum <= 1)
+                    flag5 = true;
+                for (int j = 0; (j < entityCount) && (!flag5); j++)
+                {
+                    if ((Entity[j].containerKind == ContainerKind::Plate) && (fabs(Entity[j].x - xplaterack) < epsilon) && (fabs(Entity[j].y - yplaterack) < epsilon))
+                    {
+                        if (!Entity[j].entity.empty())
+                        {
+                            flag5 = true;
+                            break;
+                        }
+                    }
+                }
+                if (flag5)
+                {
+                    ptask[i].completed += 2;
+                    flag5 = true;
+                }
+                if (!flag5)
+                {
+                    if (DistancePlayerToInteract(i ^ 1, xplaterack, yplaterack) > 2)
+                    {
+                        for (int j = 0; j < entityCount; j++)
+                        {
+                            if ((Entity[j].containerKind == ContainerKind::Plate) && (fabs(Entity[j].x - xplatewashshift) < epsilon) && (fabs(Entity[j].y - yplaterack) < xplatewashshift))
+                            {
+                                flag5 = true;
+                                ptask[i].completed += 2;
+                                break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        ptask[i].completed += 2;
+                        flag5 = true;
+                    }
+                }
+                // if (!flag5)
+                // {
+                //     plateused.emplace(std::make_pair(xplaterack, yplaterack));
+                // }
+            }
+            if (ptask[i].stp[ptask[i].completed].ts == CHECK_PLATE_STACK_TAKE_UP)
+            {
+                PlateRackNum--;
+                // plateused.erase(std::make_pair(xplaterack, yplaterack));
+            }
             ptask[i].completed++;
         }
     }
@@ -1265,7 +1271,11 @@ int FrameDo()
     for (int i = 0; i < k; i++)
     {
         if ((platefree[i].first != -1) && (platefree[i].second != -1))
+        {
             plateused.erase(platefree[i]);
+            if ((platefree[i].first == xplaterack) && ((platefree[i].second == yplaterack)))
+                PlateRackNum--;
+        }
     }
     return fret;
 }
