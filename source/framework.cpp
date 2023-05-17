@@ -797,6 +797,15 @@ void init_map()
     }
     for (int i = 0; i < height * width; i++)
     {
+        if ((!isupper(Map[i / width][i % width])) && (getTileKind(Map[i / width][i % width]) == TileKind::PlateRack))
+        {
+            xplaterack = i % width;
+            yplaterack = i / width;
+            break;
+        }
+    }
+    for (int i = 0; i < height * width; i++)
+    {
         if ((!isupper(Map[i / width][i % width])) && (getTileKind(Map[i / width][i % width]) == TileKind::PlateReturn))
         {
             xplatereturn = i % width;
@@ -831,6 +840,61 @@ void init_map()
             break;
         }
     }
+    int xttt = 0, yttt = 0;
+    if ((xplaterack == 0) || (xplaterack == width - 1))
+    {
+        xttt = xplaterack;
+        yttt = 2 * height;
+        for (int i = 1; i < height - 1; i++)
+        {
+            if ((!isupper(Map[i][xttt])) &&
+                (getTileKind(Map[i][xttt]) == TileKind::Table) &&
+                (abs(i - yplaterack) < abs(yttt - yplaterack)))
+            {
+                if ((xplaterack == 0) &&
+                    (!isupper(Map[i][1])) &&
+                    (getTileKind(Map[i][1]) == TileKind::Floor))
+                {
+                    yttt = i;
+                }
+                else if ((xplaterack == width - 1) &&
+                         (!isupper(Map[i][width - 2])) &&
+                         (getTileKind(Map[i][width - 2]) == TileKind::Floor))
+                {
+                    yttt = i;
+                }
+            }
+        }
+        assert(yttt != 2 * height);
+    }
+    else if ((yplaterack == 0) || (yplaterack == height - 1))
+    {
+        yttt = yplaterack;
+        xttt = 2 * width;
+        for (int i = 1; i < width - 1; i++)
+        {
+            if ((!isupper(Map[yttt][i])) &&
+                (getTileKind(Map[yttt][i]) == TileKind::Table) &&
+                (abs(i - xplaterack) < abs(xttt - xplaterack)))
+            {
+                if ((yplaterack == 0) &&
+                    (!isupper(Map[1][i])) &&
+                    (getTileKind(Map[1][i]) == TileKind::Floor))
+                {
+                    xttt = i;
+                }
+                else if ((yplaterack == height - 1) &&
+                         (!isupper(Map[height - 2][i])) &&
+                         (getTileKind(Map[height - 1][i]) == TileKind::Floor))
+                {
+                    xttt = i;
+                }
+            }
+        }
+        assert(xttt != 2 * width);
+    }
+    else
+        assert(0);
     WashDirtyPlate.completed = 0;
     WashDirtyPlate.cooktime = 180;
     CheckInteractPos(WashDirtyPlate.stp[0], xplatereturn, yplatereturn);
@@ -844,7 +908,13 @@ void init_map()
     WashDirtyPlate.stp[2].d = WashDirtyPlate.stp[1].d;
     WashDirtyPlate.stp[2].ta = INTERACT;
     WashDirtyPlate.stp[2].ts = WASHING;
-    WashDirtyPlate.stpsum = 3;
+    CheckInteractPos(WashDirtyPlate.stp[3], xplaterack, yplaterack);
+    WashDirtyPlate.stp[3].ta = TAKE;
+    WashDirtyPlate.stp[3].ts = CHECK_PLATE_STACK;
+    CheckInteractPos(WashDirtyPlate.stp[4], xttt, yttt);
+    WashDirtyPlate.stp[4].ta = TAKE;
+    WashDirtyPlate.stp[4].ts = CHECK_PLATE_STACK;
+    WashDirtyPlate.stpsum = 5;
 
     // double dis[(20 + 2) * (20 + 2)][(20 + 2) * (20 + 2)] = {};
     // int pre[(20 + 2) * (20 + 2)][(20 + 2) * (20 + 2)] = {};
