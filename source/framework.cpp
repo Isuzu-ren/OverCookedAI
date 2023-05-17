@@ -915,7 +915,7 @@ void init_map()
     WashDirtyPlate.stp[2].ta = INTERACT;
     WashDirtyPlate.stp[2].ts = WASHING;
     WashDirtyPlate.stpsum = 3;
-    
+
     CheckInteractPos(WashDirtyPlate.stp[3], xplaterack, yplaterack);
     WashDirtyPlate.stp[3].ta = TAKE;
     WashDirtyPlate.stp[3].ts = CHECK_PLATE_STACK_TAKE_UP;
@@ -1203,14 +1203,26 @@ int FrameDo()
                         {
                             if ((Entity[j].containerKind == ContainerKind::Plate) && (fabs(Entity[j].x - xplatewashshift) < epsilon) && (fabs(Entity[j].y - yplaterack) < xplatewashshift))
                             {
+                                flag5 = true;
                                 ptask[i].completed += 2;
                                 break;
                             }
                         }
                     }
                     else
+                    {
                         ptask[i].completed += 2;
+                        flag5 = true;
+                    }
                 }
+                if (!flag5)
+                {
+                    plateused.emplace(std::make_pair(xplaterack, yplaterack));
+                }
+            }
+            if (ptask[i].stp[ptask[i].completed].ts == CHECK_PLATE_STACK_TAKE_UP)
+            {
+                plateused.erase(std::make_pair(xplaterack, yplaterack));
             }
             ptask[i].completed++;
         }
