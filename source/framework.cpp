@@ -1174,7 +1174,7 @@ int FrameDo()
                 OrderInDeque--;
                 NewOrderToTaskDeque();
             }
-            else if (ptask[i].stp[ptask[i].completed].ts == CHECK_PLATE_STACK_TAKE_UP)
+            else if (ptask[i].stp[ptask[i].completed].ts == WASHING)
             {
                 bool flag5 = false;
                 int ttt = 0;
