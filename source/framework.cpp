@@ -13,6 +13,8 @@
 #include <cmath>
 #include <set>
 
+#define WASHPLATESHIFT
+
 struct Step
 {
     int desx, desy;      // 终点坐标
@@ -203,10 +205,12 @@ bool CheckInteractSuc(Step &stp, const int op)
         }
         return false;
     }
+#ifdef WASHPLATESHIFT
     else if (stp.ts == CHECK_PLATE_STACK_TAKE_UP)
         return (Players[op].containerKind == ContainerKind::Plate);
     else if (stp.ts == CHECK_PLATE_STACK_TAKE_DOWN)
         return (Players[op].entity.empty() && (Players[op].containerKind == ContainerKind::None));
+#endif
     else
         return false;
 }
@@ -803,15 +807,6 @@ void init_map()
     }
     for (int i = 0; i < height * width; i++)
     {
-        if ((!isupper(Map[i / width][i % width])) && (getTileKind(Map[i / width][i % width]) == TileKind::PlateRack))
-        {
-            xplaterack = i % width;
-            yplaterack = i / width;
-            break;
-        }
-    }
-    for (int i = 0; i < height * width; i++)
-    {
         if ((!isupper(Map[i / width][i % width])) && (getTileKind(Map[i / width][i % width]) == TileKind::PlateReturn))
         {
             xplatereturn = i % width;
@@ -861,6 +856,16 @@ void init_map()
     WashDirtyPlate.stp[2].ts = WASHING;
     WashDirtyPlate.stpsum = 3;
 
+#ifdef WASHPLATESHIFT
+    for (int i = 0; i < height * width; i++)
+    {
+        if ((!isupper(Map[i / width][i % width])) && (getTileKind(Map[i / width][i % width]) == TileKind::PlateRack))
+        {
+            xplaterack = i % width;
+            yplaterack = i / width;
+            break;
+        }
+    }
     if ((xplaterack == 0) || (xplaterack == width - 1))
     {
         xplatewashshift = xplaterack;
@@ -924,6 +929,7 @@ void init_map()
     WashDirtyPlate.stp[4].ta = TAKE;
     WashDirtyPlate.stp[4].ts = CHECK_PLATE_STACK_TAKE_DOWN;
     WashDirtyPlate.stpsum = 5;
+#endif
 
     // double dis[(20 + 2) * (20 + 2)][(20 + 2) * (20 + 2)] = {};
     // int pre[(20 + 2) * (20 + 2)][(20 + 2) * (20 + 2)] = {};
@@ -1178,6 +1184,7 @@ int FrameDo()
                 OrderInDeque--;
                 NewOrderToTaskDeque();
             }
+#ifdef WASHPLATESHIFT
             else if (ptask[i].stp[ptask[i].completed].ts == WASHING)
             {
                 PlateRackNum++;
@@ -1230,6 +1237,7 @@ int FrameDo()
                 PlateRackNum--;
                 // plateused.erase(std::make_pair(xplaterack, yplaterack));
             }
+#endif
             ptask[i].completed++;
         }
     }
@@ -1273,8 +1281,10 @@ int FrameDo()
         if ((platefree[i].first != -1) && (platefree[i].second != -1))
         {
             plateused.erase(platefree[i]);
+#ifdef WASHPLATESHIFT
             if ((platefree[i].first == xplaterack) && ((platefree[i].second == yplaterack)))
                 PlateRackNum--;
+#endif
         }
     }
     return fret;
