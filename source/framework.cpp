@@ -1369,7 +1369,7 @@ int FrameDo()
 #ifdef WASHPLATESHIFT
             else if (ptask[i].stp[ptask[i].completed].ts == TAKING_DIRTYPLATE_TO_SINK)
             {
-                for(int )
+                PlateRackNum += atoi(Players[i].entity.front().c_str());
             }
             else if (ptask[i].stp[ptask[i].completed].ts == WASHING)
             {
