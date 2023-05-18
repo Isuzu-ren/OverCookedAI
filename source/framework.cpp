@@ -375,7 +375,7 @@ int CheckPlayerPosCell(const int op)
     int y = floor(Players[op].y);
     int ret = XY_TO_NUM(x, y);
     int otherplayernum = PlayerPosCell(op ^ 1);
-    if(ret != otherplayernum)
+    if (ret != otherplayernum)
         Unavailable[otherplayernum] = true;
     return ret;
 
@@ -1367,9 +1367,11 @@ int FrameDo()
                 NewOrderToTaskDeque();
             }
 #ifdef WASHPLATESHIFT
+            else if (ptask[i].stp[ptask[i].completed].ts == TAKING_DIRTYPLATE_TO_SINK)
+            {
+            }
             else if (ptask[i].stp[ptask[i].completed].ts == WASHING)
             {
-                PlateRackNum++;
                 bool flag5 = false;
                 if (PlateRackNum <= 1)
                     flag5 = true;
@@ -1608,7 +1610,10 @@ bool frame_read(int nowFrame, int &fret)
             if (s == "Plate")
                 Players[i].containerKind = ContainerKind::Plate;
             else if (s == "DirtyPlates")
+            {
                 Players[i].containerKind = ContainerKind::DirtyPlates;
+                tmp >> Entity[i].sum;
+            }
             else if (s == "Pan")
                 Entity[i].containerKind = ContainerKind::Pan;
             else if (s == "Pot")
