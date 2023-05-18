@@ -375,6 +375,13 @@ int CheckPlayerPosCell(const int op)
     Unavailable[XY_TO_NUM(x, y)] = true;
     return ret;
 }
+
+int PlayerPosCell(const int op)
+{
+    int x = floor(Players[op].x);
+    int y = floor(Players[op].y);
+    return XY_TO_NUM(x, y);
+}
 #endif
 
 // ret 低四位表示移动方向 0001-右 0010-左 0100-下 1000-上 第5位表示刹车
@@ -543,6 +550,16 @@ int Action(const int op)
 const double playercollisiondistance = 0.7 * 0.7 + 0.02;
 bool CollisionDetection(const int fret)
 {
+#ifdef TRUEMOVE
+    if (((fret & 0x30) == 0) &&
+        (((fret >> 6) & 0x30) == 0) &&
+        (Players[0].X_Velocity < 0.4) &&
+        (Players[0].Y_Velocity < 0.4) &&
+        (Players[1].X_Velocity < 0.4) &&
+        (Players[1].Y_Velocity < 0.4) &&
+        (PlayerPosCell(0) == PlayerPosCell(1)))
+        return true;
+#endif
     if (((fret & 0x30) == 0) &&
         (((fret >> 6) & 0x30) == 0) &&
         (Players[0].X_Velocity < 0.2) &&
