@@ -12,8 +12,11 @@
 #include <cctype>
 #include <cmath>
 #include <set>
+#include <queue>
 
+// #include <cstring>
 // #define WASHPLATESHIFT
+// #define TRUEMOVE
 
 struct Step
 {
@@ -238,30 +241,176 @@ bool CheckPlatePos(Step &stp)
 
 // 移动和行动相关
 
-// ret 低四位表示移动方向 0001-右 0010-左 0100-下 1000-上
+#ifdef TRUEMOVE
+// const double CellSize = 1;
+
+inline int XY_TO_NUM(const int &x, const int &y)
+{
+    return (x + y * width);
+}
+
+std::vector<std::pair<int, double>> Edge[20 * 20] = {};
+bool Unavailable[20 * 20] = {};
+
+void initMapEdge()
+{
+    for (int i = 0; i < width * height; i++)
+    {
+        Edge[i].clear();
+    }
+    // memset(Unavailable, 0, sizeof(Unavailable));
+    for (int i = 0; i < width; i++) // x
+    {
+        for (int j = 0; j < height; j++) // y
+        {
+            if (isupper(Map[j][i]) || (getTileKind(Map[j][i]) != TileKind::Floor))
+                continue;
+            int num = i + j * width;
+            if ((i > 0) && (!isupper(Map[j][i - 1])) &&
+                (getTileKind(Map[j][i - 1]) == TileKind::Floor))
+                Edge[num].emplace_back(num - 1, 1.0);
+            if ((i < width - 1) && (!isupper(Map[j][i + 1])) &&
+                (getTileKind(Map[j][i + 1]) == TileKind::Floor))
+                Edge[num].emplace_back(num + 1, 1.0);
+            if ((j > 0) && (!isupper(Map[j - 1][i])) &&
+                (getTileKind(Map[j - 1][i]) == TileKind::Floor))
+                Edge[num].emplace_back(num - width, 1.0);
+            if ((j < height - 1) && (!isupper(Map[j + 1][i])) &&
+                (getTileKind(Map[j + 1][i]) == TileKind::Floor))
+                Edge[num].emplace_back(num + width, 1.0);
+            if ((i > 0) && (!isupper(Map[j][i - 1])) &&
+                (getTileKind(Map[j][i - 1]) == TileKind::Floor) &&
+                (j > 0) && (!isupper(Map[j - 1][i])) &&
+                (getTileKind(Map[j - 1][i]) == TileKind::Floor) &&
+                (!isupper(Map[j - 1][i - 1])) &&
+                (getTileKind(Map[j - 1][i - 1]) == TileKind::Floor))
+                Edge[num].emplace_back(num - 1 - width, sq2);
+            if ((i < width - 1) && (!isupper(Map[j][i + 1])) &&
+                (getTileKind(Map[j][i + 1]) == TileKind::Floor) &&
+                (j > 0) && (!isupper(Map[j - 1][i])) &&
+                (getTileKind(Map[j - 1][i]) == TileKind::Floor) &&
+                (!isupper(Map[j - 1][i + 1])) &&
+                (getTileKind(Map[j - 1][i + 1]) == TileKind::Floor))
+                Edge[num].emplace_back(num + 1 - width, sq2);
+            if ((i > 0) && (!isupper(Map[j][i - 1])) &&
+                (getTileKind(Map[j][i - 1]) == TileKind::Floor) &&
+                (j < height - 1) && (!isupper(Map[j + 1][i])) &&
+                (getTileKind(Map[j + 1][i]) == TileKind::Floor) &&
+                (!isupper(Map[j + 1][i - 1])) &&
+                (getTileKind(Map[j + 1][i - 1]) == TileKind::Floor))
+                Edge[num].emplace_back(num - 1 + width, sq2);
+            if ((i < width - 1) && (!isupper(Map[j][i + 1])) &&
+                (getTileKind(Map[j][i + 1]) == TileKind::Floor) &&
+                (j < height - 1) && (!isupper(Map[j + 1][i])) &&
+                (getTileKind(Map[j + 1][i]) == TileKind::Floor) &&
+                (!isupper(Map[j + 1][i + 1])) &&
+                (getTileKind(Map[j + 1][i + 1]) == TileKind::Floor))
+                Edge[num].emplace_back(num + 1 + width, sq2);
+        }
+    }
+}
+
+// 寻路
+bool D_vis[20 * 20] = {};
+double D_dis[20 * 20] = {};
+int D_pre[20 * 20] = {};
+
+// 此处s应为终点 t为玩家所在格
+int Dijkstra(const int s, const int t)
+{
+    for (int i = 0; i < height * width; i++)
+    {
+        D_dis[i] = 512.0;
+        D_vis[i] = false;
+    }
+    std::priority_queue<std::pair<double, int>> que = {};
+    que.emplace(0, s);
+    D_dis[s] = 0;
+    D_pre[s] = s;
+    while (!que.empty())
+    {
+        auto cur = que.top().second;
+        que.pop();
+        if (cur == t)
+        {
+            D_vis[cur] = true;
+            break;
+        }
+        if (!D_vis[cur])
+        {
+            D_vis[cur] = true;
+            for (auto it : Edge[cur])
+            {
+                if (Unavailable[it.first])
+                    continue;
+                if (D_dis[it.first] > D_dis[cur] + it.second)
+                {
+                    D_dis[it.first] = D_dis[cur] + it.second;
+                    D_pre[it.first] = cur;
+                    que.emplace(-D_dis[it.first], it.first);
+                }
+            }
+        }
+    }
+    if (!D_vis[t])
+        return -1;
+    else
+        return D_pre[t];
+}
+
+int CheckPlayerPosCell(const int op)
+{
+    for (int i = 0; i < width * height; i++)
+    {
+        Unavailable[i] = false;
+    }
+    int x = floor(Players[op].x);
+    int y = floor(Players[op].y);
+    int ret = XY_TO_NUM(x, y);
+    x = floor(Players[op ^ 1].x);
+    y = floor(Players[op ^ 1].y);
+    Unavailable[XY_TO_NUM(x, y)] = true;
+    return ret;
+}
+#endif
+
+// ret 低四位表示移动方向 0001-右 0010-左 0100-下 1000-上 第5位表示刹车
 int Move(const int op, const int dx, const int dy)
 {
     double px = Players[op].x;
     double py = Players[op].y;
     int ret = 0;
-    if (px <= double(dx) + 0.2)
+#ifdef TRUEMOVE
+    int pnum = CheckPlayerPosCell(op);
+    int dnum = XY_TO_NUM(dx, dy);
+    int next = Dijkstra(dnum, pnum);
+    if (next == -1)
+        return 0x10;
+    int nx = next % width;
+    int ny = next / width;
+#else
+    int nx = dx;
+    int ny = dy;
+#endif
+    if (px <= double(nx) + 0.2)
     {
         ret |= 0x1;
     }
-    else if (px >= double(dx) + 0.8)
+    else if (px >= double(nx) + 0.8)
     {
         ret |= 0x2;
     }
-    if (py <= double(dy) + 0.2)
+    if (py <= double(ny) + 0.2)
     {
         ret |= 0x4;
     }
-    else if (py >= double(dy) + 0.8)
+    else if (py >= double(ny) + 0.8)
     {
         ret |= 0x8;
     }
-    double fx = fabs(px - dx);
-    double fy = fabs(py - dy);
+#ifndef TRUEMOVE
+    double fx = fabs(px - nx);
+    double fy = fabs(py - ny);
     if (fabs(fx - fy) > 1.5)
     {
         if (fx > fy)
@@ -269,6 +418,7 @@ int Move(const int op, const int dx, const int dy)
         else
             ret &= 0xc;
     }
+#endif
     return ret;
 }
 
@@ -312,7 +462,7 @@ int Action(const int op)
 
     int ret = Move(op, cs.desx, cs.desy);
     if (ret != 0)
-        return ret;
+        return (ret & 0xf);
 
     if (cs.ta == INTERACT)
         ret |= 0x10;
