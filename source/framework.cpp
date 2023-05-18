@@ -15,8 +15,8 @@
 #include <queue>
 
 // #include <cstring>
-#define WASHPLATESHIFT
-#define TRUEMOVE
+// #define WASHPLATESHIFT
+// #define TRUEMOVE
 
 struct Step
 {
