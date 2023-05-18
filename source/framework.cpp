@@ -368,7 +368,7 @@ int CheckPlayerPosCell(const int op)
     int y = floor(Players[op].y);
     int ret = XY_TO_NUM(x, y);
 
-    std::cout << x << ' ' << y << ' ' << Players[op].x << ' ' << Players[op].y << ' ' << ret << '\n';
+    // std::cout << x << ' ' << y << ' ' << Players[op].x << ' ' << Players[op].y << ' ' << ret << '\n';
 
     x = floor(Players[op ^ 1].x);
     y = floor(Players[op ^ 1].y);
@@ -387,6 +387,9 @@ int Move(const int op, const int dx, const int dy)
     int pnum = CheckPlayerPosCell(op);
     int dnum = XY_TO_NUM(dx, dy);
     int next = Dijkstra(dnum, pnum);
+
+    std::cout << next << '\n';
+
     if (next == -1)
         return 0x10;
     int nx = next % width;
