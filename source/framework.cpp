@@ -358,6 +358,13 @@ int Dijkstra(const int s, const int t)
         return D_pre[t];
 }
 
+int PlayerPosCell(const int op)
+{
+    int x = floor(Players[op].x);
+    int y = floor(Players[op].y);
+    return XY_TO_NUM(x, y);
+}
+
 int CheckPlayerPosCell(const int op)
 {
     for (int i = 0; i < width * height; i++)
@@ -367,6 +374,10 @@ int CheckPlayerPosCell(const int op)
     int x = floor(Players[op].x);
     int y = floor(Players[op].y);
     int ret = XY_TO_NUM(x, y);
+    int otherplayernum = PlayerPosCell(op ^ 1);
+    if(ret != otherplayernum)
+        Unavailable[otherplayernum] = true;
+    return ret;
 
     // std::cout << x << ' ' << y << ' ' << Players[op].x << ' ' << Players[op].y << ' ' << ret << '\n';
 
@@ -374,13 +385,6 @@ int CheckPlayerPosCell(const int op)
     y = floor(Players[op ^ 1].y);
     Unavailable[XY_TO_NUM(x, y)] = true;
     return ret;
-}
-
-int PlayerPosCell(const int op)
-{
-    int x = floor(Players[op].x);
-    int y = floor(Players[op].y);
-    return XY_TO_NUM(x, y);
 }
 #endif
 
@@ -550,16 +554,16 @@ int Action(const int op)
 const double playercollisiondistance = 0.7 * 0.7 + 0.02;
 bool CollisionDetection(const int fret)
 {
-#ifdef TRUEMOVE
-    if (((fret & 0x30) == 0) &&
-        (((fret >> 6) & 0x30) == 0) &&
-        (Players[0].X_Velocity < 0.4) &&
-        (Players[0].Y_Velocity < 0.4) &&
-        (Players[1].X_Velocity < 0.4) &&
-        (Players[1].Y_Velocity < 0.4) &&
-        (PlayerPosCell(0) == PlayerPosCell(1)))
-        return true;
-#endif
+    // #ifdef TRUEMOVE
+    //     if (((fret & 0x30) == 0) &&
+    //         (((fret >> 6) & 0x30) == 0) &&
+    //         (Players[0].X_Velocity < 0.4) &&
+    //         (Players[0].Y_Velocity < 0.4) &&
+    //         (Players[1].X_Velocity < 0.4) &&
+    //         (Players[1].Y_Velocity < 0.4) &&
+    //         (PlayerPosCell(0) == PlayerPosCell(1)))
+    //         return true;
+    // #endif
     if (((fret & 0x30) == 0) &&
         (((fret >> 6) & 0x30) == 0) &&
         (Players[0].X_Velocity < 0.2) &&
