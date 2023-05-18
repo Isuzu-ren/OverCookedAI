@@ -333,7 +333,7 @@ int Dijkstra(const int s, const int t)
         que.pop();
         if (cur == t)
         {
-            D_vis[cur] = true;
+            D_vis[t] = true;
             break;
         }
         if (!D_vis[cur])
@@ -367,6 +367,9 @@ int CheckPlayerPosCell(const int op)
     int x = floor(Players[op].x);
     int y = floor(Players[op].y);
     int ret = XY_TO_NUM(x, y);
+
+    std::cout << x << ' ' << y << ' ' << Players[op].x << ' ' << Players[op].y << ' ' << ret << '\n';
+
     x = floor(Players[op ^ 1].x);
     y = floor(Players[op ^ 1].y);
     Unavailable[XY_TO_NUM(x, y)] = true;
