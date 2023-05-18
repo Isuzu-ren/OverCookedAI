@@ -388,7 +388,7 @@ int Move(const int op, const int dx, const int dy)
     int dnum = XY_TO_NUM(dx, dy);
     int next = Dijkstra(dnum, pnum);
 
-    std::cout << next << '\n';
+    // std::cout << next << '\n';
 
     if (next == -1)
         return 0x10;
@@ -1316,7 +1316,12 @@ void InitDo()
     plateused.clear();
     CollisionAvoidenceTime = 0;
     OrderInDeque = 1;
+#ifdef WASHPLATESHIFT
     PlateRackNum = 0;
+#endif
+#ifdef TRUEMOVE
+    initMapEdge();
+#endif
 }
 
 // 一帧的行为
