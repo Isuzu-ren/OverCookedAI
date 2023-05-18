@@ -15,7 +15,7 @@
 #include <queue>
 
 // #include <cstring>
-// #define WASHPLATESHIFT
+#define WASHPLATESHIFT
 #define TRUEMOVE
 
 struct Step
@@ -1369,6 +1369,7 @@ int FrameDo()
 #ifdef WASHPLATESHIFT
             else if (ptask[i].stp[ptask[i].completed].ts == TAKING_DIRTYPLATE_TO_SINK)
             {
+                for(int )
             }
             else if (ptask[i].stp[ptask[i].completed].ts == WASHING)
             {
@@ -1610,14 +1611,11 @@ bool frame_read(int nowFrame, int &fret)
             if (s == "Plate")
                 Players[i].containerKind = ContainerKind::Plate;
             else if (s == "DirtyPlates")
-            {
                 Players[i].containerKind = ContainerKind::DirtyPlates;
-                tmp >> Entity[i].sum;
-            }
             else if (s == "Pan")
-                Entity[i].containerKind = ContainerKind::Pan;
+                Players[i].containerKind = ContainerKind::Pan;
             else if (s == "Pot")
-                Entity[i].containerKind = ContainerKind::Pot;
+                Players[i].containerKind = ContainerKind::Pot;
             else
                 Players[i].entity.push_back(s);
         }
