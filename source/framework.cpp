@@ -16,7 +16,7 @@
 
 // #include <cstring>
 // #define WASHPLATESHIFT
-// #define TRUEMOVE
+#define TRUEMOVE
 
 struct Step
 {
