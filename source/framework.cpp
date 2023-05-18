@@ -564,6 +564,8 @@ bool CollisionDetection(const int fret)
     //         (PlayerPosCell(0) == PlayerPosCell(1)))
     //         return true;
     // #endif
+    if ((ptask[0].stp[ptask[0].completed].ts == WASHING) && (ptask[1].stp[ptask[1].completed].ts == WASHING))
+        return false;
     if (((fret & 0x30) == 0) &&
         (((fret >> 6) & 0x30) == 0) &&
         (Players[0].X_Velocity < 0.2) &&
