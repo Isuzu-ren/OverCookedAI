@@ -394,13 +394,13 @@ int Move(const int op, const int dx, const int dy)
 #ifdef SIMPLEBRAKECONTROL
     int ppx = floor(px);
     int ppy = floor(py);
-    if ((ppx == 1) && (Players[op].X_Velocity < -3))
+    if ((ppx == 1) && (Players[op].X_Velocity < -2))
         return 0x10;
-    else if ((ppx == width - 2) && (Players[op].X_Velocity > 3))
+    else if ((ppx == width - 2) && (Players[op].X_Velocity > 2))
         return 0x10;
-    else if ((ppy == 1) && (Players[op].Y_Velocity < -3))
+    else if ((ppy == 1) && (Players[op].Y_Velocity < -2))
         return 0x10;
-    else if ((ppy == height - 2) && (Players[op].Y_Velocity > 3))
+    else if ((ppy == height - 2) && (Players[op].Y_Velocity > 2))
         return 0x10;
     if ((pnum == dnum) &&
         (Players[op].X_Velocity * Players[op].X_Velocity + Players[op].Y_Velocity * Players[op].Y_Velocity > 3))
