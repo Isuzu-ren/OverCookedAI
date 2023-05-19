@@ -562,7 +562,7 @@ int Action(const int op)
                 }
             }
         }
-        return NothingTodo(op);
+        return 0;
     }
     else if (cs.ts == TAKING_PLATE_TO_POT)
     // 加工完成前不可以进行拿取
@@ -579,7 +579,7 @@ int Action(const int op)
                 }
             }
         }
-        return NothingTodo(op);
+        return 0;
     }
 
     return ret;
