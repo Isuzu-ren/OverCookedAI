@@ -389,19 +389,19 @@ int NothingTodo(const int op)
     double dx = floor(Players[op].x) + 0.5;
     double dy = floor(Players[op].y) + 0.5;
     int ret = 0;
-    if (px <= dx)
+    if (px <= dx - 0.05)
     {
         ret |= 0x1;
     }
-    else if (px > dx)
+    else if (px >= dx + 0.05)
     {
         ret |= 0x2;
     }
-    if (py <= dy)
+    if (py <= dy - 0.05)
     {
         ret |= 0x4;
     }
-    else if (py > dy)
+    else if (py >= dy + 0.05)
     {
         ret |= 0x8;
     }
@@ -562,7 +562,7 @@ int Action(const int op)
                 }
             }
         }
-        return 0;
+        return NothingTodo(op);
     }
     else if (cs.ts == TAKING_PLATE_TO_POT)
     // 加工完成前不可以进行拿取
@@ -579,7 +579,7 @@ int Action(const int op)
                 }
             }
         }
-        return 0;
+        return NothingTodo(op);
     }
 
     return ret;
