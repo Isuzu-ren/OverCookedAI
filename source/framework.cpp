@@ -1234,8 +1234,8 @@ void CheckPlateNum()
 // 玩家到交互地点的距离
 double DistancePlayerToInteract(const int op, const double ix, const double iy)
 {
-    double dx = fabs(Players[op].x - ix);
-    double dy = fabs(Players[op].y - iy);
+    double dx = fabs(Players[op].x - (ix + 0.5));
+    double dy = fabs(Players[op].y - (iy + 0.5));
     if (dx < dy)
         std::swap(dx, dy);
     return (dy * sq2 + dx - dy);
