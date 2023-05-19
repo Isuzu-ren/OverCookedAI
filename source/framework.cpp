@@ -394,13 +394,13 @@ int Move(const int op, const int dx, const int dy)
 #ifdef SIMPLEBRAKECONTROL
     int ppx = floor(px);
     int ppy = floor(py);
-    if ((ppx == 1) && (Players[op].X_Velocity < -2))
+    if ((ppx == 1) && (Players[op].X_Velocity < -1.9))
         return 0x10;
-    else if ((ppx == width - 2) && (Players[op].X_Velocity > 2))
+    else if ((ppx == width - 2) && (Players[op].X_Velocity > 1.9))
         return 0x10;
-    else if ((ppy == 1) && (Players[op].Y_Velocity < -2))
+    else if ((ppy == 1) && (Players[op].Y_Velocity < -1.9))
         return 0x10;
-    else if ((ppy == height - 2) && (Players[op].Y_Velocity > 2))
+    else if ((ppy == height - 2) && (Players[op].Y_Velocity > 1.9))
         return 0x10;
     if ((pnum == dnum) &&
         (Players[op].X_Velocity * Players[op].X_Velocity + Players[op].Y_Velocity * Players[op].Y_Velocity > 3))
@@ -603,10 +603,10 @@ void CollisionAct(const int fret)
     else if (((d1 & 0x08) == 0) && (!isupper(Map[cy0 + 1][cx0])) && (getTileKind(Map[cy0 + 1][cx0]) == TileKind::Floor))
         td |= 0x04;
 
-    if (((d0 & 0x02) == 0) && (!isupper(Map[cy1][cx1 + 1])) && (getTileKind(Map[cy1][cx1 + 1]) == TileKind::Floor))
-        td |= (0x01 << 6);
-    else if (((d0 & 0x01) == 0) && (!isupper(Map[cy1][cx1 - 1])) && (getTileKind(Map[cy1][cx1 - 1]) == TileKind::Floor))
+    if (((d0 & 0x01) == 0) && (!isupper(Map[cy1][cx1 - 1])) && (getTileKind(Map[cy1][cx1 - 1]) == TileKind::Floor))
         td |= (0x02 << 6);
+    else if (((d0 & 0x02) == 0) && (!isupper(Map[cy1][cx1 + 1])) && (getTileKind(Map[cy1][cx1 + 1]) == TileKind::Floor))
+        td |= (0x01 << 6);
     else if (((d0 & 0x08) == 0) && (!isupper(Map[cy1 + 1][cx1])) && (getTileKind(Map[cy1 + 1][cx1]) == TileKind::Floor))
         td |= (0x04 << 6);
     else if (((d0 & 0x04) == 0) && (!isupper(Map[cy1 - 1][cx1])) && (getTileKind(Map[cy1 - 1][cx1]) == TileKind::Floor))
