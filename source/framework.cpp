@@ -15,8 +15,9 @@
 #include <queue>
 
 // #include <cstring>
-#define WASHPLATESHIFT
+// #define WASHPLATESHIFT
 #define TRUEMOVE
+#define SIMPLEBRAKECONTROL
 
 struct Step
 {
@@ -378,13 +379,6 @@ int CheckPlayerPosCell(const int op)
     if (ret != otherplayernum)
         Unavailable[otherplayernum] = true;
     return ret;
-
-    // std::cout << x << ' ' << y << ' ' << Players[op].x << ' ' << Players[op].y << ' ' << ret << '\n';
-
-    x = floor(Players[op ^ 1].x);
-    y = floor(Players[op ^ 1].y);
-    Unavailable[XY_TO_NUM(x, y)] = true;
-    return ret;
 }
 #endif
 
@@ -397,10 +391,12 @@ int Move(const int op, const int dx, const int dy)
 #ifdef TRUEMOVE
     int pnum = CheckPlayerPosCell(op);
     int dnum = XY_TO_NUM(dx, dy);
+#ifdef SIMPLEBRAKECONTROL
+    if ((pnum == dnum) &&
+        (Players[op].X_Velocity * Players[op].X_Velocity + Players[op].Y_Velocity * Players[op].Y_Velocity > 3))
+        return 0x10;
+#endif
     int next = Dijkstra(dnum, pnum);
-
-    // std::cout << next << '\n';
-
     if (next == -1)
         return 0x10;
     int nx = next % width;
