@@ -382,9 +382,69 @@ int CheckPlayerPosCell(const int op)
 }
 #endif
 
+int NothingTodo(const int op)
+{
+    double px = Players[op].x;
+    double py = Players[op].y;
+    double dx = floor(Players[op].x) + 0.5;
+    double dy = floor(Players[op].y) + 0.5;
+    int ret = 0;
+    if (px <= dx)
+    {
+        ret |= 0x1;
+    }
+    else if (px > dx)
+    {
+        ret |= 0x2;
+    }
+    if (py <= dy)
+    {
+        ret |= 0x4;
+    }
+    else if (py > dy)
+    {
+        ret |= 0x8;
+    }
+    return ret;
+}
+
 // ret 低四位表示移动方向 0001-右 0010-左 0100-下 1000-上 第5位表示刹车
 int Move(const int op, const int dx, const int dy)
 {
+    Task &ct = ptask[op];
+    Step &cs = ct.stp[ct.completed];
+
+    // 处理地点冲突则停止移动
+    if (cs.ts == TAKING_INGREDIENT_TO_CHOP)
+    {
+        for (int i = 0; i < entityCount; i++)
+        {
+            if ((Entity[i].containerKind == ContainerKind::None) &&
+                (fabs(Entity[i].x - xchoppingstation) < epsilon) &&
+                (fabs(Entity[i].y - ychoppingstation) < epsilon) &&
+                (!Entity[i].entity.empty()))
+                return NothingTodo(op);
+        }
+    }
+    else if (cs.ts == TAKING_INGREDIENT_TO_PAN)
+    {
+        for (int i = 0; i < entityCount; i++)
+        {
+            if ((Entity[i].containerKind == ContainerKind::Pan) &&
+                (!Entity[i].entity.empty()))
+                return NothingTodo(op);
+        }
+    }
+    else if (cs.ts == TAKING_INGREDIENT_TO_POT)
+    {
+        for (int i = 0; i < entityCount; i++)
+        {
+            if ((Entity[i].containerKind == ContainerKind::Pot) &&
+                (!Entity[i].entity.empty()))
+                return NothingTodo(op);
+        }
+    }
+
     double px = Players[op].x;
     double py = Players[op].y;
     int ret = 0;
@@ -395,20 +455,20 @@ int Move(const int op, const int dx, const int dy)
     int ppx = floor(px);
     int ppy = floor(py);
     if ((ppx == 1) && (Players[op].X_Velocity < -1.9))
-        return 0x10;
+        return NothingTodo(op);
     else if ((ppx == width - 2) && (Players[op].X_Velocity > 1.9))
-        return 0x10;
+        return NothingTodo(op);
     else if ((ppy == 1) && (Players[op].Y_Velocity < -1.9))
-        return 0x10;
+        return NothingTodo(op);
     else if ((ppy == height - 2) && (Players[op].Y_Velocity > 1.9))
-        return 0x10;
+        return NothingTodo(op);
     if ((pnum == dnum) &&
         (Players[op].X_Velocity * Players[op].X_Velocity + Players[op].Y_Velocity * Players[op].Y_Velocity > 3))
-        return 0x10;
+        return NothingTodo(op);
 #endif
     int next = Dijkstra(dnum, pnum);
     if (next == -1)
-        return 0x10;
+        return NothingTodo(op);
     int nx = next % width;
     int ny = next / width;
 #else
@@ -451,37 +511,6 @@ int Action(const int op)
     assert(op < 2);
     Task &ct = ptask[op];
     Step &cs = ct.stp[ct.completed];
-
-    // 处理地点冲突则停止移动
-    if (cs.ts == TAKING_INGREDIENT_TO_CHOP)
-    {
-        for (int i = 0; i < entityCount; i++)
-        {
-            if ((Entity[i].containerKind == ContainerKind::None) &&
-                (fabs(Entity[i].x - xchoppingstation) < epsilon) &&
-                (fabs(Entity[i].y - ychoppingstation) < epsilon) &&
-                (!Entity[i].entity.empty()))
-                return 0;
-        }
-    }
-    else if (cs.ts == TAKING_INGREDIENT_TO_PAN)
-    {
-        for (int i = 0; i < entityCount; i++)
-        {
-            if ((Entity[i].containerKind == ContainerKind::Pan) &&
-                (!Entity[i].entity.empty()))
-                return 0;
-        }
-    }
-    else if (cs.ts == TAKING_INGREDIENT_TO_POT)
-    {
-        for (int i = 0; i < entityCount; i++)
-        {
-            if ((Entity[i].containerKind == ContainerKind::Pot) &&
-                (!Entity[i].entity.empty()))
-                return 0;
-        }
-    }
 
     int ret = Move(op, cs.desx, cs.desy);
     if (ret != 0)
