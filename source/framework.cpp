@@ -392,6 +392,16 @@ int Move(const int op, const int dx, const int dy)
     int pnum = CheckPlayerPosCell(op);
     int dnum = XY_TO_NUM(dx, dy);
 #ifdef SIMPLEBRAKECONTROL
+    int ppx = floor(px);
+    int ppy = floor(py);
+    if ((ppx == 1) && (Players[op].X_Velocity < -3))
+        return 0x10;
+    else if ((ppx == width - 2) && (Players[op].X_Velocity > 3))
+        return 0x10;
+    else if ((ppy == 1) && (Players[op].Y_Velocity < -3))
+        return 0x10;
+    else if ((ppy == height - 2) && (Players[op].Y_Velocity > 3))
+        return 0x10;
     if ((pnum == dnum) &&
         (Players[op].X_Velocity * Players[op].X_Velocity + Players[op].Y_Velocity * Players[op].Y_Velocity > 3))
         return 0x10;
@@ -401,16 +411,6 @@ int Move(const int op, const int dx, const int dy)
         return 0x10;
     int nx = next % width;
     int ny = next / width;
-#ifdef SIMPLEBRAKECONTROL
-    if ((nx == 1) && (Players[op].X_Velocity < -1.5))
-        return 0x10;
-    else if ((nx == width - 2) && (Players[op].X_Velocity > 1.5))
-        return 0x10;
-    else if ((ny == 1) && (Players[op].Y_Velocity < -1.5))
-        return 0x10;
-    else if ((ny == height - 2) && (Players[op].Y_Velocity > 1.5))
-        return 0x10;
-#endif
 #else
     int nx = dx;
     int ny = dy;
