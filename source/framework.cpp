@@ -423,7 +423,7 @@ int Move(const int op, const int dx, const int dy)
                 (fabs(Entity[i].x - xchoppingstation) < epsilon) &&
                 (fabs(Entity[i].y - ychoppingstation) < epsilon) &&
                 (!Entity[i].entity.empty()))
-                return NothingTodo(op);
+                return 0x10;
         }
     }
     else if (cs.ts == TAKING_INGREDIENT_TO_PAN)
@@ -432,7 +432,7 @@ int Move(const int op, const int dx, const int dy)
         {
             if ((Entity[i].containerKind == ContainerKind::Pan) &&
                 (!Entity[i].entity.empty()))
-                return NothingTodo(op);
+                return 0x10;
         }
     }
     else if (cs.ts == TAKING_INGREDIENT_TO_POT)
@@ -441,7 +441,7 @@ int Move(const int op, const int dx, const int dy)
         {
             if ((Entity[i].containerKind == ContainerKind::Pot) &&
                 (!Entity[i].entity.empty()))
-                return NothingTodo(op);
+                return 0x10;
         }
     }
 
