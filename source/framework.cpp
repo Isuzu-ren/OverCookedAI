@@ -385,6 +385,7 @@ int CheckPlayerPosCell(const int op)
     int ret = XY_TO_NUM(x, y);
     int pos = PlayerPosCell(op ^ 1);
     Unavailable[pos] = true;
+#ifdef NEOBRAKECONTROL
     pos = PointInCell(Players[op ^ 1].x - 0.35, Players[op ^ 1].y);
     Unavailable[pos] = true;
     pos = PointInCell(Players[op ^ 1].x + 0.35, Players[op ^ 1].y);
@@ -400,7 +401,7 @@ int CheckPlayerPosCell(const int op)
     pos = PointInCell(Players[op ^ 1].x - 0.35, Players[op ^ 1].y + 0.35);
     Unavailable[pos] = true;
     pos = PointInCell(Players[op ^ 1].x + 0.35, Players[op ^ 1].y + 0.35);
-    Unavailable[pos] = true;
+#endif
     Unavailable[ret] = false;
     return ret;
 }
