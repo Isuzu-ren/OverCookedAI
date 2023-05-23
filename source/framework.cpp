@@ -388,7 +388,7 @@ int NothingTodo(const int op)
     double py = Players[op].y;
     double dx = floor(Players[op].x) + 0.5;
     double dy = floor(Players[op].y) + 0.5;
-    int ret = 0;
+    int ret = 0x10;
     if (px <= dx - 0.05)
     {
         ret |= 0x1;
@@ -423,7 +423,7 @@ int Move(const int op, const int dx, const int dy)
                 (fabs(Entity[i].x - xchoppingstation) < epsilon) &&
                 (fabs(Entity[i].y - ychoppingstation) < epsilon) &&
                 (!Entity[i].entity.empty()))
-                return 0x10;
+                return NothingTodo(op);
         }
     }
     else if (cs.ts == TAKING_INGREDIENT_TO_PAN)
@@ -432,7 +432,7 @@ int Move(const int op, const int dx, const int dy)
         {
             if ((Entity[i].containerKind == ContainerKind::Pan) &&
                 (!Entity[i].entity.empty()))
-                return 0x10;
+                return NothingTodo(op);
         }
     }
     else if (cs.ts == TAKING_INGREDIENT_TO_POT)
@@ -441,7 +441,7 @@ int Move(const int op, const int dx, const int dy)
         {
             if ((Entity[i].containerKind == ContainerKind::Pot) &&
                 (!Entity[i].entity.empty()))
-                return 0x10;
+                return NothingTodo(op);
         }
     }
 
@@ -455,16 +455,16 @@ int Move(const int op, const int dx, const int dy)
     int ppx = floor(px);
     int ppy = floor(py);
     if ((ppx == 1) && (Players[op].X_Velocity < -1.9))
-        return 0x10;
+        return NothingTodo(op);
     else if ((ppx == width - 2) && (Players[op].X_Velocity > 1.9))
-        return 0x10;
+        return NothingTodo(op);
     else if ((ppy == 1) && (Players[op].Y_Velocity < -1.9))
-        return 0x10;
+        return NothingTodo(op);
     else if ((ppy == height - 2) && (Players[op].Y_Velocity > 1.9))
-        return 0x10;
+        return NothingTodo(op);
     if ((pnum == dnum) &&
         (Players[op].X_Velocity * Players[op].X_Velocity + Players[op].Y_Velocity * Players[op].Y_Velocity > 3))
-        return 0x10;
+        return NothingTodo(op);
 #endif
     int next = Dijkstra(dnum, pnum);
     if (next == -1)
