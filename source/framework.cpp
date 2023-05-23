@@ -539,6 +539,26 @@ int Move(const int op, const int dx, const int dy)
         ((isupper(Map[ppy + 1][ppx]) ||
           (getTileKind(Map[ppy + 1][ppx]) != TileKind::Floor))))
         return (0x10 | (ret & 0xb));
+    if ((Players[op].X_Velocity < -1) &&
+        (Players[op].Y_Velocity < -1) &&
+        ((isupper(Map[ppy - 1][ppx - 1])) ||
+         (getTileKind(Map[ppy - 1][ppx - 1]) != TileKind::Floor)))
+        return 0x10;
+    if ((Players[op].X_Velocity > 1) &&
+        (Players[op].Y_Velocity < -1) &&
+        ((isupper(Map[ppy - 1][ppx + 1])) ||
+         (getTileKind(Map[ppy - 1][ppx + 1]) != TileKind::Floor)))
+        return 0x10;
+    if ((Players[op].X_Velocity < -1) &&
+        (Players[op].Y_Velocity > 1) &&
+        ((isupper(Map[ppy + 1][ppx - 1])) ||
+         (getTileKind(Map[ppy + 1][ppx - 1]) != TileKind::Floor)))
+        return 0x10;
+    if ((Players[op].X_Velocity > 1) &&
+        (Players[op].Y_Velocity > 1) &&
+        ((isupper(Map[ppy + 1][ppx + 1])) ||
+         (getTileKind(Map[ppy + 1][ppx + 1]) != TileKind::Floor)))
+        return 0x10;
 #endif
 #ifndef TRUEMOVE
     double fx = fabs(px - nx);
