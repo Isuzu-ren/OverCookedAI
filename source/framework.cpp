@@ -1541,8 +1541,12 @@ void PlayTaskDistribute()
         }
         otsk = NewdeqOrder.front();
 #ifdef COOPERATIVEDISTRIBUTION
-        assert(otsk.tsksum <= 2);
-        tsk = otsk.tsk[1];
+        if (otsk.tsksum == 2)
+            tsk = otsk.tsk[1];
+        else if (otsk.tsksum == 1)
+            tsk = otsk.tsk[0];
+        else
+            assert(0);
 #else
         assert(otsk.tsksum == 1);
         tsk = otsk.tsk[0];
@@ -1586,17 +1590,26 @@ void PlayTaskDistribute()
             break;
         }
 #ifdef COOPERATIVEDISTRIBUTION
-        nearplayer = CheckPlayerInteractDistance(otsk.tsk[0].stp[0]);
-        FreePlayer[nearplayer] = false;
-        ptask[nearplayer] = otsk.tsk[0];
-        nearplayer = nearplayer ^ 1;
-        if (FreePlayer[nearplayer])
+        if (otsk.tsksum == 2)
         {
+            nearplayer = CheckPlayerInteractDistance(otsk.tsk[0].stp[0]);
+            FreePlayer[nearplayer] = false;
+            ptask[nearplayer] = otsk.tsk[0];
+            nearplayer = nearplayer ^ 1;
+            if (FreePlayer[nearplayer])
+            {
+                FreePlayer[nearplayer] = false;
+                ptask[nearplayer] = tsk;
+            }
+            else
+                PlayerTaskDeque[nearplayer].emplace_back(tsk);
+        }
+        else
+        {
+            nearplayer = CheckPlayerInteractDistance(tsk.stp[0]);
             FreePlayer[nearplayer] = false;
             ptask[nearplayer] = tsk;
         }
-        else
-            PlayerTaskDeque[nearplayer].emplace_back(tsk);
 #else
         nearplayer = CheckPlayerInteractDistance(tsk.stp[0]);
         FreePlayer[nearplayer] = false;
