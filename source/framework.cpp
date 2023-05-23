@@ -452,7 +452,13 @@ int Move(const int op, const int dx, const int dy)
                 (fabs(Entity[i].x - xchoppingstation) < epsilon) &&
                 (fabs(Entity[i].y - ychoppingstation) < epsilon) &&
                 (!Entity[i].entity.empty()))
+            {
+#ifdef NEOBRAKECONTROL
                 return NothingTodo(op);
+#else
+                return 0x10;
+#endif
+            }
         }
     }
     else if (cs.ts == TAKING_INGREDIENT_TO_PAN)
@@ -461,7 +467,13 @@ int Move(const int op, const int dx, const int dy)
         {
             if ((Entity[i].containerKind == ContainerKind::Pan) &&
                 (!Entity[i].entity.empty()))
+            {
+#ifdef NEOBRAKECONTROL
                 return NothingTodo(op);
+#else
+                return 0x10;
+#endif
+            }
         }
     }
     else if (cs.ts == TAKING_INGREDIENT_TO_POT)
@@ -470,7 +482,13 @@ int Move(const int op, const int dx, const int dy)
         {
             if ((Entity[i].containerKind == ContainerKind::Pot) &&
                 (!Entity[i].entity.empty()))
+            {
+#ifdef NEOBRAKECONTROL
                 return NothingTodo(op);
+#else
+                return 0x10;
+#endif
+            }
         }
     }
 
@@ -497,7 +515,13 @@ int Move(const int op, const int dx, const int dy)
 #endif
     int next = Dijkstra(dnum, pnum);
     if (next == -1)
+    {
+#ifdef NEOBRAKECONTROL
         return NothingTodo(op);
+#else
+        return 0x10;
+#endif
+    }
     int nx = next % width;
     int ny = next / width;
 #else
