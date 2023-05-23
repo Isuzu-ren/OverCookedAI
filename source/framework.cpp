@@ -19,7 +19,7 @@
 #define TRUEMOVE
 // #define SIMPLEBRAKECONTROL
 // #define NEOBRAKECONTROL
-#define COOPERATIVEDISTRIBUTION
+// #define COOPERATIVEDISTRIBUTION
 
 struct Step
 {
@@ -42,9 +42,9 @@ struct Task
 
 struct OrderTask
 {
-    Task tsk[3];                  // 订单对应的任务
-    int tsksum;                   // 订单对应的任务数
-    int playerdistributed;        // 分配给的玩家数
+    Task tsk[3]; // 订单对应的任务
+    int tsksum;  // 订单对应的任务数
+    // int playerdistributed;        // 分配给的玩家数
     std::pair<int, int> platepos; // 使用的盘子的坐标
     // int tskdistributed;        // 已分配的任务数
 };
@@ -866,6 +866,9 @@ void ParseOrder()
     std::vector<int> TaskNotUsePanOrPot;
     std::vector<int> TaskPan;
     std::vector<int> TaskPot;
+#ifdef COOPERATIVEDISTRIBUTION
+    int tc1 = 0;
+#endif
     for (int i = 0; i < totalOrderCount; i++)
     {
         // 初始化
@@ -919,7 +922,7 @@ void ParseOrder()
             stsk.stpsum++;
             totalOrderTaskParse[i].tsk[0] = stsk;
             totalOrderTaskParse[i].tsksum = 1;
-            totalOrderTaskParse[i].playerdistributed = 1;
+            // totalOrderTaskParse[i].playerdistributed = 1;
         }
         else if (TaskPan.empty() && (!TaskPot.empty()))
         // 只需要用到Pot 则分配给一个人
@@ -959,7 +962,7 @@ void ParseOrder()
             stsk.stpsum++;
             totalOrderTaskParse[i].tsk[0] = stsk;
             totalOrderTaskParse[i].tsksum = 1;
-            totalOrderTaskParse[i].playerdistributed = 1;
+            // totalOrderTaskParse[i].playerdistributed = 1;
         }
         else if ((!TaskPan.empty()) && TaskPot.empty())
         // 只需要用到Pan 则分配给一个人
@@ -999,7 +1002,7 @@ void ParseOrder()
             stsk.stpsum++;
             totalOrderTaskParse[i].tsk[0] = stsk;
             totalOrderTaskParse[i].tsksum = 1;
-            totalOrderTaskParse[i].playerdistributed = 1;
+            // totalOrderTaskParse[i].playerdistributed = 1;
         }
         else if ((!TaskPan.empty()) && (!TaskPot.empty()))
         // 需要同时用到Pan和Pot 暂时仅分给一个人完成
@@ -1013,6 +1016,108 @@ void ParseOrder()
             {
                 pottime += ingTask[it].cooktime;
             }
+#ifdef COOPERATIVEDISTRIBUTION
+            if (pantime >= pottime)
+            {
+                for (auto it : TaskPan)
+                {
+                    stsk.cooktime += ingTask[it].cooktime;
+                    for (int j = 0; j < ingTask[it].stpsum; j++)
+                    {
+                        stsk.stp[stsk.stpsum] = ingTask[it].stp[j];
+                        stsk.stpsum++;
+                    }
+                }
+                totalOrderTaskParse[i].tsk[0] = stsk;
+
+                stsk.completed = 0;
+                stsk.stpsum = 0;
+                stsk.cooktime = 0;
+                for (auto it : TaskPot)
+                {
+                    stsk.cooktime += ingTask[it].cooktime;
+                    for (int j = 0; j < ingTask[it].stpsum; j++)
+                    {
+                        stsk.stp[stsk.stpsum] = ingTask[it].stp[j];
+                        stsk.stpsum++;
+                    }
+                }
+            }
+            else
+            {
+                for (auto it : TaskPot)
+                {
+                    stsk.cooktime += ingTask[it].cooktime;
+                    for (int j = 0; j < ingTask[it].stpsum; j++)
+                    {
+                        stsk.stp[stsk.stpsum] = ingTask[it].stp[j];
+                        stsk.stpsum++;
+                    }
+                }
+                totalOrderTaskParse[i].tsk[0] = stsk;
+
+                stsk.completed = 0;
+                stsk.stpsum = 0;
+                stsk.cooktime = 0;
+                for (auto it : TaskPan)
+                {
+                    stsk.cooktime += ingTask[it].cooktime;
+                    for (int j = 0; j < ingTask[it].stpsum; j++)
+                    {
+                        stsk.stp[stsk.stpsum] = ingTask[it].stp[j];
+                        stsk.stpsum++;
+                    }
+                }
+            }
+            for (auto it : TaskNotUsePanOrPot)
+            {
+                stsk.cooktime += ingTask[it].cooktime;
+                for (int j = 0; j < ingTask[it].stpsum; j++)
+                {
+                    stsk.stp[stsk.stpsum] = ingTask[it].stp[j];
+                    stsk.stpsum++;
+                }
+                stsk.stp[stsk.stpsum].ta = TAKE;
+                stsk.stp[stsk.stpsum].ts = TAKING_INGREDIENT_TO_PLATE;
+                stsk.stpsum++;
+            }
+            stsk.stp[stsk.stpsum].ta = TAKE;
+            stsk.stp[stsk.stpsum].ts = TAKE_UP_PLATE;
+            stsk.stpsum++;
+            if (pantime >= pottime)
+            {
+                CheckInteractPos(stsk.stp[stsk.stpsum], xpan, ypan);
+                stsk.stp[stsk.stpsum].ta = TAKE;
+                stsk.stp[stsk.stpsum].ts = TAKING_PLATE_TO_PAN;
+                stsk.stp[stsk.stpsum].product = ingTask[TaskPan[TaskPan.size() - 1]].stp[ingTask[TaskPan[TaskPan.size() - 1]].stpsum - 1].product;
+                stsk.stpsum++;
+                CheckInteractPos(stsk.stp[stsk.stpsum], xpot, ypot);
+                stsk.stp[stsk.stpsum].ta = TAKE;
+                stsk.stp[stsk.stpsum].ts = TAKING_PLATE_TO_POT;
+                stsk.stp[stsk.stpsum].product = ingTask[TaskPot[TaskPot.size() - 1]].stp[ingTask[TaskPot[TaskPot.size() - 1]].stpsum - 1].product;
+                stsk.stpsum++;
+            }
+            else
+            {
+                CheckInteractPos(stsk.stp[stsk.stpsum], xpot, ypot);
+                stsk.stp[stsk.stpsum].ta = TAKE;
+                stsk.stp[stsk.stpsum].ts = TAKING_PLATE_TO_POT;
+                stsk.stp[stsk.stpsum].product = ingTask[TaskPot[TaskPot.size() - 1]].stp[ingTask[TaskPot[TaskPot.size() - 1]].stpsum - 1].product;
+                stsk.stpsum++;
+                CheckInteractPos(stsk.stp[stsk.stpsum], xpan, ypan);
+                stsk.stp[stsk.stpsum].ta = TAKE;
+                stsk.stp[stsk.stpsum].ts = TAKING_PLATE_TO_PAN;
+                stsk.stp[stsk.stpsum].product = ingTask[TaskPan[TaskPan.size() - 1]].stp[ingTask[TaskPan[TaskPan.size() - 1]].stpsum - 1].product;
+                stsk.stpsum++;
+            }
+            CheckInteractPos(stsk.stp[stsk.stpsum], xservicewindows, yservicewindows);
+            stsk.stp[stsk.stpsum].ta = TAKE;
+            stsk.stp[stsk.stpsum].ts = TAKING_PLATE_TO_SERVICEWINDOWS;
+            stsk.stpsum++;
+            totalOrderTaskParse[i].tsk[1] = stsk;
+            totalOrderTaskParse[i].tsksum = 2;
+            // totalOrderTaskParse[i].playerdistributed = 1;
+#else
             if (pantime >= pottime)
             {
                 for (auto it : TaskPan)
@@ -1070,23 +1175,40 @@ void ParseOrder()
             stsk.stp[stsk.stpsum].ta = TAKE;
             stsk.stp[stsk.stpsum].ts = TAKE_UP_PLATE;
             stsk.stpsum++;
-            CheckInteractPos(stsk.stp[stsk.stpsum], xpan, ypan);
-            stsk.stp[stsk.stpsum].ta = TAKE;
-            stsk.stp[stsk.stpsum].ts = TAKING_PLATE_TO_PAN;
-            stsk.stp[stsk.stpsum].product = ingTask[TaskPan[TaskPan.size() - 1]].stp[ingTask[TaskPan[TaskPan.size() - 1]].stpsum - 1].product;
-            stsk.stpsum++;
-            CheckInteractPos(stsk.stp[stsk.stpsum], xpot, ypot);
-            stsk.stp[stsk.stpsum].ta = TAKE;
-            stsk.stp[stsk.stpsum].ts = TAKING_PLATE_TO_POT;
-            stsk.stp[stsk.stpsum].product = ingTask[TaskPot[TaskPot.size() - 1]].stp[ingTask[TaskPot[TaskPot.size() - 1]].stpsum - 1].product;
-            stsk.stpsum++;
+            if (pantime >= pottime)
+            {
+                CheckInteractPos(stsk.stp[stsk.stpsum], xpan, ypan);
+                stsk.stp[stsk.stpsum].ta = TAKE;
+                stsk.stp[stsk.stpsum].ts = TAKING_PLATE_TO_PAN;
+                stsk.stp[stsk.stpsum].product = ingTask[TaskPan[TaskPan.size() - 1]].stp[ingTask[TaskPan[TaskPan.size() - 1]].stpsum - 1].product;
+                stsk.stpsum++;
+                CheckInteractPos(stsk.stp[stsk.stpsum], xpot, ypot);
+                stsk.stp[stsk.stpsum].ta = TAKE;
+                stsk.stp[stsk.stpsum].ts = TAKING_PLATE_TO_POT;
+                stsk.stp[stsk.stpsum].product = ingTask[TaskPot[TaskPot.size() - 1]].stp[ingTask[TaskPot[TaskPot.size() - 1]].stpsum - 1].product;
+                stsk.stpsum++;
+            }
+            else
+            {
+                CheckInteractPos(stsk.stp[stsk.stpsum], xpot, ypot);
+                stsk.stp[stsk.stpsum].ta = TAKE;
+                stsk.stp[stsk.stpsum].ts = TAKING_PLATE_TO_POT;
+                stsk.stp[stsk.stpsum].product = ingTask[TaskPot[TaskPot.size() - 1]].stp[ingTask[TaskPot[TaskPot.size() - 1]].stpsum - 1].product;
+                stsk.stpsum++;
+                CheckInteractPos(stsk.stp[stsk.stpsum], xpan, ypan);
+                stsk.stp[stsk.stpsum].ta = TAKE;
+                stsk.stp[stsk.stpsum].ts = TAKING_PLATE_TO_PAN;
+                stsk.stp[stsk.stpsum].product = ingTask[TaskPan[TaskPan.size() - 1]].stp[ingTask[TaskPan[TaskPan.size() - 1]].stpsum - 1].product;
+                stsk.stpsum++;
+            }
             CheckInteractPos(stsk.stp[stsk.stpsum], xservicewindows, yservicewindows);
             stsk.stp[stsk.stpsum].ta = TAKE;
             stsk.stp[stsk.stpsum].ts = TAKING_PLATE_TO_SERVICEWINDOWS;
             stsk.stpsum++;
             totalOrderTaskParse[i].tsk[0] = stsk;
             totalOrderTaskParse[i].tsksum = 1;
-            totalOrderTaskParse[i].playerdistributed = 1;
+            // totalOrderTaskParse[i].playerdistributed = 1;
+#endif
         }
         else
             assert(0);
