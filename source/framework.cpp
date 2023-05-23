@@ -17,7 +17,7 @@
 
 // #include <cstring>
 #define WASHPLATESHIFT
-#define TRUEMOVE
+// #define TRUEMOVE
 #define SIMPLEBRAKECONTROL
 // #define NEOBRAKECONTROL
 // #define COOPERATIVEDISTRIBUTION
@@ -529,19 +529,19 @@ int Move(const int op, const int dx, const int dy)
     int nx = dx;
     int ny = dy;
 #endif
-    if (px <= double(nx) + 0.25)
+    if (px <= double(nx) + 0.2)
     {
         ret |= 0x1;
     }
-    else if (px >= double(nx) + 0.75)
+    else if (px >= double(nx) + 0.8)
     {
         ret |= 0x2;
     }
-    if (py <= double(ny) + 0.25)
+    if (py <= double(ny) + 0.2)
     {
         ret |= 0x4;
     }
-    else if (py >= double(ny) + 0.75)
+    else if (py >= double(ny) + 0.8)
     {
         ret |= 0x8;
     }
