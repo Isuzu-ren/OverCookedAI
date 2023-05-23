@@ -573,8 +573,10 @@ int Move(const int op, const int dx, const int dy)
             ret &= 0xc;
     }
 #endif
+#ifdef NEOBRAKECONTROL
     if (ret == 0)
         return (0xf & NothingTodo(op));
+#endif
     return ret;
 }
 
