@@ -1585,18 +1585,22 @@ void PlayTaskDistribute()
             }
             break;
         }
-        nearplayer = CheckPlayerInteractDistance(tsk.stp[0]);
-        FreePlayer[nearplayer] = false;
-        ptask[nearplayer] = tsk;
 #ifdef COOPERATIVEDISTRIBUTION
+        nearplayer = CheckPlayerInteractDistance(otsk.tsk[0].stp[0]);
+        FreePlayer[nearplayer] = false;
+        ptask[nearplayer] = otsk.tsk[0];
         nearplayer = nearplayer ^ 1;
         if (FreePlayer[nearplayer])
         {
             FreePlayer[nearplayer] = false;
-            ptask[nearplayer] = otsk.tsk[0];
+            ptask[nearplayer] = tsk;
         }
         else
-            PlayerTaskDeque[nearplayer].emplace_back(otsk.tsk[0]);
+            PlayerTaskDeque[nearplayer].emplace_back(tsk);
+#else
+        nearplayer = CheckPlayerInteractDistance(tsk.stp[0]);
+        FreePlayer[nearplayer] = false;
+        ptask[nearplayer] = tsk;
 #endif
         NewdeqOrder.pop_front();
     }
