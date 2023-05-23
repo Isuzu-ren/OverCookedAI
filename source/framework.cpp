@@ -19,6 +19,7 @@
 #define TRUEMOVE
 // #define SIMPLEBRAKECONTROL
 // #define NEOBRAKECONTROL
+#define COOPERATIVEDISTRIBUTION
 
 struct Step
 {
@@ -102,7 +103,10 @@ Task ingTask[20 + 5];                    // 与上述辅助数组相对应的拿
 OrderTask totalOrderTaskParse[20 + 5];   // 订单对应的任务数组
 bool checkorderass[20 + 5];              // 订单解析辅助数组
 std::deque<OrderTask> NewdeqOrder;       // 重置版订单任务队列
-int PlateRackNum = 0;
+int PlateRackNum = 0;                    // 在洗完盘子归还处的盘子数
+#ifdef COOPERATIVEDISTRIBUTION
+std::deque<Task> PlayerTaskDeque[2 + 5];
+#endif
 
 // 抛弃或暂无用的全局变量
 // int RunningTaskSum = 0;
@@ -860,7 +864,6 @@ void ParseOrder()
     std::vector<int> TaskNotUsePanOrPot;
     std::vector<int> TaskPan;
     std::vector<int> TaskPot;
-    int pantime, pottime;
     for (int i = 0; i < totalOrderCount; i++)
     {
         // 初始化
@@ -999,32 +1002,55 @@ void ParseOrder()
         else if ((!TaskPan.empty()) && (!TaskPot.empty()))
         // 需要同时用到Pan和Pot 暂时仅分给一个人完成
         {
-            // pantime = 0;
-            // for (auto it : TaskPan)
-            // {
-            //     pantime += ingTask[it].cooktime;
-            // }
-            // pottime = 0;
-            // for (auto it : TaskPot)
-            // {
-            //     pottime += ingTask[it].cooktime;
-            // }
+            int pantime = 0, pottime = 0;
             for (auto it : TaskPan)
             {
-                stsk.cooktime += ingTask[it].cooktime;
-                for (int j = 0; j < ingTask[it].stpsum; j++)
-                {
-                    stsk.stp[stsk.stpsum] = ingTask[it].stp[j];
-                    stsk.stpsum++;
-                }
+                pantime += ingTask[it].cooktime;
             }
             for (auto it : TaskPot)
             {
-                stsk.cooktime += ingTask[it].cooktime;
-                for (int j = 0; j < ingTask[it].stpsum; j++)
+                pottime += ingTask[it].cooktime;
+            }
+            if (pantime >= pottime)
+            {
+                for (auto it : TaskPan)
                 {
-                    stsk.stp[stsk.stpsum] = ingTask[it].stp[j];
-                    stsk.stpsum++;
+                    stsk.cooktime += ingTask[it].cooktime;
+                    for (int j = 0; j < ingTask[it].stpsum; j++)
+                    {
+                        stsk.stp[stsk.stpsum] = ingTask[it].stp[j];
+                        stsk.stpsum++;
+                    }
+                }
+                for (auto it : TaskPot)
+                {
+                    stsk.cooktime += ingTask[it].cooktime;
+                    for (int j = 0; j < ingTask[it].stpsum; j++)
+                    {
+                        stsk.stp[stsk.stpsum] = ingTask[it].stp[j];
+                        stsk.stpsum++;
+                    }
+                }
+            }
+            else
+            {
+                for (auto it : TaskPot)
+                {
+                    stsk.cooktime += ingTask[it].cooktime;
+                    for (int j = 0; j < ingTask[it].stpsum; j++)
+                    {
+                        stsk.stp[stsk.stpsum] = ingTask[it].stp[j];
+                        stsk.stpsum++;
+                    }
+                }
+                for (auto it : TaskPan)
+                {
+                    stsk.cooktime += ingTask[it].cooktime;
+                    for (int j = 0; j < ingTask[it].stpsum; j++)
+                    {
+                        stsk.stp[stsk.stpsum] = ingTask[it].stp[j];
+                        stsk.stpsum++;
+                    }
                 }
             }
             for (auto it : TaskNotUsePanOrPot)
@@ -1448,6 +1474,10 @@ void InitDo()
 #endif
 #ifdef TRUEMOVE
     initMapEdge();
+#endif
+#ifdef COOPERATIVEDISTRIBUTION
+    PlayerTaskDeque[0].clear();
+    PlayerTaskDeque[1].clear();
 #endif
 }
 
