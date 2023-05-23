@@ -1500,6 +1500,18 @@ void CheckPlateNum()
     {
         if (Entity[i].containerKind == ContainerKind::Plate)
             platenum++;
+        else if (Entity[i].containerKind == ContainerKind::DirtyPlates)
+        {
+            if (!((fabs(Entity[i].x - xplatereturn) < epsilon) && (fabs(Entity[i].y - yplatereturn) < epsilon)))
+                platenum++;
+        }
+    }
+    for (int i = 0; i < k; i++)
+    {
+        if (Players[i].containerKind == ContainerKind::Plate)
+            platenum++;
+        else if (Players[i].containerKind == ContainerKind::DirtyPlates)
+            platenum += atoi(Players[i].entity.front().c_str());
     }
 }
 
@@ -1553,9 +1565,10 @@ void PlayTaskDistribute()
     OrderTask otsk;
     Task tsk;
     int nearplayer = 0;
+    CheckPlateNum();
     while (FreePlayer[0] || FreePlayer[1])
     {
-        if (dirtyplateflag == UNDISTRIBUTED)
+        if ((dirtyplateflag == UNDISTRIBUTED) && (platenum <= 1))
         {
             dirtyplateflag = DISTRIBUTED;
             nearplayer = CheckPlayerInteractDistance(WashDirtyPlate.stp[0]);
