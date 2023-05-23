@@ -13,6 +13,7 @@
 #include <cmath>
 #include <set>
 #include <queue>
+#include <ctime>
 
 // #include <cstring>
 #define WASHPLATESHIFT
@@ -731,14 +732,28 @@ void CollisionAct(const int fret)
     else if (((d1 & 0x08) == 0) && (!isupper(Map[cy0 + 1][cx0])) && (getTileKind(Map[cy0 + 1][cx0]) == TileKind::Floor))
         td |= 0x04;
 
-    if (((d0 & 0x01) == 0) && (!isupper(Map[cy1][cx1 - 1])) && (getTileKind(Map[cy1][cx1 - 1]) == TileKind::Floor))
-        td |= (0x02 << 6);
-    else if (((d0 & 0x02) == 0) && (!isupper(Map[cy1][cx1 + 1])) && (getTileKind(Map[cy1][cx1 + 1]) == TileKind::Floor))
-        td |= (0x01 << 6);
-    else if (((d0 & 0x08) == 0) && (!isupper(Map[cy1 + 1][cx1])) && (getTileKind(Map[cy1 + 1][cx1]) == TileKind::Floor))
-        td |= (0x04 << 6);
-    else if (((d0 & 0x04) == 0) && (!isupper(Map[cy1 - 1][cx1])) && (getTileKind(Map[cy1 - 1][cx1]) == TileKind::Floor))
-        td |= (0x08 << 6);
+    if (rand() & 1)
+    {
+        if (((d0 & 0x01) == 0) && (!isupper(Map[cy1][cx1 - 1])) && (getTileKind(Map[cy1][cx1 - 1]) == TileKind::Floor))
+            td |= (0x02 << 6);
+        else if (((d0 & 0x02) == 0) && (!isupper(Map[cy1][cx1 + 1])) && (getTileKind(Map[cy1][cx1 + 1]) == TileKind::Floor))
+            td |= (0x01 << 6);
+        else if (((d0 & 0x08) == 0) && (!isupper(Map[cy1 + 1][cx1])) && (getTileKind(Map[cy1 + 1][cx1]) == TileKind::Floor))
+            td |= (0x04 << 6);
+        else if (((d0 & 0x04) == 0) && (!isupper(Map[cy1 - 1][cx1])) && (getTileKind(Map[cy1 - 1][cx1]) == TileKind::Floor))
+            td |= (0x08 << 6);
+    }
+    else
+    {
+        if (((d0 & 0x08) == 0) && (!isupper(Map[cy1 + 1][cx1])) && (getTileKind(Map[cy1 + 1][cx1]) == TileKind::Floor))
+            td |= (0x04 << 6);
+        else if (((d0 & 0x04) == 0) && (!isupper(Map[cy1 - 1][cx1])) && (getTileKind(Map[cy1 - 1][cx1]) == TileKind::Floor))
+            td |= (0x08 << 6);
+        else if (((d0 & 0x01) == 0) && (!isupper(Map[cy1][cx1 - 1])) && (getTileKind(Map[cy1][cx1 - 1]) == TileKind::Floor))
+            td |= (0x02 << 6);
+        else if (((d0 & 0x02) == 0) && (!isupper(Map[cy1][cx1 + 1])) && (getTileKind(Map[cy1][cx1 + 1]) == TileKind::Floor))
+            td |= (0x01 << 6);
+    }
 
     CollisionAvoidenceRet = td;
 }
@@ -1676,6 +1691,7 @@ void InitDo()
     plateused.clear();
     CollisionAvoidenceTime = 0;
     OrderInDeque = 1;
+    srand(time(NULL));
 #ifdef WASHPLATESHIFT
     PlateRackNum = 0;
 #endif
