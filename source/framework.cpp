@@ -15,7 +15,7 @@
 #include <queue>
 
 // #include <cstring>
-// #define WASHPLATESHIFT
+#define WASHPLATESHIFT
 #define TRUEMOVE
 // #define SIMPLEBRAKECONTROL
 // #define NEOBRAKECONTROL
@@ -1500,7 +1500,9 @@ int FrameDo()
                 }
                 if (!flag5)
                 {
-                    if (DistancePlayerToInteract(i ^ 1, xplaterack, yplaterack) > 2)
+                    if ((DistancePlayerToInteract(i ^ 1, xplaterack, yplaterack) > 2) ||
+                        (!((ptask[i ^ 1].stp[ptask[i ^ 1].completed].ts == TAKE_UP_PLATE) ||
+                           ptask[i ^ 1].stp[ptask[i ^ 1].completed].ts == TAKING_INGREDIENT_TO_PLATE)))
                     {
                         for (int j = 0; j < entityCount; j++)
                         {
