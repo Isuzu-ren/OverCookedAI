@@ -511,6 +511,9 @@ int Move(const int op, const int dx, const int dy)
 #ifndef SIMPLEBRAKECONTROL
     int ppx = floor(px);
     int ppy = floor(py);
+    if ((pnum == dnum) &&
+        (Players[op].X_Velocity * Players[op].X_Velocity + Players[op].Y_Velocity * Players[op].Y_Velocity > 2))
+        return 0x10;
 #endif
     if ((Players[op].X_Velocity < -1.6) &&
         ((isupper(Map[ppy][ppx - 1]) ||
