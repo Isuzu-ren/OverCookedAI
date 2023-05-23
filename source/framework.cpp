@@ -1512,6 +1512,20 @@ int CheckPlayerInteractDistance(Step &stp)
 // 具体分配
 void PlayTaskDistribute()
 {
+#ifdef COOPERATIVEDISTRIBUTION
+    if (FreePlayer[0] && (!PlayerTaskDeque[0].empty()))
+    {
+        ptask[0] = PlayerTaskDeque[0].front();
+        PlayerTaskDeque[0].pop_front();
+        FreePlayer[0] = false;
+    }
+    if (FreePlayer[1] && (!PlayerTaskDeque[1].empty()))
+    {
+        ptask[1] = PlayerTaskDeque[1].front();
+        PlayerTaskDeque[1].pop_front();
+        FreePlayer[1] = false;
+    }
+#endif
     OrderTask otsk;
     Task tsk;
     int nearplayer = 0;
@@ -1526,8 +1540,13 @@ void PlayTaskDistribute()
             continue;
         }
         otsk = NewdeqOrder.front();
+#ifdef COOPERATIVEDISTRIBUTION
+        assert(otsk.tsksum <= 2);
+        tsk = otsk.tsk[1];
+#else
         assert(otsk.tsksum == 1);
         tsk = otsk.tsk[0];
+#endif
         int flag3 = -1;
         for (int j = 0; j < tsk.stpsum; j++)
         {
@@ -1566,10 +1585,20 @@ void PlayTaskDistribute()
             }
             break;
         }
-        NewdeqOrder.pop_front();
         nearplayer = CheckPlayerInteractDistance(tsk.stp[0]);
         FreePlayer[nearplayer] = false;
         ptask[nearplayer] = tsk;
+#ifdef COOPERATIVEDISTRIBUTION
+        nearplayer = nearplayer ^ 1;
+        if (FreePlayer[nearplayer])
+        {
+            FreePlayer[nearplayer] = false;
+            ptask[nearplayer] = otsk.tsk[0];
+        }
+        else
+            PlayerTaskDeque[nearplayer].emplace_back(otsk.tsk[0]);
+#endif
+        NewdeqOrder.pop_front();
     }
 }
 
