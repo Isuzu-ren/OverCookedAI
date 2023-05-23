@@ -535,7 +535,7 @@ int Move(const int op, const int dx, const int dy)
         ((isupper(Map[ppy - 1][ppx]) ||
           (getTileKind(Map[ppy - 1][ppx]) != TileKind::Floor))))
         return (0x10 | (ret & 0x7));
-    if ((Players[op].X_Velocity > 1) &&
+    if ((Players[op].Y_Velocity > 1) &&
         ((isupper(Map[ppy + 1][ppx]) ||
           (getTileKind(Map[ppy + 1][ppx]) != TileKind::Floor))))
         return (0x10 | (ret & 0xb));
