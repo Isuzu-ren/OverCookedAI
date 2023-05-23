@@ -288,6 +288,13 @@ void initMapEdge()
                 Edge[num].emplace_back(num - 1 - width, sq2);
             if ((i < width - 1) && (!isupper(Map[j][i + 1])) &&
                 (getTileKind(Map[j][i + 1]) == TileKind::Floor) &&
+                (j < height - 1) && (!isupper(Map[j + 1][i])) &&
+                (getTileKind(Map[j + 1][i]) == TileKind::Floor) &&
+                (!isupper(Map[j + 1][i + 1])) &&
+                (getTileKind(Map[j + 1][i + 1]) == TileKind::Floor))
+                Edge[num].emplace_back(num + 1 + width, sq2);
+            if ((i < width - 1) && (!isupper(Map[j][i + 1])) &&
+                (getTileKind(Map[j][i + 1]) == TileKind::Floor) &&
                 (j > 0) && (!isupper(Map[j - 1][i])) &&
                 (getTileKind(Map[j - 1][i]) == TileKind::Floor) &&
                 (!isupper(Map[j - 1][i + 1])) &&
@@ -300,13 +307,6 @@ void initMapEdge()
                 (!isupper(Map[j + 1][i - 1])) &&
                 (getTileKind(Map[j + 1][i - 1]) == TileKind::Floor))
                 Edge[num].emplace_back(num - 1 + width, sq2);
-            if ((i < width - 1) && (!isupper(Map[j][i + 1])) &&
-                (getTileKind(Map[j][i + 1]) == TileKind::Floor) &&
-                (j < height - 1) && (!isupper(Map[j + 1][i])) &&
-                (getTileKind(Map[j + 1][i]) == TileKind::Floor) &&
-                (!isupper(Map[j + 1][i + 1])) &&
-                (getTileKind(Map[j + 1][i + 1]) == TileKind::Floor))
-                Edge[num].emplace_back(num + 1 + width, sq2);
         }
     }
 }
@@ -366,6 +366,13 @@ int PlayerPosCell(const int op)
     return XY_TO_NUM(x, y);
 }
 
+int PointInCell(const double &px, const double &py)
+{
+    int x = floor(px);
+    int y = floor(py);
+    return XY_TO_NUM(x, y);
+}
+
 int CheckPlayerPosCell(const int op)
 {
     for (int i = 0; i < width * height; i++)
@@ -375,9 +382,17 @@ int CheckPlayerPosCell(const int op)
     int x = floor(Players[op].x);
     int y = floor(Players[op].y);
     int ret = XY_TO_NUM(x, y);
-    int otherplayernum = PlayerPosCell(op ^ 1);
-    if (ret != otherplayernum)
-        Unavailable[otherplayernum] = true;
+    int pos = PlayerPosCell(op ^ 1);
+    Unavailable[pos] = true;
+    pos = PointInCell(Players[op ^ 1].x - 0.35, Players[op ^ 1].y - 0.35);
+    Unavailable[pos] = true;
+    pos = PointInCell(Players[op ^ 1].x + 0.35, Players[op ^ 1].y - 0.35);
+    Unavailable[pos] = true;
+    pos = PointInCell(Players[op ^ 1].x - 0.35, Players[op ^ 1].y + 0.35);
+    Unavailable[pos] = true;
+    pos = PointInCell(Players[op ^ 1].x + 0.35, Players[op ^ 1].y + 0.35);
+    Unavailable[pos] = true;
+    Unavailable[ret] = false;
     return ret;
 }
 #endif
