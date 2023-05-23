@@ -18,7 +18,7 @@
 // #include <cstring>
 #define WASHPLATESHIFT
 #define TRUEMOVE
-// #define SIMPLEBRAKECONTROL
+#define SIMPLEBRAKECONTROL
 // #define NEOBRAKECONTROL
 #define COOPERATIVEDISTRIBUTION
 
