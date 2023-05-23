@@ -496,12 +496,6 @@ int Move(const int op, const int dx, const int dy)
     double px = Players[op].x;
     double py = Players[op].y;
     int ret = 0;
-#ifdef TRUEMOVE
-    int pnum = CheckPlayerPosCell(op);
-    int dnum = XY_TO_NUM(dx, dy);
-    if ((pnum == dnum) &&
-        (Players[op].X_Velocity * Players[op].X_Velocity + Players[op].Y_Velocity * Players[op].Y_Velocity > 4))
-        return 0x10;
 #ifdef SIMPLEBRAKECONTROL
     int ppx = floor(px);
     int ppy = floor(py);
@@ -514,6 +508,12 @@ int Move(const int op, const int dx, const int dy)
     else if ((ppy == height - 2) && (Players[op].Y_Velocity > 1.8))
         return 0x10;
 #endif
+#ifdef TRUEMOVE
+    int pnum = CheckPlayerPosCell(op);
+    int dnum = XY_TO_NUM(dx, dy);
+    if ((pnum == dnum) &&
+        (Players[op].X_Velocity * Players[op].X_Velocity + Players[op].Y_Velocity * Players[op].Y_Velocity > 4))
+        return 0x10;
     int next = Dijkstra(dnum, pnum);
     if (next == -1)
     {
