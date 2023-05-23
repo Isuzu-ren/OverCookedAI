@@ -389,19 +389,19 @@ int NothingTodo(const int op)
     double dx = floor(Players[op].x) + 0.5;
     double dy = floor(Players[op].y) + 0.5;
     int ret = 0x10;
-    if (px <= dx - 0.05)
+    if (px <= dx - 0.15)
     {
         ret |= 0x1;
     }
-    else if (px >= dx + 0.05)
+    else if (px >= dx + 0.15)
     {
         ret |= 0x2;
     }
-    if (py <= dy - 0.05)
+    if (py <= dy - 0.15)
     {
         ret |= 0x4;
     }
-    else if (py >= dy + 0.05)
+    else if (py >= dy + 0.15)
     {
         ret |= 0x8;
     }
@@ -502,6 +502,8 @@ int Move(const int op, const int dx, const int dy)
             ret &= 0xc;
     }
 #endif
+    if (ret == 0)
+        return (0xf & NothingTodo(op));
     return ret;
 }
 
