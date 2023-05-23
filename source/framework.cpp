@@ -13,7 +13,7 @@
 #include <cmath>
 #include <set>
 #include <queue>
-#include <ctime>
+// #include <ctime>
 
 // #include <cstring>
 #define WASHPLATESHIFT
@@ -1677,7 +1677,7 @@ void InitDo()
     plateused.clear();
     CollisionAvoidenceTime = 0;
     OrderInDeque = 1;
-    srand(time(NULL));
+    // srand(time(NULL));
 #ifdef WASHPLATESHIFT
     PlateRackNum = 0;
 #endif
