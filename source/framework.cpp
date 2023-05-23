@@ -515,19 +515,19 @@ int Move(const int op, const int dx, const int dy)
         (Players[op].X_Velocity * Players[op].X_Velocity + Players[op].Y_Velocity * Players[op].Y_Velocity > 2))
         return 0x10;
 #endif
-    if ((Players[op].X_Velocity < -1.6) &&
+    if ((Players[op].X_Velocity < -1.5) &&
         ((isupper(Map[ppy][ppx - 1]) ||
           (getTileKind(Map[ppy][ppx - 1]) != TileKind::Floor))))
         return (0x10 | (ret & 0xd));
-    if ((Players[op].X_Velocity > 1.6) &&
+    if ((Players[op].X_Velocity > 1.5) &&
         ((isupper(Map[ppy][ppx + 1]) ||
           (getTileKind(Map[ppy][ppx + 1]) != TileKind::Floor))))
         return (0x10 | (ret & 0xe));
-    if ((Players[op].Y_Velocity < -1.6) &&
+    if ((Players[op].Y_Velocity < -1.5) &&
         ((isupper(Map[ppy - 1][ppx]) ||
           (getTileKind(Map[ppy - 1][ppx]) != TileKind::Floor))))
         return (0x10 | (ret & 0x7));
-    if ((Players[op].X_Velocity > 1.6) &&
+    if ((Players[op].X_Velocity > 1.5) &&
         ((isupper(Map[ppy + 1][ppx]) ||
           (getTileKind(Map[ppy + 1][ppx]) != TileKind::Floor))))
         return (0x10 | (ret & 0xb));
