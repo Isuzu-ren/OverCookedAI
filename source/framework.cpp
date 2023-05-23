@@ -18,7 +18,7 @@
 // #define WASHPLATESHIFT
 #define TRUEMOVE
 // #define SIMPLEBRAKECONTROL
-#define NEOBRAKECONTROL
+// #define NEOBRAKECONTROL
 
 struct Step
 {
@@ -674,10 +674,10 @@ bool CollisionDetection(const int fret)
         return false;
     if (((fret & 0x30) == 0) &&
         (((fret >> 6) & 0x30) == 0) &&
-        (Players[0].X_Velocity < 0.2) &&
-        (Players[0].Y_Velocity < 0.2) &&
-        (Players[1].X_Velocity < 0.2) &&
-        (Players[1].Y_Velocity < 0.2) &&
+        (Players[0].X_Velocity < 0.4) &&
+        (Players[0].Y_Velocity < 0.4) &&
+        (Players[1].X_Velocity < 0.4) &&
+        (Players[1].Y_Velocity < 0.4) &&
         (((Players[0].x - Players[1].x) * (Players[0].x - Players[1].x) + (Players[0].y - Players[1].y) * (Players[0].y - Players[1].y)) < playercollisiondistance))
         return true;
     else
