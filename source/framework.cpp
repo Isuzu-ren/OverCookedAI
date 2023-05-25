@@ -490,7 +490,7 @@ int Move(const int op, const int dx, const int dy)
     Task &ct = ptask[op];
     Step &cs = ct.stp[ct.completed];
 #ifdef TRUEMOVE
-    int otherpnum = CheckPlayerPosCell(op ^ 1);
+    int otherpnum = PlayerPosCell(op ^ 1);
     int otherdx = ptask[op ^ 1].stp[ptask[op ^ 1].completed].desx;
     int otherdy = ptask[op ^ 1].stp[ptask[op ^ 1].completed].desy;
     int otherdnum = XY_TO_NUM(otherdx, otherdy);
@@ -527,7 +527,7 @@ int Move(const int op, const int dx, const int dy)
 #ifdef TRUEMOVE
                 if (ptask[op ^ 1].stp[ptask[op ^ 1].completed].ts != TAKING_PLATE_TO_PAN)
                     return 0x10;
-                else if (TileDistance[otherpnum][otherdnum] + 3.0 + epsilon <= TileDistance[pnum][otherdnum])
+                else if (TileDistance[otherpnum][otherdnum] + 3.0 >= TileDistance[pnum][otherdnum] + epsilon)
                     return 0x10;
 #else
                 return 0x10;
