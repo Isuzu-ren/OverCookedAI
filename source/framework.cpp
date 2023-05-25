@@ -22,7 +22,7 @@
 // #define NEOBRAKECONTROL
 #define COOPERATIVEDISTRIBUTION
 // #define QUICKOVERCOOKED
-// #define NARROWPATH
+#define NARROWPATH
 
 struct Step
 {
@@ -113,6 +113,7 @@ std::deque<Task> PlayerTaskDeque[2 + 5];
 #ifdef NARROWPATH
 int currentFrameMoveRet;
 bool narrowPathCollision;
+int narrowMovePlayer;
 #endif
 #ifdef TRUEMOVE
 double TileDistance[400 + 5][400 + 5] = {};
@@ -688,6 +689,9 @@ int Action(const int op)
     Step &cs = ct.stp[ct.completed];
 
     int ret = Move(op, cs.desx, cs.desy);
+#ifdef NARROWPATH
+    currentFrameMoveRet |= (ret << (op * 6));
+#endif
     if (ret != 0)
         return (ret & 0xf);
 
@@ -798,13 +802,13 @@ void CollisionAct(const int fret)
     const int cy1 = floor(Players[1].y);
     const int d0 = fret & 0x0f;
     const int d1 = (fret >> 6) & 0x0f;
-    if (((d1 & 0x01) == 0) && (!isupper(Map[cy0][cx0 - 1])) && (getTileKind(Map[cy0][cx0 - 1]) == TileKind::Floor))
+    if ((!isupper(Map[cy0][cx0 - 1])) && (getTileKind(Map[cy0][cx0 - 1]) == TileKind::Floor))
         td |= 0x02;
-    else if (((d1 & 0x02) == 0) && (!isupper(Map[cy0][cx0 + 1])) && (getTileKind(Map[cy0][cx0 + 1]) == TileKind::Floor))
+    else if ((!isupper(Map[cy0][cx0 + 1])) && (getTileKind(Map[cy0][cx0 + 1]) == TileKind::Floor))
         td |= 0x01;
-    if (((d1 & 0x04) == 0) && (!isupper(Map[cy0 - 1][cx0])) && (getTileKind(Map[cy0 - 1][cx0]) == TileKind::Floor))
+    if ((!isupper(Map[cy0 - 1][cx0])) && (getTileKind(Map[cy0 - 1][cx0]) == TileKind::Floor))
         td |= 0x08;
-    else if (((d1 & 0x08) == 0) && (!isupper(Map[cy0 + 1][cx0])) && (getTileKind(Map[cy0 + 1][cx0]) == TileKind::Floor))
+    else if ((!isupper(Map[cy0 + 1][cx0])) && (getTileKind(Map[cy0 + 1][cx0]) == TileKind::Floor))
         td |= 0x04;
 
     switch (rand() % 8)
@@ -848,6 +852,32 @@ void CollisionAct(const int fret)
 
     CollisionAvoidenceRet = td;
 }
+
+#ifdef NARROWPATH
+bool NarrowPathReply()
+{
+    if (((currentFrameMoveRet & 0x20) | (currentFrameMoveRet & (0x20 << 6))) == 0)
+        return false;
+    if (currentFrameMoveRet & 0x20)
+    {
+        if (currentFrameMoveRet & (0x0f << 6))
+            return false;
+        else
+            narrowMovePlayer = 0;
+    }
+    else if (currentFrameMoveRet & (0x20 << 6))
+    {
+        if (currentFrameMoveRet & 0x0f)
+            return false;
+        else
+            narrowMovePlayer = 1;
+    }
+    else
+        assert(0);
+    narrowPathCollision = true;
+    return true;
+}
+#endif
 
 // 订单解析相关
 
