@@ -255,6 +255,20 @@ bool CheckPlatePos(Step &stp)
     return false;
 }
 
+// 玩家到交互地点的距离
+double DistancePlayerToInteract(const int op, const int ix, const int iy)
+{
+#ifdef TRUEMOVE
+    return TileDistance[PlayerPosCell(op)][XY_TO_NUM(ix, iy)];
+#else
+    double dx = fabs(Players[op].x - (double(ix) + 0.5));
+    double dy = fabs(Players[op].y - (double(iy) + 0.5));
+    if (dx < dy)
+        std::swap(dx, dy);
+    return (dy * sq2 + dx - dy);
+#endif
+}
+
 // 移动和行动相关
 
 #ifdef TRUEMOVE
@@ -1606,16 +1620,6 @@ void CheckPlateNum()
     }
 }
 
-// 玩家到交互地点的距离
-double DistancePlayerToInteract(const int op, const double ix, const double iy)
-{
-    double dx = fabs(Players[op].x - (ix + 0.5));
-    double dy = fabs(Players[op].y - (iy + 0.5));
-    if (dx < dy)
-        std::swap(dx, dy);
-    return (dy * sq2 + dx - dy);
-}
-
 // 确认空闲玩家中和任务交互地点距离以确定任务分配给更近的玩家
 int CheckPlayerInteractDistance(Step &stp)
 {
@@ -1629,7 +1633,7 @@ int CheckPlayerInteractDistance(Step &stp)
             ret = i;
             continue;
         }
-        if (DistancePlayerToInteract(i, double(stp.desx) + 0.5, double(stp.desy) + 0.5) < DistancePlayerToInteract(ret, double(stp.desx) + 0.5, double(stp.desy) + 0.5))
+        if (DistancePlayerToInteract(i, stp.desx, stp.desy) < DistancePlayerToInteract(ret, stp.desx, stp.desy))
             ret = i;
     }
     assert(ret != -1);
