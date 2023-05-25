@@ -459,6 +459,20 @@ int CheckPlayerPosCell(const int op)
 }
 #endif
 
+// 玩家到交互地点的距离
+double DistancePlayerToInteract(const int op, const int ix, const int iy)
+{
+#ifdef TRUEMOVE
+    return TileDistance[PlayerPosCell(op)][XY_TO_NUM(ix, iy)];
+#else
+    double dx = fabs(Players[op].x - (double(ix) + 0.5));
+    double dy = fabs(Players[op].y - (double(iy) + 0.5));
+    if (dx < dy)
+        std::swap(dx, dy);
+    return (dy * sq2 + dx - dy);
+#endif
+}
+
 int NothingTodo(const int op)
 {
     double px = Players[op].x;
@@ -1634,20 +1648,6 @@ void CheckPlateNum()
         else if (Players[i].containerKind == ContainerKind::DirtyPlates)
             platenum += atoi(Players[i].entity.front().c_str());
     }
-}
-
-// 玩家到交互地点的距离
-double DistancePlayerToInteract(const int op, const int ix, const int iy)
-{
-#ifdef TRUEMOVE
-    return TileDistance[PlayerPosCell(op)][XY_TO_NUM(ix, iy)];
-#else
-    double dx = fabs(Players[op].x - (double(ix) + 0.5));
-    double dy = fabs(Players[op].y - (double(iy) + 0.5));
-    if (dx < dy)
-        std::swap(dx, dy);
-    return (dy * sq2 + dx - dy);
-#endif
 }
 
 // 确认空闲玩家中和任务交互地点距离以确定任务分配给更近的玩家
