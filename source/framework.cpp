@@ -21,6 +21,7 @@
 // #define SIMPLEBRAKECONTROL
 // #define NEOBRAKECONTROL
 #define COOPERATIVEDISTRIBUTION
+#define NARROWPATH
 
 struct Step
 {
@@ -107,6 +108,13 @@ std::deque<OrderTask> NewdeqOrder;       // 重置版订单任务队列
 int PlateRackNum = 0;                    // 在洗完盘子归还处的盘子数
 #ifdef COOPERATIVEDISTRIBUTION
 std::deque<Task> PlayerTaskDeque[2 + 5];
+#endif
+#ifdef NARROWPATH
+int currentFrameMoveRet;
+bool narrowPathCollision;
+#endif
+#ifdef TRUEMOVE
+double TileDistance[400 + 5][400 + 5] = {};
 #endif
 
 // 抛弃或暂无用的全局变量
@@ -365,6 +373,44 @@ int Dijkstra(const int s, const int t)
         return D_pre[t];
 }
 
+void initTileDis()
+{
+    std::priority_queue<std::pair<double, int>> que = {};
+    for (int j = 0; j < height * width; j++)
+    {
+        for (int i = 0; i < height * width; i++)
+        {
+            D_dis[i] = 512.0;
+            D_vis[i] = false;
+            TileDistance[j][i] = 512.0;
+        }
+        while (!que.empty())
+        {
+            que.pop();
+        }
+        que.emplace(0, j);
+        D_dis[j] = 0;
+        while (!que.empty())
+        {
+            auto cur = que.top().second;
+            que.pop();
+            if (!D_vis[cur])
+            {
+                D_vis[cur] = true;
+                TileDistance[j][cur] = D_dis[cur];
+                for (auto it : Edge[cur])
+                {
+                    if (D_dis[it.first] > D_dis[cur] + it.second)
+                    {
+                        D_dis[it.first] = D_dis[cur] + it.second;
+                        que.emplace(-D_dis[it.first], it.first);
+                    }
+                }
+            }
+        }
+    }
+}
+
 int PlayerPosCell(const int op)
 {
     int x = floor(Players[op].x);
@@ -438,11 +484,20 @@ int NothingTodo(const int op)
     return ret;
 }
 
-// ret 低四位表示移动方向 0001-右 0010-左 0100-下 1000-上 第5位表示刹车
+// ret 低四位表示移动方向 0001-右 0010-左 0100-下 1000-上 第5位表示主动刹车 第6位表示未寻到路
 int Move(const int op, const int dx, const int dy)
 {
     Task &ct = ptask[op];
     Step &cs = ct.stp[ct.completed];
+#ifdef TRUEMOVE
+    int pnum = CheckPlayerPosCell(op);
+    int dnum = XY_TO_NUM(dx, dy);
+    int dox = ptask[op ^ 1].stp[ptask[op ^ 1].completed].desx;
+    int doy = ptask[op ^ 1].stp[ptask[op ^ 1].completed].desy;
+    int donum = XY_TO_NUM(dox, doy);
+    int onum = CheckPlayerPosCell(op ^ 1);
+    bool flag6 = false;
+#endif
 
     // 处理地点冲突则停止移动
     if (cs.ts == TAKING_INGREDIENT_TO_CHOP)
@@ -462,6 +517,28 @@ int Move(const int op, const int dx, const int dy)
             }
         }
     }
+#ifdef TRUEMOVE
+    else if (cs.ts == TAKING_INGREDIENT_TO_PAN)
+    {
+        flag6 = false;
+        for (int i = 0; i < entityCount; i++)
+        {
+            if ((Entity[i].containerKind == ContainerKind::Pan) &&
+                (!Entity[i].entity.empty()))
+            {
+                flag6 = true;
+                break;
+            }
+        }
+        if (flag6)
+        {
+            if (ptask[op ^ 1].stp[ptask[op ^ 1].completed].ts != TAKING_PLATE_TO_PAN)
+                return 0x10;
+            else if (TileDistance[pnum][donum] <= TileDistance[onum][donum] + 3.0 + epsilon)
+                return 0x10;
+        }
+    }
+#else
     else if (cs.ts == TAKING_INGREDIENT_TO_PAN)
     {
         for (int i = 0; i < entityCount; i++)
@@ -477,6 +554,29 @@ int Move(const int op, const int dx, const int dy)
             }
         }
     }
+#endif
+#ifdef TRUEMOVE
+    else if (cs.ts == TAKING_INGREDIENT_TO_POT)
+    {
+        flag6 = false;
+        for (int i = 0; i < entityCount; i++)
+        {
+            if ((Entity[i].containerKind == ContainerKind::Pot) &&
+                (!Entity[i].entity.empty()))
+            {
+                flag6 = true;
+                break;
+            }
+        }
+        if (flag6)
+        {
+            if (ptask[op ^ 1].stp[ptask[op ^ 1].completed].ts != TAKING_PLATE_TO_POT)
+                return 0x10;
+            else if (TileDistance[pnum][donum] <= TileDistance[onum][donum] + 3.0 + epsilon)
+                return 0x10;
+        }
+    }
+#else
     else if (cs.ts == TAKING_INGREDIENT_TO_POT)
     {
         for (int i = 0; i < entityCount; i++)
@@ -492,6 +592,7 @@ int Move(const int op, const int dx, const int dy)
             }
         }
     }
+#endif
 
     double px = Players[op].x;
     double py = Players[op].y;
@@ -509,8 +610,6 @@ int Move(const int op, const int dx, const int dy)
         return 0x10;
 #endif
 #ifdef TRUEMOVE
-    int pnum = CheckPlayerPosCell(op);
-    int dnum = XY_TO_NUM(dx, dy);
     if ((pnum == dnum) &&
         (Players[op].X_Velocity * Players[op].X_Velocity + Players[op].Y_Velocity * Players[op].Y_Velocity > 4))
         return 0x10;
@@ -518,9 +617,9 @@ int Move(const int op, const int dx, const int dy)
     if (next == -1)
     {
 #ifdef NEOBRAKECONTROL
-        return NothingTodo(op);
+        return (0x20 | NothingTodo(op));
 #else
-        return 0x10;
+        return 0x20;
 #endif
     }
     int nx = next % width;
@@ -1683,6 +1782,7 @@ void InitDo()
 #endif
 #ifdef TRUEMOVE
     initMapEdge();
+    initTileDis();
 #endif
 #ifdef COOPERATIVEDISTRIBUTION
     PlayerTaskDeque[0].clear();
