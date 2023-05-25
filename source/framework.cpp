@@ -493,10 +493,7 @@ int Move(const int op, const int dx, const int dy)
     int pnum = CheckPlayerPosCell(op);
     int dnum = XY_TO_NUM(dx, dy);
 
-    int otherpnum = CheckPlayerPosCell(op ^ 1);
-    int otherdx = ptask[op ^ 1].stp[ptask[op ^ 1].completed].desx;
-    int otherdy = ptask[op ^ 1].stp[ptask[op ^ 1].completed].desy;
-    int otherdnum = XY_TO_NUM(otherdx, otherdy);
+    
 #endif
 
     // 处理地点冲突则停止移动
