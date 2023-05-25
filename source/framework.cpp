@@ -17,7 +17,7 @@
 
 // #include <cstring>
 #define WASHPLATESHIFT
-// #define TRUEMOVE
+#define TRUEMOVE
 // #define SIMPLEBRAKECONTROL
 // #define NEOBRAKECONTROL
 #define COOPERATIVEDISTRIBUTION
@@ -517,7 +517,7 @@ int Move(const int op, const int dx, const int dy)
             }
         }
     }
-#ifdef TRUEMOVE
+#ifndef TRUEMOVE
     else if (cs.ts == TAKING_INGREDIENT_TO_PAN)
     {
         flag6 = false;
@@ -555,7 +555,7 @@ int Move(const int op, const int dx, const int dy)
         }
     }
 #endif
-#ifdef TRUEMOVE
+#ifndef TRUEMOVE
     else if (cs.ts == TAKING_INGREDIENT_TO_POT)
     {
         flag6 = false;
