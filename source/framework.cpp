@@ -1864,7 +1864,7 @@ int FrameDo()
                 }
                 if (!flag5)
                 {
-                    if ((DistancePlayerToInteract(i ^ 1, xplaterack, yplaterack) > 2) ||
+                    if ((DistancePlayerToInteract(i ^ 1, xplaterack, yplaterack) > 3) ||
                         (!((ptask[i ^ 1].stp[ptask[i ^ 1].completed].ts == TAKE_UP_PLATE) ||
                            ptask[i ^ 1].stp[ptask[i ^ 1].completed].ts == TAKING_INGREDIENT_TO_PLATE)))
                     {
