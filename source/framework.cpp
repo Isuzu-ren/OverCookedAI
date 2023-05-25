@@ -527,7 +527,7 @@ int Move(const int op, const int dx, const int dy)
 #ifdef TRUEMOVE
                 if (ptask[op ^ 1].stp[ptask[op ^ 1].completed].ts != TAKING_PLATE_TO_PAN)
                     return 0x10;
-                else if (TileDistance[otherpnum][otherdnum] + 3.0 >= TileDistance[pnum][otherdnum] + epsilon)
+                else if (TileDistance[otherpnum][otherdnum] + 4.0 >= TileDistance[pnum][otherdnum] + epsilon)
                     return 0x10;
 #else
                 return 0x10;
@@ -542,8 +542,11 @@ int Move(const int op, const int dx, const int dy)
             if ((Entity[i].containerKind == ContainerKind::Pot) &&
                 (!Entity[i].entity.empty()))
             {
-#ifdef NEOBRAKECONTROL
-                return NothingTodo(op);
+#ifdef TRUEMOVE
+                if (ptask[op ^ 1].stp[ptask[op ^ 1].completed].ts != TAKING_PLATE_TO_POT)
+                    return 0x10;
+                else if (TileDistance[otherpnum][otherdnum] + 4.0 >= TileDistance[pnum][otherdnum] + epsilon)
+                    return 0x10;
 #else
                 return 0x10;
 #endif
