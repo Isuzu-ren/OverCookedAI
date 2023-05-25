@@ -1729,6 +1729,7 @@ void InitDo()
 #endif
 #ifdef TRUEMOVE
     initMapEdge();
+    initTileDis();
 #endif
 #ifdef COOPERATIVEDISTRIBUTION
     PlayerTaskDeque[0].clear();
