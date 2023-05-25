@@ -21,6 +21,7 @@
 // #define SIMPLEBRAKECONTROL
 // #define NEOBRAKECONTROL
 #define COOPERATIVEDISTRIBUTION
+// #define QUICKOVERCOOKED
 #define NARROWPATH
 
 struct Step
@@ -489,12 +490,13 @@ int Move(const int op, const int dx, const int dy)
 {
     Task &ct = ptask[op];
     Step &cs = ct.stp[ct.completed];
-#ifdef TRUEMOVE
+#ifdef QUICKOVERCOOKED
     int otherpnum = PlayerPosCell(op ^ 1);
     int otherdx = ptask[op ^ 1].stp[ptask[op ^ 1].completed].desx;
     int otherdy = ptask[op ^ 1].stp[ptask[op ^ 1].completed].desy;
     int otherdnum = XY_TO_NUM(otherdx, otherdy);
-
+#endif
+#ifdef TRUEMOVE
     int pnum = CheckPlayerPosCell(op);
     int dnum = XY_TO_NUM(dx, dy);
 #endif
@@ -524,7 +526,7 @@ int Move(const int op, const int dx, const int dy)
             if ((Entity[i].containerKind == ContainerKind::Pan) &&
                 (!Entity[i].entity.empty()))
             {
-#ifdef TRUEMOVE
+#ifdef QUICKOVERCOOKED
                 if (ptask[op ^ 1].stp[ptask[op ^ 1].completed].ts != TAKING_PLATE_TO_PAN)
                     return 0x10;
                 else if (TileDistance[otherpnum][otherdnum] + 4.0 >= TileDistance[pnum][otherdnum] + epsilon)
@@ -542,7 +544,7 @@ int Move(const int op, const int dx, const int dy)
             if ((Entity[i].containerKind == ContainerKind::Pot) &&
                 (!Entity[i].entity.empty()))
             {
-#ifdef TRUEMOVE
+#ifdef QUICKOVERCOOKED
                 if (ptask[op ^ 1].stp[ptask[op ^ 1].completed].ts != TAKING_PLATE_TO_POT)
                     return 0x10;
                 else if (TileDistance[otherpnum][otherdnum] + 4.0 >= TileDistance[pnum][otherdnum] + epsilon)
