@@ -20,8 +20,8 @@
 #define TRUEMOVE
 // #define SIMPLEBRAKECONTROL
 // #define NEOBRAKECONTROL
-// #define COOPERATIVEDISTRIBUTION
-// #define QUICKOVERCOOKED
+#define COOPERATIVEDISTRIBUTION
+#define QUICKOVERCOOKED
 #define NARROWPATH
 
 struct Step
@@ -1170,6 +1170,34 @@ void ParseOrder()
             stsk.stp[stsk.stpsum].ta = TAKE;
             stsk.stp[stsk.stpsum].ts = TAKE_UP_PLATE;
             stsk.stpsum++;
+#ifdef QUICKOVERCOOKED
+            if (pantime >= pottime)
+            {
+                CheckInteractPos(stsk.stp[stsk.stpsum], xpan, ypan);
+                stsk.stp[stsk.stpsum].ta = TAKE;
+                stsk.stp[stsk.stpsum].ts = TAKING_PLATE_TO_PAN;
+                stsk.stp[stsk.stpsum].product = ingTask[TaskPan[TaskPan.size() - 1]].stp[ingTask[TaskPan[TaskPan.size() - 1]].stpsum - 1].product;
+                stsk.stpsum++;
+                CheckInteractPos(stsk.stp[stsk.stpsum], xpot, ypot);
+                stsk.stp[stsk.stpsum].ta = TAKE;
+                stsk.stp[stsk.stpsum].ts = TAKING_PLATE_TO_POT;
+                stsk.stp[stsk.stpsum].product = ingTask[TaskPot[TaskPot.size() - 1]].stp[ingTask[TaskPot[TaskPot.size() - 1]].stpsum - 1].product;
+                stsk.stpsum++;
+            }
+            else
+            {
+                CheckInteractPos(stsk.stp[stsk.stpsum], xpot, ypot);
+                stsk.stp[stsk.stpsum].ta = TAKE;
+                stsk.stp[stsk.stpsum].ts = TAKING_PLATE_TO_POT;
+                stsk.stp[stsk.stpsum].product = ingTask[TaskPot[TaskPot.size() - 1]].stp[ingTask[TaskPot[TaskPot.size() - 1]].stpsum - 1].product;
+                stsk.stpsum++;
+                CheckInteractPos(stsk.stp[stsk.stpsum], xpan, ypan);
+                stsk.stp[stsk.stpsum].ta = TAKE;
+                stsk.stp[stsk.stpsum].ts = TAKING_PLATE_TO_PAN;
+                stsk.stp[stsk.stpsum].product = ingTask[TaskPan[TaskPan.size() - 1]].stp[ingTask[TaskPan[TaskPan.size() - 1]].stpsum - 1].product;
+                stsk.stpsum++;
+            }
+#else
             if (pantime >= pottime)
             {
                 CheckInteractPos(stsk.stp[stsk.stpsum], xpot, ypot);
@@ -1196,6 +1224,7 @@ void ParseOrder()
                 stsk.stp[stsk.stpsum].product = ingTask[TaskPot[TaskPot.size() - 1]].stp[ingTask[TaskPot[TaskPot.size() - 1]].stpsum - 1].product;
                 stsk.stpsum++;
             }
+#endif
             CheckInteractPos(stsk.stp[stsk.stpsum], xservicewindows, yservicewindows);
             stsk.stp[stsk.stpsum].ta = TAKE;
             stsk.stp[stsk.stpsum].ts = TAKING_PLATE_TO_SERVICEWINDOWS;
