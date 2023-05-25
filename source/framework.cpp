@@ -114,6 +114,8 @@ std::deque<Task> PlayerTaskDeque[2 + 5];
 int currentFrameMoveRet;
 bool narrowPathCollision;
 int narrowMovePlayer;
+int dodgePosnum;
+bool DodgeUse[400 + 5];
 #endif
 #ifdef TRUEMOVE
 double TileDistance[400 + 5][400 + 5] = {};
@@ -876,6 +878,120 @@ bool NarrowPathReply()
         assert(0);
     narrowPathCollision = true;
     return true;
+}
+
+int NarrowPathBFS(const int s)
+{
+    for (int i = 0; i < height * width; i++)
+    {
+        D_dis[i] = 512.0;
+        D_vis[i] = false;
+    }
+    std::priority_queue<std::pair<double, int>> que = {};
+    que.emplace(0, s);
+    D_dis[s] = 0;
+    while (!que.empty())
+    {
+        auto cur = que.top().second;
+        que.pop();
+        if (DodgeUse[cur])
+            return cur;
+        if (!D_vis[cur])
+        {
+            D_vis[cur] = true;
+            for (auto it : Edge[cur])
+            {
+                if (D_dis[it.first] > D_dis[cur] + it.second)
+                {
+                    D_dis[it.first] = D_dis[cur] + it.second;
+                    que.emplace(-D_dis[it.first], it.first);
+                }
+            }
+        }
+    }
+    assert(0);
+    return -1;
+}
+
+int NarrowPathMove()
+{
+    int pnum = PlayerPosCell(narrowMovePlayer);
+    int dnum = XY_TO_NUM(ptask[narrowMovePlayer].stp[ptask[narrowMovePlayer].completed].desx, ptask[narrowMovePlayer].stp[ptask[narrowMovePlayer].completed].desy);
+    for (int i = 0; i < width * height; i++)
+    {
+        Unavailable[i] = false;
+    }
+    int next = Dijkstra(dnum, pnum);
+    int ret = 0;
+    double px = Players[narrowMovePlayer].x;
+    double py = Players[narrowMovePlayer].y;
+    int nx = next % width;
+    int ny = next / width;
+    if (px <= double(nx) + 0.2)
+    {
+        ret |= (0x1 << narrowMovePlayer);
+    }
+    else if (px >= double(nx) + 0.8)
+    {
+        ret |= (0x2 << narrowMovePlayer);
+    }
+    if (py <= double(ny) + 0.2)
+    {
+        ret |= (0x4 << narrowMovePlayer);
+    }
+    else if (py >= double(ny) + 0.8)
+    {
+        ret |= (0x8 << narrowMovePlayer);
+    }
+    if (dodgePosnum == -1)
+    {
+        for (int i = 0; i < width * height; i++)
+        {
+            DodgeUse[i] = true;
+        }
+        int tt = pnum;
+        DodgeUse[tt] = false;
+        while (tt != dnum)
+        {
+            DodgeUse[D_pre[tt]] = false;
+            tt = D_pre[tt];
+        }
+        dodgePosnum = NarrowPathBFS(PlayerPosCell(narrowMovePlayer ^ 1));
+    }
+    next = Dijkstra(dodgePosnum, PlayerPosCell(narrowMovePlayer ^ 1));
+    px = Players[narrowMovePlayer ^ 1].x;
+    py = Players[narrowMovePlayer ^ 1].y;
+    nx = next % width;
+    ny = next / width;
+    if (px <= double(nx) + 0.2)
+    {
+        ret |= (0x1 << (narrowMovePlayer ^ 1));
+    }
+    else if (px >= double(nx) + 0.8)
+    {
+        ret |= (0x2 << (narrowMovePlayer ^ 1));
+    }
+    if (py <= double(ny) + 0.2)
+    {
+        ret |= (0x4 << (narrowMovePlayer ^ 1));
+    }
+    else if (py >= double(ny) + 0.8)
+    {
+        ret |= (0x8 << (narrowMovePlayer ^ 1));
+    }
+    return ret;
+}
+
+void NarrowPathRelease()
+{
+    int p1 = PlayerPosCell(narrowMovePlayer);
+    int p2 = PlayerPosCell(narrowMovePlayer ^ 1);
+    int des = XY_TO_NUM(ptask[narrowMovePlayer].stp[ptask[narrowMovePlayer].completed].desx, ptask[narrowMovePlayer].stp[ptask[narrowMovePlayer].completed].desy);
+    if (TileDistance[p1][des] <= TileDistance[p2][des])
+    {
+        narrowPathCollision = false;
+        dodgePosnum = -1;
+    }
 }
 #endif
 
@@ -1843,11 +1959,16 @@ void InitDo()
     PlayerTaskDeque[0].clear();
     PlayerTaskDeque[1].clear();
 #endif
+#ifdef NARROWPATH
+    narrowPathCollision = false;
+    dodgePosnum = -1;
+#endif
 }
 
 // 一帧的行为
 int FrameDo()
 {
+    int fret = 0;
     // 碰撞避免
     if (CollisionAvoidenceTime > 0)
     {
@@ -1855,8 +1976,22 @@ int FrameDo()
         return CollisionAvoidenceRet;
     }
 
+#ifdef NARROWPATH
+    if (narrowPathCollision)
+    {
+        fret = NarrowPathMove();
+        NarrowPathRelease();
+        if (CollisionDetection(fret))
+        {
+            CollisionAvoidenceTime = 8;
+            CollisionAct(fret);
+            fret = CollisionAvoidenceRet;
+        }
+    }
+    currentFrameMoveRet = 0;
+#endif
+
     // 初始化操作
-    int fret = 0;
     for (int i = 0; i < k; i++)
     {
         if (CheckInteractSuc(ptask[i].stp[ptask[i].completed], i))
@@ -1961,6 +2096,10 @@ int FrameDo()
         CollisionAct(fret);
         fret = CollisionAvoidenceRet;
     }
+#ifdef NARROWPATH
+    if (NarrowPathReply())
+        fret = NarrowPathMove();
+#endif
 
     // 结束操作
     for (int i = 0; i < k; i++)
