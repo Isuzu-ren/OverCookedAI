@@ -489,6 +489,10 @@ int Move(const int op, const int dx, const int dy)
 {
     Task &ct = ptask[op];
     Step &cs = ct.stp[ct.completed];
+#ifdef TRUEMOVE
+    int pnum = CheckPlayerPosCell(op);
+    int dnum = XY_TO_NUM(dx, dy);
+#endif
 
     // 处理地点冲突则停止移动
     if (cs.ts == TAKING_INGREDIENT_TO_CHOP)
@@ -555,8 +559,6 @@ int Move(const int op, const int dx, const int dy)
         return 0x10;
 #endif
 #ifdef TRUEMOVE
-    int pnum = CheckPlayerPosCell(op);
-    int dnum = XY_TO_NUM(dx, dy);
     if ((pnum == dnum) &&
         (Players[op].X_Velocity * Players[op].X_Velocity + Players[op].Y_Velocity * Players[op].Y_Velocity > 4))
         return 0x10;
