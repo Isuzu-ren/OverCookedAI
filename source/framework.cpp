@@ -489,15 +489,6 @@ int Move(const int op, const int dx, const int dy)
 {
     Task &ct = ptask[op];
     Step &cs = ct.stp[ct.completed];
-#ifdef TRUEMOVE
-    int pnum = CheckPlayerPosCell(op);
-    int dnum = XY_TO_NUM(dx, dy);
-    int dox = ptask[op ^ 1].stp[ptask[op ^ 1].completed].desx;
-    int doy = ptask[op ^ 1].stp[ptask[op ^ 1].completed].desy;
-    int donum = XY_TO_NUM(dox, doy);
-    int onum = CheckPlayerPosCell(op ^ 1);
-    bool flag6 = false;
-#endif
 
     // 处理地点冲突则停止移动
     if (cs.ts == TAKING_INGREDIENT_TO_CHOP)
@@ -517,28 +508,6 @@ int Move(const int op, const int dx, const int dy)
             }
         }
     }
-#ifndef TRUEMOVE
-    else if (cs.ts == TAKING_INGREDIENT_TO_PAN)
-    {
-        flag6 = false;
-        for (int i = 0; i < entityCount; i++)
-        {
-            if ((Entity[i].containerKind == ContainerKind::Pan) &&
-                (!Entity[i].entity.empty()))
-            {
-                flag6 = true;
-                break;
-            }
-        }
-        if (flag6)
-        {
-            if (ptask[op ^ 1].stp[ptask[op ^ 1].completed].ts != TAKING_PLATE_TO_PAN)
-                return 0x10;
-            else if (TileDistance[pnum][donum] <= TileDistance[onum][donum] + 3.0 + epsilon)
-                return 0x10;
-        }
-    }
-#else
     else if (cs.ts == TAKING_INGREDIENT_TO_PAN)
     {
         for (int i = 0; i < entityCount; i++)
@@ -554,29 +523,6 @@ int Move(const int op, const int dx, const int dy)
             }
         }
     }
-#endif
-#ifndef TRUEMOVE
-    else if (cs.ts == TAKING_INGREDIENT_TO_POT)
-    {
-        flag6 = false;
-        for (int i = 0; i < entityCount; i++)
-        {
-            if ((Entity[i].containerKind == ContainerKind::Pot) &&
-                (!Entity[i].entity.empty()))
-            {
-                flag6 = true;
-                break;
-            }
-        }
-        if (flag6)
-        {
-            if (ptask[op ^ 1].stp[ptask[op ^ 1].completed].ts != TAKING_PLATE_TO_POT)
-                return 0x10;
-            else if (TileDistance[pnum][donum] <= TileDistance[onum][donum] + 3.0 + epsilon)
-                return 0x10;
-        }
-    }
-#else
     else if (cs.ts == TAKING_INGREDIENT_TO_POT)
     {
         for (int i = 0; i < entityCount; i++)
@@ -592,7 +538,6 @@ int Move(const int op, const int dx, const int dy)
             }
         }
     }
-#endif
 
     double px = Players[op].x;
     double py = Players[op].y;
@@ -610,6 +555,8 @@ int Move(const int op, const int dx, const int dy)
         return 0x10;
 #endif
 #ifdef TRUEMOVE
+    int pnum = CheckPlayerPosCell(op);
+    int dnum = XY_TO_NUM(dx, dy);
     if ((pnum == dnum) &&
         (Players[op].X_Velocity * Players[op].X_Velocity + Players[op].Y_Velocity * Players[op].Y_Velocity > 4))
         return 0x10;
@@ -1782,7 +1729,6 @@ void InitDo()
 #endif
 #ifdef TRUEMOVE
     initMapEdge();
-    // initTileDis();
 #endif
 #ifdef COOPERATIVEDISTRIBUTION
     PlayerTaskDeque[0].clear();
