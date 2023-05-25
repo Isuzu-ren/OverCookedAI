@@ -524,11 +524,8 @@ int Move(const int op, const int dx, const int dy)
             if ((Entity[i].containerKind == ContainerKind::Pan) &&
                 (!Entity[i].entity.empty()))
             {
-#ifdef TRUEMOVE
-                if (ptask[op ^ 1].stp[ptask[op ^ 1].completed].ts != TAKING_PLATE_TO_PAN)
-                    return 0x10;
-                else if (TileDistance[otherpnum][otherdnum] + 3.0 + epsilon <= TileDistance[pnum][otherdnum])
-                    return 0x10;
+#ifdef NEOBRAKECONTROL
+                return NothingTodo(op);
 #else
                 return 0x10;
 #endif
