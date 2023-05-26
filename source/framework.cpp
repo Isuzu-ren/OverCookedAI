@@ -589,9 +589,9 @@ int Move(const int op, const int dx, const int dy)
         return 0x10;
 #endif
 #ifdef TRUEMOVE
-    // if ((pnum == dnum) &&
-    //     (Players[op].X_Velocity * Players[op].X_Velocity + Players[op].Y_Velocity * Players[op].Y_Velocity > 4))
-    //     return 0x10;
+    if ((pnum == dnum) &&
+        (Players[op].X_Velocity * Players[op].X_Velocity + Players[op].Y_Velocity * Players[op].Y_Velocity > 4))
+        return 0x10;
     int next = Dijkstra(dnum, pnum);
     if (next == -1)
     {
@@ -713,6 +713,10 @@ int Action(const int op)
         ret |= 0x08;
     else
         assert(0);
+
+#ifdef NARROWPATH
+    currentFrameMoveRet |= (0x01 << (op * 7));
+#endif
 
     if (cs.ts == TAKE_UP_PLATE)
     // 释放使用的盘子的坐标
