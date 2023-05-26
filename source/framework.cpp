@@ -1987,6 +1987,7 @@ int FrameDo()
             CollisionAct(fret);
             fret = CollisionAvoidenceRet;
         }
+        return fret;
     }
     currentFrameMoveRet = 0;
 #endif
