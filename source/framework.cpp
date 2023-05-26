@@ -502,7 +502,7 @@ int NothingTodo(const int op)
     return ret;
 }
 
-// ret 低四位表示移动方向 0001-右 0010-左 0100-下 1000-上 第5位表示主动刹车 第6位表示未寻到路
+// ret 低四位表示移动方向 0001-右 0010-左 0100-下 1000-上 第5位表示主动刹车 第6位表示被动刹车 第7位表示未寻到路
 int Move(const int op, const int dx, const int dy)
 {
     Task &ct = ptask[op];
@@ -531,7 +531,7 @@ int Move(const int op, const int dx, const int dy)
 #ifdef NEOBRAKECONTROL
                 return NothingTodo(op);
 #else
-                return 0x10;
+                return 0x20;
 #endif
             }
         }
@@ -549,7 +549,7 @@ int Move(const int op, const int dx, const int dy)
                 else if (TileDistance[otherpnum][otherdnum] + 4.0 >= TileDistance[pnum][otherdnum] + epsilon)
                     return 0x10;
 #else
-                return 0x10;
+                return 0x20;
 #endif
             }
         }
@@ -567,7 +567,7 @@ int Move(const int op, const int dx, const int dy)
                 else if (TileDistance[otherpnum][otherdnum] + 4.0 >= TileDistance[pnum][otherdnum] + epsilon)
                     return 0x10;
 #else
-                return 0x10;
+                return 0x20;
 #endif
             }
         }
@@ -596,9 +596,9 @@ int Move(const int op, const int dx, const int dy)
     if (next == -1)
     {
 #ifdef NEOBRAKECONTROL
-        return (0x20 | NothingTodo(op));
+        return (0x40 | NothingTodo(op));
 #else
-        return 0x20;
+        return 0x40;
 #endif
     }
     int nx = next % width;
@@ -692,7 +692,7 @@ int Action(const int op)
 
     int ret = Move(op, cs.desx, cs.desy);
 #ifdef NARROWPATH
-    currentFrameMoveRet |= (ret << (op * 6));
+    currentFrameMoveRet |= (ret << (op * 7));
 #endif
     if (ret != 0)
         return (ret & 0xf);
@@ -743,6 +743,9 @@ int Action(const int op)
                 }
             }
         }
+#ifdef NARROWPATH
+        currentFrameMoveRet |= (0x20 << (op * 7));
+#endif
         return 0;
     }
     else if (cs.ts == TAKING_PLATE_TO_POT)
@@ -760,6 +763,9 @@ int Action(const int op)
                 }
             }
         }
+#ifdef NARROWPATH
+        currentFrameMoveRet |= (0x20 << (op * 7));
+#endif
         return 0;
     }
 
@@ -858,18 +864,18 @@ void CollisionAct(const int fret)
 #ifdef NARROWPATH
 bool NarrowPathReply()
 {
-    if (((currentFrameMoveRet & 0x20) | (currentFrameMoveRet & (0x20 << 6))) == 0)
+    if (((currentFrameMoveRet & 0x40) | (currentFrameMoveRet & (0x40 << 7))) == 0)
         return false;
-    if (currentFrameMoveRet & 0x20)
+    if (currentFrameMoveRet & 0x40)
     {
-        if (currentFrameMoveRet & (0x0f << 6))
+        if (currentFrameMoveRet & (0x1f << 7))
             return false;
         else
             narrowMovePlayer = 0;
     }
-    else if (currentFrameMoveRet & (0x20 << 6))
+    else if (currentFrameMoveRet & (0x40 << 7))
     {
-        if (currentFrameMoveRet & 0x0f)
+        if (currentFrameMoveRet & 0x1f)
             return false;
         else
             narrowMovePlayer = 1;
