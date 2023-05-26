@@ -1985,8 +1985,15 @@ int FrameDo()
 #ifdef NARROWPATH
     if (narrowPathCollision)
     {
+        fret = NarrowPathMove();
         NarrowPathRelease();
-        return NarrowPathMove();
+        if (CollisionDetection(fret))
+        {
+            CollisionAvoidenceTime = 8;
+            CollisionAct(fret);
+            fret = CollisionAvoidenceRet;
+        }
+        return fret;
     }
     currentFrameMoveRet = 0;
 #endif
