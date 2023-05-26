@@ -714,9 +714,9 @@ int Action(const int op)
     else
         assert(0);
 
-    // #ifdef NARROWPATH
-    //     currentFrameMoveRet |= (0x01 << (op * 7));
-    // #endif
+#ifdef NARROWPATH
+    currentFrameMoveRet |= (0x01 << (op * 7));
+#endif
 
     if (cs.ts == TAKE_UP_PLATE)
     // 释放使用的盘子的坐标
