@@ -929,19 +929,19 @@ int NarrowPathMove()
     int ny = next / width;
     if (px <= double(nx) + 0.2)
     {
-        ret |= (0x1 << narrowMovePlayer);
+        ret |= (0x1 << (6 * narrowMovePlayer));
     }
     else if (px >= double(nx) + 0.8)
     {
-        ret |= (0x2 << narrowMovePlayer);
+        ret |= (0x2 << (6 * narrowMovePlayer));
     }
     if (py <= double(ny) + 0.2)
     {
-        ret |= (0x4 << narrowMovePlayer);
+        ret |= (0x4 << (6 * narrowMovePlayer));
     }
     else if (py >= double(ny) + 0.8)
     {
-        ret |= (0x8 << narrowMovePlayer);
+        ret |= (0x8 << (6 * narrowMovePlayer));
     }
     if (dodgePosnum == -1)
     {
@@ -965,19 +965,19 @@ int NarrowPathMove()
     ny = next / width;
     if (px <= double(nx) + 0.2)
     {
-        ret |= (0x1 << (narrowMovePlayer ^ 1));
+        ret |= (0x1 << (6 * (narrowMovePlayer ^ 1)));
     }
     else if (px >= double(nx) + 0.8)
     {
-        ret |= (0x2 << (narrowMovePlayer ^ 1));
+        ret |= (0x2 << (6 * (narrowMovePlayer ^ 1)));
     }
     if (py <= double(ny) + 0.2)
     {
-        ret |= (0x4 << (narrowMovePlayer ^ 1));
+        ret |= (0x4 << (6 * (narrowMovePlayer ^ 1)));
     }
     else if (py >= double(ny) + 0.8)
     {
-        ret |= (0x8 << (narrowMovePlayer ^ 1));
+        ret |= (0x8 << (6 * (narrowMovePlayer ^ 1)));
     }
     return ret;
 }
