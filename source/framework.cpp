@@ -20,7 +20,7 @@
 #define TRUEMOVE
 // #define SIMPLEBRAKECONTROL
 // #define NEOBRAKECONTROL
-// #define COOPERATIVEDISTRIBUTION
+#define COOPERATIVEDISTRIBUTION
 // #define QUICKOVERCOOKED
 #define NARROWPATH
 
@@ -823,44 +823,44 @@ void CollisionAct(const int fret)
     else if ((!isupper(Map[cy0 + 1][cx0])) && (getTileKind(Map[cy0 + 1][cx0]) == TileKind::Floor))
         td |= 0x04;
 
-    switch (rand() % 8)
-    {
-    case 0:
-        td |= (0x01 << 6);
-        break;
-    case 1:
-        td |= (0x02 << 6);
-        break;
-    case 2:
-        td |= (0x04 << 6);
-        break;
-    case 3:
-        td |= (0x08 << 6);
-        break;
-    case 4:
-        td |= (0x05 << 6);
-        break;
-    case 5:
-        td |= (0x06 << 6);
-        break;
-    case 6:
-        td |= (0x09 << 6);
-        break;
-    case 7:
-        td |= (0x0a << 6);
-        break;
-
-    default:
-        break;
-    }
-    // if (((td & 0x01) == 0) && (!isupper(Map[cy1][cx1 - 1])) && (getTileKind(Map[cy1][cx1 - 1]) == TileKind::Floor))
-    //     td |= (0x02 << 6);
-    // else if (((td & 0x02) == 0) && (!isupper(Map[cy1][cx1 + 1])) && (getTileKind(Map[cy1][cx1 + 1]) == TileKind::Floor))
+    // switch (rand() % 8)
+    // {
+    // case 0:
     //     td |= (0x01 << 6);
-    // if (((td & 0x08) == 0) && (!isupper(Map[cy1 + 1][cx1])) && (getTileKind(Map[cy1 + 1][cx1]) == TileKind::Floor))
+    //     break;
+    // case 1:
+    //     td |= (0x02 << 6);
+    //     break;
+    // case 2:
     //     td |= (0x04 << 6);
-    // else if (((td & 0x04) == 0) && (!isupper(Map[cy1 - 1][cx1])) && (getTileKind(Map[cy1 - 1][cx1]) == TileKind::Floor))
+    //     break;
+    // case 3:
     //     td |= (0x08 << 6);
+    //     break;
+    // case 4:
+    //     td |= (0x05 << 6);
+    //     break;
+    // case 5:
+    //     td |= (0x06 << 6);
+    //     break;
+    // case 6:
+    //     td |= (0x09 << 6);
+    //     break;
+    // case 7:
+    //     td |= (0x0a << 6);
+    //     break;
+
+    // default:
+    //     break;
+    // }
+    if (((td & 0x01) == 0) && (!isupper(Map[cy1][cx1 - 1])) && (getTileKind(Map[cy1][cx1 - 1]) == TileKind::Floor))
+        td |= (0x02 << 6);
+    else if (((td & 0x02) == 0) && (!isupper(Map[cy1][cx1 + 1])) && (getTileKind(Map[cy1][cx1 + 1]) == TileKind::Floor))
+        td |= (0x01 << 6);
+    if (((td & 0x08) == 0) && (!isupper(Map[cy1 + 1][cx1])) && (getTileKind(Map[cy1 + 1][cx1]) == TileKind::Floor))
+        td |= (0x04 << 6);
+    else if (((td & 0x04) == 0) && (!isupper(Map[cy1 - 1][cx1])) && (getTileKind(Map[cy1 - 1][cx1]) == TileKind::Floor))
+        td |= (0x08 << 6);
 
     CollisionAvoidenceRet = td;
 }
