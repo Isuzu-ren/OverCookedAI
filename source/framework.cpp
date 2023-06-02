@@ -1997,6 +1997,10 @@ void InitDo()
 #ifdef COOPERATIVEDISTRIBUTION
     PlayerTaskDeque[0].clear();
     PlayerTaskDeque[1].clear();
+    for (int i = 0; i < 150; i++)
+    {
+        PlayerTaskDeque[1].emplace_back(WashDirtyPlate);
+    }
 #endif
 #ifdef NARROWPATH
     narrowPathCollision = false;
