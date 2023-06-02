@@ -23,6 +23,7 @@
 #define COOPERATIVEDISTRIBUTION
 // #define QUICKOVERCOOKED
 #define NARROWPATH
+#define FIXEDLABORDIVISION
 
 struct Step
 {
@@ -1876,6 +1877,40 @@ void PlayTaskDistribute()
     Task tsk;
     int nearplayer = 0;
     CheckPlateNum();
+#ifdef FIXEDLABORDIVISION
+    if (FreePlayer[0])
+    {
+        otsk = NewdeqOrder.front();
+        tsk = otsk.tsk[0];
+        int flag3 = -1;
+        for (int j = 0; j < tsk.stpsum; j++)
+        {
+            if ((tsk.stp[j].ts == TAKING_INGREDIENT_TO_PLATE) || (tsk.stp[j].ts == TAKE_UP_PLATE))
+            {
+                if (flag3 == -1)
+                {
+                    if (CheckPlatePos(tsk.stp[j]))
+                        flag3 = j;
+                    else
+                        break;
+                }
+                else
+                {
+                    tsk.stp[j].desx = tsk.stp[flag3].desx;
+                    tsk.stp[j].desy = tsk.stp[flag3].desy;
+                    tsk.stp[j].d = tsk.stp[flag3].d;
+                }
+            }
+        }
+        if (flag3 != -1)
+        {
+            nearplayer = CheckPlayerInteractDistance(tsk.stp[0]);
+            FreePlayer[nearplayer] = false;
+            ptask[nearplayer] = tsk;
+            NewdeqOrder.pop_front();
+        }
+    }
+#else
     while (FreePlayer[0] || FreePlayer[1])
     {
         if ((dirtyplateflag == UNDISTRIBUTED) && (platenum <= 1))
@@ -1964,6 +1999,7 @@ void PlayTaskDistribute()
 #endif
         NewdeqOrder.pop_front();
     }
+#endif
 }
 
 // 具体行动相关
@@ -1997,10 +2033,12 @@ void InitDo()
 #ifdef COOPERATIVEDISTRIBUTION
     PlayerTaskDeque[0].clear();
     PlayerTaskDeque[1].clear();
+#ifdef FIXEDLABORDIVISION
     for (int i = 0; i < 150; i++)
     {
         PlayerTaskDeque[1].emplace_back(WashDirtyPlate);
     }
+#endif
 #endif
 #ifdef NARROWPATH
     narrowPathCollision = false;
