@@ -16,12 +16,12 @@
 #include <ctime>
 
 // #include <cstring>
-// #define WASHPLATESHIFT
+#define WASHPLATESHIFT
 #define TRUEMOVE
 // #define SIMPLEBRAKECONTROL
 // #define NEOBRAKECONTROL
 #define COOPERATIVEDISTRIBUTION
-#define QUICKOVERCOOKED
+// #define QUICKOVERCOOKED
 #define NARROWPATH
 // #define FIXEDLABORDIVISION
 
