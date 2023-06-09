@@ -809,88 +809,91 @@ bool CollisionDetection(const int fret)
 void CollisionAct(const int fret)
 {
     int td = 0;
-    // const int cx0 = floor(Players[0].x);
-    // const int cx1 = floor(Players[1].x);
-    // const int cy0 = floor(Players[0].y);
-    // const int cy1 = floor(Players[1].y);
-    // const int d0 = fret & 0x0f;
-    // const int d1 = (fret >> 6) & 0x0f;
-    // if ((!isupper(Map[cy0][cx0 - 1])) && (getTileKind(Map[cy0][cx0 - 1]) == TileKind::Floor))
-    //     td |= 0x02;
-    // else if ((!isupper(Map[cy0][cx0 + 1])) && (getTileKind(Map[cy0][cx0 + 1]) == TileKind::Floor))
-    //     td |= 0x01;
-    // if ((!isupper(Map[cy0 - 1][cx0])) && (getTileKind(Map[cy0 - 1][cx0]) == TileKind::Floor))
-    //     td |= 0x08;
-    // else if ((!isupper(Map[cy0 + 1][cx0])) && (getTileKind(Map[cy0 + 1][cx0]) == TileKind::Floor))
-    //     td |= 0x04;
-    switch (rand() % 8)
-    {
-    case 0:
-        td |= 0x01;
-        break;
-    case 1:
+    const int cx0 = floor(Players[0].x);
+    const int cx1 = floor(Players[1].x);
+    const int cy0 = floor(Players[0].y);
+    const int cy1 = floor(Players[1].y);
+    const int d0 = fret & 0x0f;
+    const int d1 = (fret >> 6) & 0x0f;
+    if ((!isupper(Map[cy0][cx0 - 1])) && (getTileKind(Map[cy0][cx0 - 1]) == TileKind::Floor))
         td |= 0x02;
-        break;
-    case 2:
-        td |= 0x04;
-        break;
-    case 3:
+    else if ((!isupper(Map[cy0][cx0 + 1])) && (getTileKind(Map[cy0][cx0 + 1]) == TileKind::Floor))
+        td |= 0x01;
+    if ((!isupper(Map[cy0 - 1][cx0])) && (getTileKind(Map[cy0 - 1][cx0]) == TileKind::Floor))
         td |= 0x08;
-        break;
-    case 4:
-        td |= 0x05;
-        break;
-    case 5:
-        td |= 0x06;
-        break;
-    case 6:
-        td |= 0x09;
-        break;
-    case 7:
-        td |= 0x0a;
-        break;
-
-    default:
-        break;
-    }
-    switch (rand() % 8)
-    {
-    case 0:
-        td |= (0x01 << 6);
-        break;
-    case 1:
+    else if ((!isupper(Map[cy0 + 1][cx0])) && (getTileKind(Map[cy0 + 1][cx0]) == TileKind::Floor))
+        td |= 0x04;
+    
+    if (((td & 0x01) == 0) && (!isupper(Map[cy1][cx1 - 1])) && (getTileKind(Map[cy1][cx1 - 1]) == TileKind::Floor))
         td |= (0x02 << 6);
-        break;
-    case 2:
+    else if (((td & 0x02) == 0) && (!isupper(Map[cy1][cx1 + 1])) && (getTileKind(Map[cy1][cx1 + 1]) == TileKind::Floor))
+        td |= (0x01 << 6);
+    if (((td & 0x08) == 0) && (!isupper(Map[cy1 + 1][cx1])) && (getTileKind(Map[cy1 + 1][cx1]) == TileKind::Floor))
         td |= (0x04 << 6);
-        break;
-    case 3:
+    else if (((td & 0x04) == 0) && (!isupper(Map[cy1 - 1][cx1])) && (getTileKind(Map[cy1 - 1][cx1]) == TileKind::Floor))
         td |= (0x08 << 6);
-        break;
-    case 4:
-        td |= (0x05 << 6);
-        break;
-    case 5:
-        td |= (0x06 << 6);
-        break;
-    case 6:
-        td |= (0x09 << 6);
-        break;
-    case 7:
-        td |= (0x0a << 6);
-        break;
 
-    default:
-        break;
-    }
-    // if (((td & 0x01) == 0) && (!isupper(Map[cy1][cx1 - 1])) && (getTileKind(Map[cy1][cx1 - 1]) == TileKind::Floor))
-    //     td |= (0x02 << 6);
-    // else if (((td & 0x02) == 0) && (!isupper(Map[cy1][cx1 + 1])) && (getTileKind(Map[cy1][cx1 + 1]) == TileKind::Floor))
+
+    // switch (rand() % 8)
+    // {
+    // case 0:
+    //     td |= 0x01;
+    //     break;
+    // case 1:
+    //     td |= 0x02;
+    //     break;
+    // case 2:
+    //     td |= 0x04;
+    //     break;
+    // case 3:
+    //     td |= 0x08;
+    //     break;
+    // case 4:
+    //     td |= 0x05;
+    //     break;
+    // case 5:
+    //     td |= 0x06;
+    //     break;
+    // case 6:
+    //     td |= 0x09;
+    //     break;
+    // case 7:
+    //     td |= 0x0a;
+    //     break;
+
+    // default:
+    //     break;
+    // }
+    // switch (rand() % 8)
+    // {
+    // case 0:
     //     td |= (0x01 << 6);
-    // if (((td & 0x08) == 0) && (!isupper(Map[cy1 + 1][cx1])) && (getTileKind(Map[cy1 + 1][cx1]) == TileKind::Floor))
+    //     break;
+    // case 1:
+    //     td |= (0x02 << 6);
+    //     break;
+    // case 2:
     //     td |= (0x04 << 6);
-    // else if (((td & 0x04) == 0) && (!isupper(Map[cy1 - 1][cx1])) && (getTileKind(Map[cy1 - 1][cx1]) == TileKind::Floor))
+    //     break;
+    // case 3:
     //     td |= (0x08 << 6);
+    //     break;
+    // case 4:
+    //     td |= (0x05 << 6);
+    //     break;
+    // case 5:
+    //     td |= (0x06 << 6);
+    //     break;
+    // case 6:
+    //     td |= (0x09 << 6);
+    //     break;
+    // case 7:
+    //     td |= (0x0a << 6);
+    //     break;
+
+    // default:
+    //     break;
+    // }
 
     CollisionAvoidenceRet = td;
 }
