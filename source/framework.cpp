@@ -292,12 +292,12 @@ void initMapEdge()
             if ((i < width - 1) && (!isupper(Map[j][i + 1])) &&
                 (getTileKind(Map[j][i + 1]) == TileKind::Floor))
                 Edge[num].emplace_back(num + 1, 1.0);
-            if ((j > 0) && (!isupper(Map[j - 1][i])) &&
-                (getTileKind(Map[j - 1][i]) == TileKind::Floor))
-                Edge[num].emplace_back(num - width, 1.0);
             if ((j < height - 1) && (!isupper(Map[j + 1][i])) &&
                 (getTileKind(Map[j + 1][i]) == TileKind::Floor))
                 Edge[num].emplace_back(num + width, 1.0);
+            if ((j > 0) && (!isupper(Map[j - 1][i])) &&
+                (getTileKind(Map[j - 1][i]) == TileKind::Floor))
+                Edge[num].emplace_back(num - width, 1.0);
             if ((i > 0) && (!isupper(Map[j][i - 1])) &&
                 (getTileKind(Map[j][i - 1]) == TileKind::Floor) &&
                 (j > 0) && (!isupper(Map[j - 1][i])) &&
